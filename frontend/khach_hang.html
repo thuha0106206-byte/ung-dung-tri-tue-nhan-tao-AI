@@ -1,0 +1,1569 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+    <title>Cổng Thông Tin Khách Hàng - FrogHippo Phone AI PRO</title>
+    <meta name="description" content="Cổng thông tin trực tuyến dành cho khách hàng: Tra cứu tiến độ sửa chữa, duyệt báo giá online, bảo hành điện tử, lịch sử sửa chữa và đánh giá dịch vụ.">
+    <link rel="icon" type="image/png" href="/froghippo_logo.png">
+    
+    <!-- Google Fonts Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                    colors: {
+                        brand: {
+                            50: '#eef2ff',
+                            100: '#e0e7ff',
+                            200: '#c7d2fe',
+                            300: '#a5b4fc',
+                            400: '#818cf8',
+                            500: '#6366f1',
+                            600: '#4f46e5',
+                            700: '#4338ca',
+                            800: '#3730a3',
+                            900: '#312e81',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <!-- FontAwesome 6 Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        .glass-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(16px);
+            border: 1px solid rgba(226, 232, 240, 0.8);
+        }
+        .glass-card-dark {
+            background: rgba(15, 23, 42, 0.85);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(99, 102, 241, 0.2);
+        }
+        .star-rating i {
+            cursor: pointer;
+            transition: transform 0.15s ease, color 0.15s ease;
+        }
+        .star-rating i:hover {
+            transform: scale(1.2);
+        }
+    </style>
+</head>
+<body class="min-h-screen bg-slate-950 text-slate-100 flex flex-col antialiased selection:bg-amber-400 selection:text-slate-950">
+
+    <!-- TOAST NOTIFICATIONS -->
+    <div id="toast-container" class="fixed top-5 right-5 z-50 flex flex-col gap-2 pointer-events-none"></div>
+
+    <!-- ============================================================== -->
+    <!-- HEADER: LOGO TRÁI, ĐĂNG NHẬP NHỎ GÓC PHẢI -->
+    <!-- ============================================================== -->
+    <header class="bg-slate-900/90 backdrop-blur-xl border-b border-indigo-900/40 sticky top-0 z-40">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 py-3 flex justify-between items-center gap-4">
+            
+            <!-- Brand Logo & Slogan -->
+            <a href="/khach-hang" class="flex items-center space-x-3 cursor-pointer select-none">
+                <img src="/froghippo_logo.png" alt="FrogHippo Phone" class="w-11 h-11 object-contain rounded-2xl shadow-lg shadow-emerald-500/20 bg-white/95 p-0.5 border border-emerald-400/50">
+                <div>
+                    <div class="flex items-center gap-2">
+                        <span class="text-xl sm:text-2xl font-black tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-emerald-400 via-teal-200 to-indigo-300">FrogHippo Phone</span>
+                        <span class="px-2 py-0.5 rounded-full text-[10px] font-extrabold bg-gradient-to-r from-amber-400 to-amber-500 text-slate-950 uppercase tracking-widest">PORTAL</span>
+                    </div>
+                    <span class="text-[11px] text-slate-400 font-medium hidden sm:inline">Cổng Thông Tin & Dịch Vụ Khách Hàng Trực Tuyến 24/7</span>
+                </div>
+            </a>
+
+            <!-- Góc Phải: Hotline + NÚT ĐĂNG NHẬP NHỎ GỌN DÀNH CHO NHÂN VIÊN -->
+            <div class="flex items-center gap-3">
+                <div class="hidden md:flex items-center gap-2 text-xs text-slate-400 pr-2 border-r border-slate-800">
+                    <i class="fa-solid fa-phone text-emerald-400"></i>
+                    <span>Hotline: <strong class="text-white font-bold">1800 6868</strong></span>
+                </div>
+
+                <!-- Nút Đăng Nhập Nhân Viên Nhỏ Bên Góc Phải -->
+                <button onclick="openStaffLoginModal()" id="btn-staff-login-top" 
+                    class="bg-gradient-to-r from-slate-800 to-slate-700 hover:from-slate-700 hover:to-slate-600 text-slate-200 hover:text-white px-3.5 py-2 rounded-xl text-xs font-bold border border-slate-700 shadow-md transition active:scale-95 flex items-center gap-2">
+                    <i class="fa-solid fa-user-shield text-emerald-400"></i>
+                    <span>Đăng Nhập Nhân Viên</span>
+                </button>
+            </div>
+
+        </div>
+    </header>
+
+    <!-- ============================================================== -->
+    <!-- MAIN CONTENT: GIAO DIỆN TRA CỨU TOÀN DIỆN DÀNH CHO KHÁCH HÀNG -->
+    <!-- ============================================================== -->
+    <main class="flex-1 max-w-6xl w-full mx-auto px-4 sm:px-6 py-8 space-y-8">
+        
+        <!-- 1. HERO SEARCH SECTION (GIAO DIỆN TRA CỨU TO) -->
+        <div class="relative rounded-3xl overflow-hidden bg-gradient-to-br from-slate-900 via-indigo-950 to-slate-900 border border-indigo-500/30 p-6 sm:p-10 shadow-2xl text-center space-y-6">
+            <!-- Ambient Glow -->
+            <div class="absolute -top-32 -left-32 w-80 h-80 bg-amber-500/15 rounded-full blur-[90px] pointer-events-none"></div>
+            <div class="absolute -bottom-32 -right-32 w-80 h-80 bg-indigo-500/20 rounded-full blur-[90px] pointer-events-none"></div>
+
+            <div class="relative z-10 max-w-2xl mx-auto space-y-3">
+                <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-xs font-black bg-amber-400 text-slate-950 uppercase tracking-wider shadow-lg">
+                    <i class="fa-solid fa-satellite-dish animate-pulse"></i>
+                    <span>Cổng Thông Tin Trực Tuyến 24/7</span>
+                </div>
+                <h1 class="text-3xl sm:text-4xl font-black text-white tracking-tight leading-tight">
+                    Theo Dõi Tiến Độ Sửa Chữa & Bảo Hành Điện Tử
+                </h1>
+                <p class="text-xs sm:text-sm text-slate-300">
+                    Tra cứu tức thì bằng <strong class="text-amber-300">Mã Phiếu Tiếp Nhận</strong> hoặc <strong class="text-amber-300">Số Điện Thoại</strong>. Xem trạng thái thực, bóc tách giá, duyệt báo giá trực tuyến và đánh giá dịch vụ.
+                </p>
+
+                <!-- THANH TRA CỨU LỚN (BIG SEARCH INPUT) -->
+                <div class="pt-3">
+                    <div class="flex flex-col sm:flex-row gap-2 bg-slate-950/80 p-2 rounded-2xl border border-slate-700/80 shadow-2xl focus-within:border-amber-400 focus-within:ring-2 focus-within:ring-amber-400/20 transition">
+                        <div class="flex-1 flex items-center px-3 gap-3">
+                            <i class="fa-solid fa-magnifying-glass text-amber-400 text-lg"></i>
+                            <input id="main-search-input" type="search" name="kh_portal_search_no_autofill" autocomplete="off" value="" placeholder="Nhập Mã Phiếu (VD: PS01, PS02) hoặc Số Điện Thoại..." 
+                                onkeydown="if(event.key === 'Enter') executeCustomerSearch()"
+                                class="w-full bg-transparent text-white placeholder-slate-500 text-sm sm:text-base font-bold outline-none py-2">
+                        </div>
+                        <button onclick="executeCustomerSearch()" id="btn-main-search" 
+                            class="px-8 py-3.5 bg-gradient-to-r from-amber-400 via-amber-500 to-amber-400 hover:from-amber-300 hover:to-amber-400 text-slate-950 rounded-xl font-black text-sm shadow-xl transition active:scale-95 flex items-center justify-center gap-2">
+                            <i class="fa-solid fa-search"></i>
+                            <span>TRA CỨU NGAY</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 2. LOADING STATE INDICATOR -->
+        <div id="search-loading" class="hidden text-center py-12 space-y-3">
+            <div class="inline-flex w-14 h-14 rounded-2xl bg-amber-400/20 text-amber-300 items-center justify-center text-2xl animate-spin">
+                <i class="fa-solid fa-circle-notch"></i>
+            </div>
+            <p class="text-sm font-bold text-slate-300">Đang tra cứu dữ liệu từ hệ thống máy chủ...</p>
+        </div>
+
+        <!-- 3. ERROR OR NOT FOUND STATE -->
+        <div id="search-not-found" class="hidden p-8 rounded-3xl bg-slate-900 border border-rose-500/40 text-center space-y-3 shadow-xl">
+            <div class="w-14 h-14 rounded-full bg-rose-500/20 text-rose-400 flex items-center justify-center text-2xl mx-auto">
+                <i class="fa-solid fa-circle-xmark"></i>
+            </div>
+            <h3 class="text-lg font-black text-white">Không Tìm Thấy Phiếu Sửa Chữa</h3>
+            <p id="not-found-message" class="text-xs text-slate-400 max-w-md mx-auto">
+                Không tìm thấy dữ liệu phù hợp với thông tin đã nhập. Vui lòng kiểm tra lại Mã phiếu trên biên nhận hoặc Số điện thoại.
+            </p>
+        </div>
+
+        <!-- 4. KHU VỰC KẾT QUẢ TRA CỨU TOÀN DIỆN (FULL CUSTOMER WORKSPACE) -->
+        <div id="customer-result-container" class="hidden space-y-8">
+
+            <!-- ========================================== -->
+            <!-- PHẦN 1: THÔNG TIN TIẾP NHẬN & TIẾN ĐỘ THỰC -->
+            <!-- ========================================== -->
+            <div class="glass-card-dark rounded-3xl p-6 sm:p-8 space-y-6 shadow-2xl">
+                
+                <!-- Ticket Header & Status Badge -->
+                <div class="flex flex-wrap justify-between items-start gap-4 pb-5 border-b border-slate-800">
+                    <div>
+                        <div class="flex items-center gap-2.5">
+                            <span id="res-ticket-code" class="px-3 py-1 rounded-xl text-xs font-black bg-amber-400 text-slate-950 shadow-md">
+                                #PS01
+                            </span>
+                            <span id="res-created-date" class="text-xs text-slate-400 font-medium">
+                                Tiếp nhận: 01/10/2026
+                            </span>
+                        </div>
+                        <h2 class="text-2xl font-black text-white mt-1.5 flex items-center gap-2">
+                            <span id="res-customer-name">Khách hàng: Nguyễn Văn A</span>
+                        </h2>
+                        <p class="text-xs text-slate-400 mt-0.5">
+                            <i class="fa-solid fa-phone mr-1 text-slate-500"></i> SĐT: <strong id="res-customer-phone" class="text-slate-300">0901234567</strong> • 
+                            <i class="fa-solid fa-user-gear mr-1 text-slate-500 ml-2"></i> KTV Phụ trách: <strong id="res-ktv-name" class="text-emerald-400">Trần Kỹ Thuật</strong>
+                        </p>
+                    </div>
+
+                    <div id="res-status-badge-container">
+                        <!-- Dynamic Status Badge -->
+                    </div>
+                </div>
+
+                <!-- Lỗi Thiết Bị & Ghi Chú Kỹ Thuật -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
+                    <div class="p-4 rounded-2xl bg-slate-900/90 border border-slate-800 space-y-1">
+                        <span class="font-bold text-slate-400 flex items-center gap-1.5">
+                            <i class="fa-solid fa-triangle-exclamation text-amber-400"></i> Tình trạng lỗi khách báo:
+                        </span>
+                        <p id="res-ticket-fault" class="font-medium text-slate-200 leading-relaxed text-sm">
+                            Màn hình sọc xanh, liệt cảm ứng góc trên sau khi rơi va đập.
+                        </p>
+                    </div>
+                    <div class="p-4 rounded-2xl bg-slate-900/90 border border-slate-800 space-y-1">
+                        <span class="font-bold text-slate-400 flex items-center gap-1.5">
+                            <i class="fa-solid fa-clipboard-check text-sky-400"></i> Chẩn đoán & Ghi chú từ KTV:
+                        </span>
+                        <p id="res-ticket-ktv-note" class="font-medium text-slate-200 leading-relaxed text-sm">
+                            Đã test main không chập, hỏng phôi màn OLED, cần thay cụm màn hình nguyên bộ chính hãng.
+                        </p>
+                    </div>
+                </div>
+
+                <!-- TIMELINE 5 GIAI ĐOẠN QUY TRÌNH THỰC TẾ -->
+                <div class="space-y-3 pt-2">
+                    <div class="flex justify-between items-center">
+                        <h3 class="text-xs font-black text-slate-300 uppercase tracking-wider flex items-center gap-2">
+                            <i class="fa-solid fa-timeline text-amber-400"></i> Tiến Độ Quy Trình Xử Lý Thực Tế:
+                        </h3>
+                        <span id="timeline-current-status-text" class="text-xs font-bold text-amber-400">
+                            Đang xử lý
+                        </span>
+                    </div>
+
+                    <div id="res-timeline-container" class="grid grid-cols-2 sm:grid-cols-5 gap-3">
+                        <!-- Dynamic Timeline Steps -->
+                    </div>
+                </div>
+
+            </div>
+
+
+            <!-- ========================================== -->
+            <!-- PHẦN 2: BÓC TÁCH GIÁ & GIẢI THÍCH AI & DUYỆT BÁO GIÁ -->
+            <!-- ========================================== -->
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+
+                <!-- BÓC TÁCH CHI PHÍ MINH BẠCH (2 CỘT) -->
+                <div class="lg:col-span-2 glass-card-dark rounded-3xl p-6 sm:p-7 space-y-5 shadow-2xl">
+                    <div class="flex justify-between items-center pb-3 border-b border-slate-800">
+                        <h3 class="text-base font-black text-white flex items-center gap-2">
+                            <i class="fa-solid fa-receipt text-emerald-400"></i> Bóc Tách Báo Giá & Linh Kiện Thay Thế
+                        </h3>
+                        <span id="res-payment-badge" class="px-3 py-1 rounded-full text-[11px] font-bold bg-amber-400/20 text-amber-300 border border-amber-400/30">
+                            Chờ Thanh Toán
+                        </span>
+                    </div>
+
+                    <!-- Bảng linh kiện -->
+                    <div class="overflow-x-auto rounded-2xl border border-slate-800">
+                        <table class="w-full text-left text-xs">
+                            <thead class="bg-slate-900/90 text-slate-400 font-bold border-b border-slate-800">
+                                <tr>
+                                    <th class="py-3 px-4">Linh Kiện Thay Thế</th>
+                                    <th class="py-3 px-4 text-center">SL</th>
+                                    <th class="py-3 px-4 text-right">Đơn Giá</th>
+                                    <th class="py-3 px-4 text-center">Bảo Hành</th>
+                                    <th class="py-3 px-4 text-right">Thành Tiền</th>
+                                </tr>
+                            </thead>
+                            <tbody id="res-parts-table-body" class="divide-y divide-slate-800/80 font-medium">
+                                <!-- Dynamic Parts Rows -->
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- Tổng kết chi phí -->
+                    <div class="p-4 rounded-2xl bg-slate-900/90 border border-slate-800 space-y-2 text-xs">
+                        <div class="flex justify-between text-slate-400">
+                            <span>Tiền linh kiện thay thế:</span>
+                            <span id="res-cost-parts" class="font-bold text-white">0 đ</span>
+                        </div>
+                        <div class="flex justify-between text-slate-400">
+                            <span>Tiền công dịch vụ & bảo dưỡng kỹ thuật:</span>
+                            <span id="res-cost-labor" class="font-bold text-white">150.000 đ</span>
+                        </div>
+                        <div class="flex justify-between text-base font-black text-emerald-400 pt-2 border-t border-slate-800">
+                            <span>TỔNG CHI PHÍ DỰ KIẾN:</span>
+                            <span id="res-cost-total" class="text-lg">0 đ</span>
+                        </div>
+                    </div>
+
+                    <!-- KHUNG DUYỆT BÁO GIÁ TRỰC TUYẾN (ONLINE QUOTE APPROVAL) -->
+                    <div id="res-quote-approval-card" class="p-5 rounded-2xl border transition-all space-y-3">
+                        <!-- Dynamic Quote Decision Box -->
+                    </div>
+                </div>
+
+                <!-- LỜI NHẮN & GIẢI THÍCH TỪ TRỢ LÝ AI (1 CỘT) -->
+                <div class="lg:col-span-1 glass-card-dark rounded-3xl p-6 sm:p-7 space-y-4 shadow-2xl border-purple-500/30 flex flex-col">
+                    <div class="flex items-center gap-2 pb-3 border-b border-purple-900/40">
+                        <div class="w-9 h-9 rounded-xl bg-purple-500/20 text-purple-300 flex items-center justify-center text-base">
+                            <i class="fa-solid fa-robot"></i>
+                        </div>
+                        <div>
+                            <h3 class="font-black text-white text-sm">FrogHippo AI Pro</h3>
+                            <p class="text-[10px] text-purple-300">Chuẩn đoán & Giải thích chuyên sâu</p>
+                        </div>
+                    </div>
+
+                    <div class="flex-1 space-y-3 text-xs">
+                        <div class="p-3.5 rounded-xl bg-purple-950/40 border border-purple-800/40 text-purple-200 leading-relaxed font-medium">
+                            <p id="res-ai-explanation">
+                                Trợ lý AI đang nạp phân tích tình trạng thiết bị...
+                            </p>
+                        </div>
+
+                        <div class="space-y-1.5 text-[11px] text-slate-400">
+                            <p class="font-bold text-slate-300 flex items-center gap-1.5">
+                                <i class="fa-solid fa-lightbulb text-amber-400"></i> Lời khuyên bảo quản thiết bị:
+                            </p>
+                            <ul class="list-disc pl-4 space-y-1 text-slate-400">
+                                <li>Dùng củ sạc chính hãng để bảo vệ IC nguồn và tuổi thọ pin.</li>
+                                <li>Tránh tiếp xúc môi trường ẩm ướt trong 48h đầu sau khi dán ron mới.</li>
+                                <li>Kiểm tra kỹ các chức năng trước khi rời quầy bàn giao.</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="pt-3 border-t border-slate-800 text-[11px] text-slate-400 text-center">
+                        Tích hợp mô hình AI Gemini Pro • Phân tích chính xác 99%
+                    </div>
+                </div>
+
+            </div>
+
+
+            <!-- ========================================== -->
+            <!-- PHẦN 3: BẢO HÀNH ĐIỆN TỬ & NHẬT KÝ SỬA CHỮA TRƯỚC -->
+            <!-- ========================================== -->
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+
+                <!-- BẢO HÀNH ĐIỆN TỬ CHÍNH HÃNG -->
+                <div class="glass-card-dark rounded-3xl p-6 sm:p-7 space-y-4 shadow-2xl">
+                    <div class="flex items-center justify-between pb-3 border-b border-slate-800">
+                        <h3 class="font-black text-white text-base flex items-center gap-2">
+                            <i class="fa-solid fa-award text-amber-400"></i> Thẻ Bảo Hành Điện Tử (E-Warranty)
+                        </h3>
+                        <span class="px-2.5 py-0.5 rounded-full text-[10px] font-black bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
+                            Kích Hoạt Tự Động
+                        </span>
+                    </div>
+
+                    <div id="res-warranty-list" class="space-y-3 text-xs">
+                        <!-- Dynamic Warranty Cards -->
+                    </div>
+                </div>
+
+                <!-- NHẬT KÝ SỬA CHỮA TRƯỚC CỦA KHÁCH HÀNG -->
+                <div class="glass-card-dark rounded-3xl p-6 sm:p-7 space-y-4 shadow-2xl">
+                    <div class="flex items-center justify-between pb-3 border-b border-slate-800">
+                        <h3 class="font-black text-white text-base flex items-center gap-2">
+                            <i class="fa-solid fa-clock-rotate-left text-sky-400"></i> Nhật Ký Sửa Chữa Trước Đây
+                        </h3>
+                        <span id="res-history-count" class="text-xs text-slate-400 font-bold">
+                            0 lần trước
+                        </span>
+                    </div>
+
+                    <div id="res-history-list" class="space-y-2.5 text-xs max-h-72 overflow-y-auto pr-1">
+                        <!-- Dynamic Previous Repairs -->
+                    </div>
+                </div>
+
+            </div>
+
+
+            <!-- ========================================== -->
+            <!-- PHẦN 4: THÔNG BÁO, ĐÁNH GIÁ KTV & KHIẾU NẠI -->
+            <!-- ========================================== -->
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+
+                <!-- THÔNG BÁO & LỜI NHẮC BẢO DƯỠNG -->
+                <div class="glass-card-dark rounded-3xl p-6 sm:p-7 space-y-4 shadow-2xl">
+                    <div class="flex items-center justify-between pb-3 border-b border-slate-800">
+                        <h3 class="font-black text-white text-base flex items-center gap-2">
+                            <i class="fa-solid fa-bell text-amber-400"></i> Lịch Sử Thông Báo & Nhắc Bảo Dưỡng
+                        </h3>
+                        <span class="text-xs text-rose-400 font-bold"><i class="fa-solid fa-envelope"></i> Gmail</span>
+                    </div>
+
+                    <div id="res-notifications-list" class="space-y-3 text-xs max-h-80 overflow-y-auto pr-1">
+                        <!-- Dynamic Notifications -->
+                    </div>
+                </div>
+
+                <!-- CHẤM ĐIỂM SAO & ĐÁNH GIÁ DỊCH VỤ / KTV -->
+                <div class="glass-card-dark rounded-3xl p-6 sm:p-7 space-y-4 shadow-2xl">
+                    <div class="flex items-center justify-between pb-3 border-b border-slate-800">
+                        <h3 class="font-black text-white text-base flex items-center gap-2">
+                            <i class="fa-solid fa-star text-amber-400"></i> Chấm Điểm & Đánh Giá Dịch Vụ
+                        </h3>
+                        <button onclick="openComplaintModal()" class="text-xs font-bold text-rose-400 hover:text-rose-300 transition flex items-center gap-1">
+                            <i class="fa-solid fa-circle-exclamation"></i> Khiếu nại dịch vụ
+                        </button>
+                    </div>
+
+                    <!-- FORM ĐÁNH GIÁ 5 SAO -->
+                    <form onsubmit="event.preventDefault(); submitCustomerRating();" class="space-y-3.5 text-xs">
+                        <div>
+                            <label class="block font-bold text-slate-300 mb-1">Mức độ hài lòng của Quý khách:</label>
+                            <div class="star-rating flex items-center gap-2 text-2xl text-amber-400 py-1" id="star-rating-box">
+                                <i class="fa-solid fa-star cursor-pointer" onclick="setRating(1)"></i>
+                                <i class="fa-solid fa-star cursor-pointer" onclick="setRating(2)"></i>
+                                <i class="fa-solid fa-star cursor-pointer" onclick="setRating(3)"></i>
+                                <i class="fa-solid fa-star cursor-pointer" onclick="setRating(4)"></i>
+                                <i class="fa-solid fa-star cursor-pointer" onclick="setRating(5)"></i>
+                                <span id="rating-text" class="text-xs font-bold text-amber-300 ml-2">Rất hài lòng (5 sao)</span>
+                            </div>
+                        </div>
+
+                        <div>
+                            <label class="block font-bold text-slate-300 mb-1.5">Tiêu chí ấn tượng nhất:</label>
+                            <div class="grid grid-cols-2 gap-2 text-[11px]">
+                                <label class="flex items-center gap-2 p-2 rounded-xl bg-slate-900 border border-slate-800 cursor-pointer">
+                                    <input type="radio" name="tieuChi" value="Kỹ thuật tốt, chuẩn xác" checked class="accent-amber-400">
+                                    <span>Kỹ thuật chuẩn xác</span>
+                                </label>
+                                <label class="flex items-center gap-2 p-2 rounded-xl bg-slate-900 border border-slate-800 cursor-pointer">
+                                    <input type="radio" name="tieuChi" value="Sửa nhanh, đúng hẹn" class="accent-amber-400">
+                                    <span>Sửa nhanh đúng hẹn</span>
+                                </label>
+                                <label class="flex items-center gap-2 p-2 rounded-xl bg-slate-900 border border-slate-800 cursor-pointer">
+                                    <input type="radio" name="tieuChi" value="Giá cả minh bạch" class="accent-amber-400">
+                                    <span>Giá cả minh bạch</span>
+                                </label>
+                                <label class="flex items-center gap-2 p-2 rounded-xl bg-slate-900 border border-slate-800 cursor-pointer">
+                                    <input type="radio" name="tieuChi" value="Thái độ tận tình chu đáo" class="accent-amber-400">
+                                    <span>Tận tình, chu đáo</span>
+                                </label>
+                            </div>
+                        </div>
+
+                        <div>
+                            <label class="block font-bold text-slate-300 mb-1">Lời nhận xét / Góp ý:</label>
+                            <textarea id="rating-comment" rows="2" placeholder="Chia sẻ cảm nhận của Quý khách về chất lượng phục vụ của Kỹ thuật viên..."
+                                class="w-full bg-slate-900 border border-slate-800 focus:border-amber-400 text-white p-3 rounded-2xl outline-none font-medium placeholder-slate-500"></textarea>
+                        </div>
+
+                        <button id="btn-submit-rating" type="submit" 
+                            class="w-full py-3 bg-gradient-to-r from-amber-400 via-amber-500 to-amber-400 hover:from-amber-300 hover:to-amber-400 text-slate-950 rounded-2xl font-black text-xs shadow-lg transition active:scale-95 flex items-center justify-center gap-2">
+                            <i class="fa-solid fa-paper-plane"></i>
+                            <span>GỬI ĐÁNH GIÁ DỊCH VỤ</span>
+                        </button>
+                    </form>
+
+                    <!-- Danh sách đánh giá đã có -->
+                    <div id="res-existing-ratings" class="pt-3 border-t border-slate-800 space-y-2 text-xs">
+                        <!-- Dynamic Reviews -->
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+
+    </main>
+
+
+    <!-- =================================================    <!-- ============================================================== -->
+    <!-- MODAL 1: ĐĂNG NHẬP HỆ THỐNG PHONECARE (LOGIN PORTAL NGUYÊN BẢN) -->
+    <!-- ============================================================== -->
+    <div id="modal-staff-login" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-md hidden overflow-y-auto">
+        <!-- Ambient Background Glows -->
+        <div class="fixed -top-40 -left-40 w-96 h-96 bg-brand-600/20 rounded-full blur-[100px] pointer-events-none"></div>
+        <div class="fixed -bottom-40 -right-40 w-96 h-96 bg-indigo-600/20 rounded-full blur-[100px] pointer-events-none"></div>
+        <div class="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-sky-500/10 rounded-full blur-[120px] pointer-events-none"></div>
+
+        <div class="relative max-w-md w-full my-auto bg-slate-900/90 backdrop-blur-2xl border border-indigo-500/30 rounded-3xl p-6 sm:p-8 shadow-2xl shadow-indigo-950/80 space-y-6">
+            
+            <!-- Close Button -->
+            <button onclick="closeStaffLoginModal()" class="absolute top-5 right-5 text-slate-400 hover:text-white transition text-lg w-8 h-8 rounded-full flex items-center justify-center hover:bg-white/10" title="Đóng">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+
+            <!-- Brand & Portal Header -->
+            <div class="text-center space-y-2">
+                <div class="inline-flex w-20 h-20 bg-white/95 rounded-3xl items-center justify-center p-1 shadow-xl shadow-emerald-500/25 border-2 border-emerald-400 mb-1">
+                    <img src="/froghippo_logo.png" alt="FrogHippo Phone" class="w-full h-full object-contain rounded-2xl">
+                </div>
+                <h1 class="text-2xl sm:text-3xl font-black text-white tracking-tight">FrogHippo Phone</h1>
+            </div>
+
+            <!-- Error message container -->
+            <div id="staff-login-error" class="hidden p-3 rounded-2xl bg-rose-950/80 border border-rose-800 text-rose-200 text-xs font-semibold flex items-center gap-2.5">
+                <i class="fa-solid fa-triangle-exclamation text-rose-400 text-base flex-shrink-0"></i>
+                <span id="staff-login-error-text">Tên đăng nhập hoặc mật khẩu không chính xác!</span>
+            </div>
+
+            <!-- Login Form -->
+            <form onsubmit="event.preventDefault(); handleStaffLoginSubmit();" autocomplete="off" class="space-y-4 text-xs">
+                <div>
+                    <label class="block font-bold text-slate-200 mb-1.5">
+                        <i class="fa-solid fa-user-shield text-emerald-400 mr-1"></i> Tên đăng nhập
+                    </label>
+                    <div class="relative">
+                        <input id="staff-username" type="text" name="kh_staff_auth_user" autocomplete="off" value="" required placeholder="Nhập tên đăng nhập..." 
+                            class="w-full bg-slate-950/70 border border-slate-700/80 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 text-white p-3 rounded-2xl font-bold placeholder:text-slate-500 placeholder:font-normal outline-none transition">
+                    </div>
+                </div>
+
+                <div>
+                    <div class="flex justify-between items-center mb-1.5">
+                        <label class="block font-bold text-slate-200">
+                            <i class="fa-solid fa-lock text-emerald-400 mr-1"></i> Mật khẩu
+                        </label>
+                    </div>
+                    <div class="relative">
+                        <input id="staff-password" type="password" name="kh_staff_auth_pwd" autocomplete="new-password" value="" required placeholder="Nhập mật khẩu..." 
+                            class="w-full bg-slate-950/70 border border-slate-700/80 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 text-white p-3 pr-10 rounded-2xl font-bold placeholder:text-slate-500 placeholder:font-normal outline-none transition">
+                        <button type="button" onclick="togglePasswordVisibility('staff-password', this)" class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-white transition">
+                            <i class="fa-regular fa-eye"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="flex items-center justify-between text-[11px] pt-1">
+                    <label class="flex items-center gap-2 text-slate-300 cursor-pointer select-none">
+                        <input id="staff-remember" type="checkbox" class="w-3.5 h-3.5 rounded accent-emerald-500">
+                        <span>Ghi nhớ phiên đăng nhập</span>
+                    </label>
+                </div>
+
+                <button id="btn-staff-submit" type="submit" 
+                    class="w-full bg-gradient-to-r from-emerald-600 via-teal-600 to-emerald-500 hover:from-emerald-500 hover:to-teal-500 text-white py-3.5 rounded-2xl font-black text-sm shadow-xl shadow-emerald-600/30 transition transform active:scale-[0.98] flex items-center justify-center gap-2">
+                    <i class="fa-solid fa-arrow-right-to-bracket"></i>
+                    <span>ĐĂNG NHẬP HỆ THỐNG</span>
+                </button>
+            </form>
+
+        </div>
+    </div>
+
+
+    <!-- ============================================================== -->
+    <!-- MODAL 2: GỬI KHIẾU NẠI / GÓP Ý DỊCH VỤ -->
+    <!-- ============================================================== -->
+    <div id="modal-complaint" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-md hidden">
+        <div class="relative max-w-md w-full bg-slate-900 border border-rose-500/30 rounded-3xl p-6 shadow-2xl space-y-4 text-xs text-white">
+            
+            <div class="flex justify-between items-center pb-2 border-b border-slate-800">
+                <div class="flex items-center gap-2">
+                    <div class="w-8 h-8 rounded-xl bg-rose-500/20 text-rose-400 flex items-center justify-center font-black">
+                        <i class="fa-solid fa-headset"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-sm font-black text-white">Gửi Khiếu Nại & Phản Hồi Dịch Vụ</h3>
+                        <p class="text-[10px] text-slate-400">Trực tiếp tới Ban Giám Đốc Trung Tâm</p>
+                    </div>
+                </div>
+                <button onclick="closeComplaintModal()" class="text-slate-400 hover:text-white text-lg">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+
+            <form onsubmit="event.preventDefault(); submitComplaint();" class="space-y-3">
+                <div>
+                    <label class="block font-bold text-slate-300 mb-1">Loại phản hồi:</label>
+                    <select id="complaint-type" class="w-full bg-slate-950 border border-slate-700 p-2.5 rounded-xl font-bold text-white outline-none">
+                        <option value="Khiếu nại kỹ thuật">Khiếu nại về chất lượng sửa chữa</option>
+                        <option value="Khiếu nại thái độ">Khiếu nại về thái độ phục vụ</option>
+                        <option value="Khiếu nại thời gian">Khiếu nại về thời gian bàn giao chậm</option>
+                        <option value="Góp ý phát triển">Góp ý cải tiến chất lượng dịch vụ</option>
+                    </select>
+                </div>
+
+                <div class="grid grid-cols-2 gap-2">
+                    <div>
+                        <label class="block font-bold text-slate-300 mb-1">Họ tên của Quý khách:</label>
+                        <input id="complaint-name" type="text" required placeholder="Họ và tên..." class="w-full bg-slate-950 border border-slate-700 p-2.5 rounded-xl text-white font-bold outline-none">
+                    </div>
+                    <div>
+                        <label class="block font-bold text-slate-300 mb-1">Số điện thoại liên hệ:</label>
+                        <input id="complaint-phone" type="tel" required placeholder="SĐT liên hệ..." class="w-full bg-slate-950 border border-slate-700 p-2.5 rounded-xl text-white font-bold outline-none">
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block font-bold text-slate-300 mb-1">Nội dung khiếu nại / Góp ý cụ thể:</label>
+                    <textarea id="complaint-content" rows="3" required placeholder="Mô tả chi tiết vấn đề Quý khách chưa hài lòng để chúng tôi xử lý ngay..." class="w-full bg-slate-950 border border-slate-700 p-2.5 rounded-xl text-white outline-none"></textarea>
+                </div>
+
+                <div class="flex justify-end gap-2 pt-1">
+                    <button type="button" onclick="closeComplaintModal()" class="px-4 py-2 bg-slate-800 text-slate-300 rounded-xl font-bold hover:bg-slate-700">Đóng</button>
+                    <button type="submit" class="px-5 py-2 bg-rose-600 hover:bg-rose-500 text-white rounded-xl font-black shadow-lg">GỬI KHIẾU NẠI NGAY</button>
+                </div>
+            </form>
+
+        </div>
+    </div>
+
+
+    <!-- ============================================================== -->
+    <!-- JAVASCRIPT LOGIC -->
+    <!-- ============================================================== -->
+    <script>
+        const API_BASE = window.location.origin.includes('http') ? window.location.origin : 'http://127.0.0.1:8000';
+
+        let currentSearchedData = null;
+        let selectedRatingStars = 5;
+
+        // --- KHỞI TẠO ---
+        document.addEventListener('DOMContentLoaded', () => {
+            const urlParams = new URLSearchParams(window.location.search);
+            const q = urlParams.get('q') || urlParams.get('maPhieu') || urlParams.get('maphieu') || urlParams.get('sdt');
+            if (q) {
+                const searchInp = document.getElementById('main-search-input');
+                if (searchInp) searchInp.value = q;
+                executeCustomerSearch();
+            }
+        });
+
+        // --- TOAST NOTIFICATIONS ---
+        let _lastCustToast = { msg: '', at: 0 };
+        function showToast(message, type = 'info') {
+            const container = document.getElementById('toast-container');
+            if (!container) return;
+
+            let msg = (message && typeof message === 'object') ? (message.detail || message.message || JSON.stringify(message)) : String(message || '');
+            msg = msg.trim();
+            if (!msg || msg === 'Not Found' || msg.includes('[object Object]')) {
+                msg = type === 'error' ? 'Không tìm thấy thông tin hoặc thao tác không hợp lệ!' : 'Thông báo hệ thống';
+            }
+
+            const now = Date.now();
+            if (msg === _lastCustToast.msg && now - _lastCustToast.at < 2500) return; // Chống spam lặp toast
+            _lastCustToast = { msg, at: now };
+
+            while (container.children.length >= 3) container.removeChild(container.firstChild);
+
+            const toast = document.createElement('div');
+            const bgClass = type === 'success' ? 'bg-emerald-600 text-white border-emerald-500' :
+                            type === 'error' ? 'bg-rose-600 text-white border-rose-500' :
+                            type === 'warning' ? 'bg-amber-500 text-slate-950 border-amber-400' :
+                            'bg-slate-900 text-slate-100 border-indigo-500/50';
+
+            const iconClass = type === 'success' ? 'fa-circle-check' :
+                              type === 'error' ? 'fa-triangle-exclamation' :
+                              type === 'warning' ? 'fa-circle-exclamation' : 'fa-circle-info';
+
+            toast.className = `flex items-center gap-2.5 px-4 py-3 rounded-2xl shadow-2xl border text-xs font-bold pointer-events-auto transition transform duration-300 translate-y-2 opacity-0 ${bgClass}`;
+            toast.innerHTML = `<i class="fa-solid ${iconClass}"></i><span>${msg}</span>`;
+
+            container.appendChild(toast);
+            setTimeout(() => {
+                toast.classList.remove('translate-y-2', 'opacity-0');
+            }, 10);
+
+            setTimeout(() => {
+                toast.classList.add('opacity-0', 'translate-y-2');
+                setTimeout(() => toast.remove(), 300);
+            }, 4000);
+        }
+
+        // --- 1. THAO TÁC TRA CỨU KHÁCH HÀNG ---
+        function fillAndSearch(code) {
+            const inp = document.getElementById('main-search-input');
+            if (inp) {
+                inp.value = code;
+                executeCustomerSearch();
+            }
+        }
+
+        async function executeCustomerSearch() {
+            const input = document.getElementById('main-search-input');
+            const q = input ? input.value.trim() : '';
+
+            if (!q) {
+                showToast("Vui lòng nhập Mã phiếu hoặc Số điện thoại!", "warning");
+                return;
+            }
+
+            const loading = document.getElementById('search-loading');
+            const notFound = document.getElementById('search-not-found');
+            const resultBox = document.getElementById('customer-result-container');
+
+            if (loading) loading.classList.remove('hidden');
+            if (notFound) notFound.classList.add('hidden');
+            if (resultBox) resultBox.classList.add('hidden');
+
+            try {
+                const res = await fetch(`${API_BASE}/api/khach-hang/tra-cuu?q=${encodeURIComponent(q)}`);
+                
+                if (loading) loading.classList.add('hidden');
+
+                if (!res.ok) {
+                    const err = await res.json().catch(() => ({}));
+                    const msg = err.detail || 'Không tìm thấy phiếu sửa chữa!';
+                    document.getElementById('not-found-message').innerText = msg;
+                    if (notFound) notFound.classList.remove('hidden');
+                    return;
+                }
+
+                const data = await res.json();
+                currentSearchedData = data;
+                renderCustomerData(data);
+
+                if (resultBox) {
+                    resultBox.classList.remove('hidden');
+                    resultBox.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }
+
+                showToast(`Đã tìm thấy thông tin phiếu #${data.phieu.maPhieu}!`, 'success');
+
+            } catch (err) {
+                console.error("Lỗi tra cứu:", err);
+                if (loading) loading.classList.add('hidden');
+                document.getElementById('not-found-message').innerText = "Lỗi kết nối máy chủ! Vui lòng thử lại sau.";
+                if (notFound) notFound.classList.remove('hidden');
+            }
+        }
+
+        // --- 2. HIỂN THỊ DỮ LIỆU KẾT QUẢ TRA CỨU TOÀN DIỆN ---
+        function renderCustomerData(data) {
+            const p = data.phieu;
+            const pricing = data.chiTietGia;
+
+            // Thông tin cơ bản
+            document.getElementById('res-ticket-code').innerText = `#${p.maPhieu}`;
+            document.getElementById('res-created-date').innerText = `Tiếp nhận: ${p.ngayTao || 'Mới tiếp nhận'}`;
+            document.getElementById('res-customer-name').innerText = `Khách hàng: ${p.tenKhachHang || p.maKH}`;
+            document.getElementById('res-customer-phone').innerText = p.sdt || 'Không có';
+            document.getElementById('res-ktv-name').innerText = p.tenKTV || 'Đang phân công';
+            document.getElementById('res-ticket-fault').innerText = p.moTaLoi || 'Kiểm tra bảo dưỡng toàn diện';
+            
+            // Chẩn đoán KTV dưới sự kiểm soát và duyệt
+            const ktvNoteEl = document.getElementById('res-ticket-ktv-note');
+            if (ktvNoteEl && ktvNoteEl.parentElement) {
+                const ktvContainer = ktvNoteEl.parentElement;
+                const titleSpan = ktvContainer.querySelector('span');
+                if (p.daDuyetChuanDoan) {
+                    ktvContainer.className = "p-4 rounded-2xl bg-emerald-950/20 border border-emerald-500/40 space-y-1.5 transition-all";
+                    if (titleSpan) {
+                        titleSpan.innerHTML = `<i class="fa-solid fa-circle-check text-emerald-400"></i> <strong class="text-emerald-300">Chẩn đoán chính thức (Đã được KTV ${p.nguoiDuyetChuanDoan || 'chuyên trách'} duyệt lúc ${p.thoiGianDuyetChuanDoan || ''}):</strong>`;
+                    }
+                    ktvNoteEl.className = "font-semibold text-emerald-100 leading-relaxed text-sm";
+                    ktvNoteEl.innerText = p.chuanDoanKTV || p.ghiChuKTV || 'Đã kiểm tra và duyệt đạt chuẩn an toàn.';
+                } else {
+                    ktvContainer.className = "p-4 rounded-2xl bg-amber-950/20 border border-amber-500/30 space-y-1.5 transition-all";
+                    if (titleSpan) {
+                        titleSpan.innerHTML = `<i class="fa-solid fa-shield-halved text-amber-400"></i> <strong class="text-amber-300">Chẩn đoán kỹ thuật: Đang chờ KTV đo kiểm & phê duyệt</strong>`;
+                    }
+                    ktvNoteEl.className = "font-medium text-amber-200/90 leading-relaxed text-xs italic";
+                    ktvNoteEl.innerText = 'Thiết bị đang được Kỹ thuật viên đo kiểm chuyên sâu. Theo quy định kiểm soát chất lượng của FrogHippo Phone, kết quả nguyên nhân lỗi BẮT BUỘC PHẢI DƯỚI SỰ KIỂM SOÁT VÀ ĐƯỢC KỸ THUẬT VIÊN DUYỆT thì mới đưa cho Quý khách để tránh sai lệch.';
+                }
+            }
+
+            // Badge trạng thái
+            const badgeContainer = document.getElementById('res-status-badge-container');
+            if (badgeContainer) {
+                badgeContainer.innerHTML = renderStatusBadge(p.trangThai);
+            }
+
+            // Timeline 5 giai đoạn
+            renderCustomerTimeline(p.trangThai);
+
+            // Bóc tách bảng linh kiện
+            const partsTbody = document.getElementById('res-parts-table-body');
+            if (partsTbody) {
+                if (pricing.parts.length === 0) {
+                    partsTbody.innerHTML = `
+                        <tr>
+                            <td colspan="5" class="py-4 text-center text-slate-500 italic">Chưa phát sinh linh kiện thay thế (Đang kiểm tra bảo dưỡng).</td>
+                        </tr>
+                    `;
+                } else {
+                    partsTbody.innerHTML = pricing.parts.map(item => `
+                        <tr>
+                            <td class="py-3 px-4 font-bold text-white">${item.tenLK}</td>
+                            <td class="py-3 px-4 text-center text-slate-300">${item.soLuong}</td>
+                            <td class="py-3 px-4 text-right text-slate-300">${item.donGia.toLocaleString('vi-VN')} đ</td>
+                            <td class="py-3 px-4 text-center">
+                                <span class="px-2 py-0.5 rounded-full text-[10px] font-black bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
+                                    ${item.thoiGianBaoHanh}
+                                </span>
+                            </td>
+                            <td class="py-3 px-4 text-right font-black text-amber-400">${item.thanhTien.toLocaleString('vi-VN')} đ</td>
+                        </tr>
+                    `).join('');
+                }
+            }
+
+            // Tổng chi phí
+            document.getElementById('res-cost-parts').innerText = `${pricing.tienLinhKien.toLocaleString('vi-VN')} đ`;
+            document.getElementById('res-cost-labor').innerText = `${pricing.tienCong.toLocaleString('vi-VN')} đ`;
+            document.getElementById('res-cost-total').innerText = `${pricing.tongChiPhi.toLocaleString('vi-VN')} đ`;
+
+            // Badge thanh toán
+            const payBadge = document.getElementById('res-payment-badge');
+            if (payBadge) {
+                if (pricing.daThanhToan) {
+                    payBadge.className = "px-3 py-1 rounded-full text-[11px] font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/30";
+                    payBadge.innerText = `Đã Thanh Toán (${pricing.phuongThuc})`;
+                } else {
+                    payBadge.className = "px-3 py-1 rounded-full text-[11px] font-bold bg-amber-400/20 text-amber-300 border border-amber-400/30";
+                    payBadge.innerText = "Chờ Thanh Toán";
+                }
+            }
+
+            // Giải thích AI (Tuân thủ quyền kiểm soát của KTV)
+            const aiExplanationEl = document.getElementById('res-ai-explanation');
+            if (aiExplanationEl) {
+                if (p.daDuyetChuanDoan) {
+                    aiExplanationEl.innerHTML = `<span class="text-emerald-300 font-bold">✅ [ĐÃ ĐƯỢC KTV ${p.nguoiDuyetChuanDoan || 'CHUYÊN TRÁCH'} DUYỆT]:</span><br>${p.chuanDoanKTV || p.aiTomTat || 'Thiết bị đã được kiểm định an toàn theo chuẩn kỹ thuật.'}`;
+                } else {
+                    aiExplanationEl.innerHTML = `<span class="text-amber-300 font-bold">🔒 [ĐANG CHỜ KTV THẨM ĐỊNH & DUYỆT]:</span><br>Thông tin phân tích lỗi từ AI đang nằm dưới quyền kiểm soát nghiêm ngặt của Kỹ thuật viên phụ trách. Để tránh thông tin chẩn đoán phỏng đoán sai lệch, kết quả nguyên nhân chỉ được công khai sau khi KTV đo kiểm thực tế và bấm DUYỆT.`;
+                }
+            }
+
+            // KHUNG DUYỆT BÁO GIÁ ONLINE
+            renderQuoteApprovalBox(p);
+
+            // BẢO HÀNH ĐIỆN TỬ
+            renderWarrantyCards(pricing.parts);
+
+            // NHẬT KÝ SỬA CHỮA TRƯỚC
+            renderHistoryList(data.lichSuSuaChua);
+
+            // THÔNG BÁO & NHẮC BẢO DƯỠNG
+            renderNotificationsList(data.thongBaoList);
+
+            // ĐÁNH GIÁ ĐÃ CÓ
+            renderExistingRatings(data.danhGiaList);
+        }
+
+        // --- 3. TIMELINE 5 GIAI ĐOẠN ---
+        function renderCustomerTimeline(status) {
+            const steps = [
+                { id: 'KhoiTao', name: 'Tiếp Nhận', desc: 'Tại quầy lễ tân', icon: 'fa-receipt' },
+                { id: 'DangKiemTra', name: 'Kiểm Tra Lỗi', desc: 'Đo đạc & Lập báo giá', icon: 'fa-magnifying-glass' },
+                { id: 'DangSua', name: 'Đang Sửa Chữa', desc: 'Thay linh kiện chuẩn', icon: 'fa-screwdriver-wrench' },
+                { id: 'DaSuaXong', name: 'Đã Sửa Xong', desc: 'Kiểm thử 100% chức năng', icon: 'fa-circle-check' },
+                { id: 'DaThanhToan', name: 'Sẵn Sàng Giao', desc: 'Bàn giao & kích hoạt BH', icon: 'fa-handshake' }
+            ];
+
+            const statusWeights = {
+                'KhoiTao': 1,
+                'DangKiemTra': 2,
+                'ChoLinhKien': 2.5,
+                'DangSua': 3,
+                'DaSuaXong': 4,
+                'DaThanhToan': 5
+            };
+
+            const currentWeight = statusWeights[status] || 1;
+            const container = document.getElementById('res-timeline-container');
+            const statusTextEl = document.getElementById('timeline-current-status-text');
+
+            const statusNames = {
+                'KhoiTao': 'Mới tiếp nhận máy',
+                'DangKiemTra': 'Đang kiểm tra & chuẩn đoán',
+                'ChoLinhKien': 'Đang đợi xuất linh kiện',
+                'DangSua': 'KTV đang sửa chữa',
+                'DaSuaXong': 'Đã hoàn tất - Chờ kiểm tra',
+                'DaThanhToan': 'Đã bàn giao khách hàng'
+            };
+            if (statusTextEl) statusTextEl.innerText = statusNames[status] || status;
+
+            if (container) {
+                container.innerHTML = steps.map((step, idx) => {
+                    const stepWeight = idx + 1;
+                    const isDone = currentWeight >= stepWeight;
+                    const isCurrent = (stepWeight === Math.floor(currentWeight));
+
+                    let bgClass = isDone ? 'bg-emerald-500/20 text-emerald-300 border-emerald-500/50' : 'bg-slate-900 text-slate-500 border-slate-800';
+                    if (isCurrent && currentWeight < 5) {
+                        bgClass = 'bg-amber-400/20 text-amber-300 border-amber-400 ring-2 ring-amber-400/30 animate-pulse';
+                    }
+
+                    return `
+                        <div class="flex flex-col items-center text-center p-3.5 rounded-2xl border ${bgClass} transition">
+                            <i class="fa-solid ${step.icon} text-lg mb-1.5"></i>
+                            <span class="text-xs font-black leading-tight text-white">${step.name}</span>
+                            <span class="text-[10px] mt-1 text-slate-400">${step.desc}</span>
+                            <span class="text-[9px] mt-1 font-bold ${isDone ? 'text-emerald-400' : 'text-slate-500'}">
+                                ${isDone ? '✓ Hoàn thành' : 'Chờ xử lý'}
+                            </span>
+                        </div>
+                    `;
+                }).join('');
+            }
+        }
+
+        // --- 4. KHUNG DUYỆT BÁO GIÁ TRỰC TUYẾN ---
+        function renderQuoteApprovalBox(ticket) {
+            const card = document.getElementById('res-quote-approval-card');
+            if (!card) return;
+
+            const decision = ticket.duyetBaoGia || 'CHO_DUYET';
+
+            if (decision === 'DONG_Y') {
+                card.className = "p-5 rounded-2xl bg-emerald-950/40 border border-emerald-500/50 space-y-2 text-xs text-emerald-200";
+                card.innerHTML = `
+                    <div class="flex items-center gap-2 text-emerald-400 font-black text-sm">
+                        <i class="fa-solid fa-circle-check text-lg"></i>
+                        <span>Quý khách ĐÃ ĐỒNG Ý BÁO GIÁ sửa chữa!</span>
+                    </div>
+                    <p class="text-slate-300">
+                        Hệ thống đã xác nhận yêu cầu sửa chữa. Kỹ thuật viên đang ưu tiên hoàn thiện thiết bị của Quý khách theo đúng thời gian cam kết.
+                    </p>
+                    ${ticket.ghiChuKhachHang ? `
+                        <div class="p-2.5 rounded-xl bg-emerald-900/30 border border-emerald-700/40 text-[11px]">
+                            <strong>Ghi chú của Quý khách:</strong> ${ticket.ghiChuKhachHang}
+                        </div>
+                    ` : ''}
+                `;
+            } else if (decision === 'TU_CHOI') {
+                card.className = "p-5 rounded-2xl bg-rose-950/40 border border-rose-500/50 space-y-2 text-xs text-rose-200";
+                card.innerHTML = `
+                    <div class="flex items-center gap-2 text-rose-400 font-black text-sm">
+                        <i class="fa-solid fa-circle-xmark text-lg"></i>
+                        <span>Quý khách ĐÃ TỪ CHỐI BÁO GIÁ</span>
+                    </div>
+                    <p class="text-slate-300">
+                        Chuyên viên chăm sóc khách hàng sẽ liên hệ lại qua số điện thoại để hỗ trợ phương án tối ưu chi phí hơn cho Quý khách.
+                    </p>
+                    ${ticket.ghiChuKhachHang ? `
+                        <div class="p-2.5 rounded-xl bg-rose-900/30 border border-rose-700/40 text-[11px]">
+                            <strong>Lý do / Yêu cầu từ Quý khách:</strong> ${ticket.ghiChuKhachHang}
+                        </div>
+                    ` : ''}
+                `;
+            } else {
+                // CHO_DUYET: Cho phép khách duyệt
+                card.className = "p-5 rounded-2xl bg-amber-950/30 border border-amber-500/40 space-y-3 text-xs";
+                card.innerHTML = `
+                    <div class="flex items-center justify-between">
+                        <span class="font-black text-amber-300 text-sm flex items-center gap-1.5">
+                            <i class="fa-solid fa-bell text-amber-400"></i> XÁC NHẬN DUYỆT BÁO GIÁ ONLINE:
+                        </span>
+                        <span class="px-2.5 py-0.5 rounded-full text-[10px] font-black bg-amber-400 text-slate-950 uppercase">
+                            Chờ Quý Khách Duyệt
+                        </span>
+                    </div>
+                    <p class="text-slate-300 leading-relaxed">
+                        Vui lòng kiểm tra kỹ danh sách linh kiện và tổng chi phí ở trên. Quý khách có thể bấm <strong>Đồng Ý</strong> để KTV tiến hành sửa chữa ngay lập tức hoặc <strong>Từ Chối</strong> nếu muốn tư vấn thêm phương án khác.
+                    </p>
+
+                    <div id="reject-note-box" class="hidden space-y-2 pt-1">
+                        <label class="block font-bold text-slate-300">Nhập lý do hoặc yêu cầu tư vấn thêm:</label>
+                        <input id="customer-reject-note" type="text" placeholder="VD: Chi phí cao, muốn dùng linh kiện loại 2, cần trao đổi thêm..."
+                            class="w-full bg-slate-950 border border-slate-700 p-2.5 rounded-xl text-white font-medium outline-none">
+                    </div>
+
+                    <div class="flex flex-wrap gap-2 pt-1">
+                        <button type="button" onclick="submitQuoteApproval('DONG_Y')" 
+                            class="flex-1 py-3 px-4 bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400 text-white font-black rounded-xl shadow-lg transition active:scale-95 flex items-center justify-center gap-2">
+                            <i class="fa-solid fa-check"></i>
+                            <span>ĐỒNG Ý BÁO GIÁ</span>
+                        </button>
+                        <button type="button" onclick="toggleRejectBox()" id="btn-toggle-reject"
+                            class="py-3 px-4 bg-slate-800 hover:bg-slate-700 text-rose-300 hover:text-white font-bold rounded-xl border border-slate-700 transition active:scale-95 flex items-center justify-center gap-2">
+                            <i class="fa-solid fa-xmark"></i>
+                            <span>TỪ CHỐI / CẦN TƯ VẤN THÊM</span>
+                        </button>
+                    </div>
+                `;
+            }
+        }
+
+        function toggleRejectBox() {
+            const box = document.getElementById('reject-note-box');
+            const btn = document.getElementById('btn-toggle-reject');
+            if (!box) return;
+
+            if (box.classList.contains('hidden')) {
+                box.classList.remove('hidden');
+                btn.className = "py-3 px-4 bg-rose-600 hover:bg-rose-500 text-white font-black rounded-xl transition active:scale-95 flex items-center justify-center gap-2";
+                btn.innerHTML = '<i class="fa-solid fa-paper-plane"></i> GỬI XÁC NHẬN TỪ CHỐI';
+                btn.onclick = () => submitQuoteApproval('TU_CHOI');
+            }
+        }
+
+        async function submitQuoteApproval(decision) {
+            if (!currentSearchedData || !currentSearchedData.phieu) return;
+            const maPhieu = currentSearchedData.phieu.maPhieu;
+
+            let ghiChu = "";
+            if (decision === 'TU_CHOI') {
+                const noteInp = document.getElementById('customer-reject-note');
+                ghiChu = noteInp ? noteInp.value.trim() : "";
+            }
+
+            try {
+                // Ưu tiên gọi API nhận maPhieu trong body để an toàn tuyệt đối với ký tự '#'
+                let res = await fetch(`/api/khach-hang/duyet-bao-gia`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ maPhieu, duyetBaoGia: decision, ghiChu })
+                });
+
+                if (!res.ok) {
+                    // Fallback sang endpoint truyền mã đã encode
+                    const cleanCode = encodeURIComponent(maPhieu);
+                    res = await fetch(`/api/khach-hang/duyet-bao-gia/${cleanCode}`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ duyetBaoGia: decision, ghiChu })
+                    });
+                }
+
+                if (!res.ok) {
+                    const err = await res.json().catch(() => ({}));
+                    showToast(err.detail || err.message || "Không thể cập nhật trạng thái báo giá!", "error");
+                    return;
+                }
+
+                const resData = await res.json();
+                showToast(resData.message, decision === 'DONG_Y' ? 'success' : 'warning');
+
+                // Tự động tải lại kết quả phiếu
+                setTimeout(() => executeCustomerSearch(), 800);
+
+            } catch (e) {
+                console.error("Lỗi duyệt báo giá:", e);
+                showToast("Lỗi kết nối khi gửi duyệt báo giá!", "error");
+            }
+        }
+
+        // --- 5. BẢO HÀNH ĐIỆN TỬ ---
+        function renderWarrantyCards(parts) {
+            const container = document.getElementById('res-warranty-list');
+            if (!container) return;
+
+            if (parts.length === 0) {
+                container.innerHTML = `
+                    <p class="text-slate-500 italic py-3 text-center">Chưa phát sinh linh kiện bảo hành cho phiếu này.</p>
+                `;
+                return;
+            }
+
+            container.innerHTML = parts.map(p => `
+                <div class="p-3.5 rounded-2xl bg-slate-900 border border-slate-800 flex items-center justify-between gap-3">
+                    <div class="space-y-0.5">
+                        <div class="flex items-center gap-2">
+                            <span class="font-black text-white text-xs">${p.tenLK}</span>
+                            <span class="px-2 py-0.5 rounded text-[9px] font-bold bg-indigo-500/20 text-indigo-300">#${p.maLK}</span>
+                        </div>
+                        <p class="text-[11px] text-slate-400">
+                            Thời hạn bảo hành: <strong class="text-amber-300">${p.thoiGianBaoHanh}</strong> (Lỗi 1 đổi 1)
+                        </p>
+                    </div>
+                    <span class="px-2.5 py-1 rounded-xl text-[10px] font-black bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 flex items-center gap-1">
+                        <i class="fa-solid fa-shield-check"></i> Còn Hạn BH
+                    </span>
+                </div>
+            `).join('');
+        }
+
+        // --- 6. NHẬT KÝ SỬA CHỮA TRƯỚC ---
+        function renderHistoryList(history) {
+            const container = document.getElementById('res-history-list');
+            const countEl = document.getElementById('res-history-count');
+            if (countEl) countEl.innerText = `${history.length} lần trước`;
+            if (!container) return;
+
+            if (history.length === 0) {
+                container.innerHTML = `
+                    <p class="text-slate-500 italic py-3 text-center">Đây là lần đầu tiên thiết bị của Quý khách được phục vụ tại FrogHippo Phone.</p>
+                `;
+                return;
+            }
+
+            container.innerHTML = history.map(h => `
+                <div class="p-3 rounded-2xl bg-slate-900 border border-slate-800 flex justify-between items-center gap-3">
+                    <div>
+                        <div class="flex items-center gap-2">
+                            <span class="font-bold text-white text-xs">#${h.maPhieu}</span>
+                            <span class="text-[10px] text-slate-400">${h.ngayTao}</span>
+                        </div>
+                        <p class="text-[11px] text-slate-400 mt-0.5">${h.moTaLoi || 'Sửa chữa bảo dưỡng'}</p>
+                    </div>
+                    <button onclick="fillAndSearch('${h.maPhieu}')" class="px-2.5 py-1 bg-white/10 hover:bg-white/20 text-slate-200 rounded-lg text-[10px] font-bold transition">
+                        Xem lại
+                    </button>
+                </div>
+            `).join('');
+        }
+
+        // --- 7. THÔNG BÁO & NHẮC BẢO DƯỠNG ---
+        function renderNotificationsList(notifications) {
+            const container = document.getElementById('res-notifications-list');
+            if (!container) return;
+
+            if (notifications.length === 0) {
+                container.innerHTML = `
+                    <div class="p-4 rounded-2xl bg-slate-900 border border-slate-800 text-center space-y-1">
+                        <i class="fa-regular fa-bell-slash text-slate-500 text-xl"></i>
+                        <p class="text-slate-400">Chưa có thông báo Gmail nào gửi đi.</p>
+                    </div>
+                `;
+            } else {
+                container.innerHTML = notifications.map(n => `
+                    <div class="p-3 rounded-2xl bg-slate-900 border border-slate-800 space-y-1">
+                        <div class="flex justify-between items-center text-[10px] text-slate-400">
+                            <span class="font-bold text-emerald-400 flex items-center gap-1">
+                                <i class="fa-solid fa-paper-plane"></i> ${n.kenh} • ${n.nguoiGui}
+                            </span>
+                            <span>${n.thoiGian}</span>
+                        </div>
+                        <p class="text-xs text-slate-200 font-medium leading-relaxed">${n.noiDung}</p>
+                    </div>
+                `).join('');
+            }
+        }
+
+        // --- 8. ĐÁNH GIÁ 5 SAO ---
+        function setRating(stars) {
+            selectedRatingStars = stars;
+            const container = document.getElementById('star-rating-box');
+            const label = document.getElementById('rating-text');
+            if (!container) return;
+
+            const iconEls = container.querySelectorAll('i');
+            iconEls.forEach((icon, idx) => {
+                if (idx < stars) {
+                    icon.className = "fa-solid fa-star cursor-pointer text-amber-400";
+                } else {
+                    icon.className = "fa-regular fa-star cursor-pointer text-slate-600";
+                }
+            });
+
+            const labels = {
+                1: 'Rất không hài lòng (1 sao)',
+                2: 'Chưa hài lòng (2 sao)',
+                3: 'Tạm được (3 sao)',
+                4: 'Hài lòng (4 sao)',
+                5: 'Rất hài lòng (5 sao)'
+            };
+            if (label) label.innerText = labels[stars] || `${stars} sao`;
+        }
+
+        async function submitCustomerRating() {
+            if (!currentSearchedData || !currentSearchedData.phieu) {
+                showToast("Vui lòng tra cứu phiếu trước khi đánh giá!", "warning");
+                return;
+            }
+
+            const maPhieu = currentSearchedData.phieu.maPhieu;
+            const tenKhachHang = currentSearchedData.phieu.tenKhachHang || "";
+            const sdt = currentSearchedData.phieu.sdt || "";
+
+            const tieuChiRadio = document.querySelector('input[name="tieuChi"]:checked');
+            const tieuChi = tieuChiRadio ? tieuChiRadio.value : "Chất lượng tốt";
+            const comment = document.getElementById('rating-comment').value.trim();
+
+            const submitBtn = document.getElementById('btn-submit-rating');
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-1"></i> Đang gửi...';
+
+            try {
+                const res = await fetch(`${API_BASE}/api/khach-hang/danh-gia`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        maPhieu,
+                        soSao: selectedRatingStars,
+                        tieuChi,
+                        noiDung: comment,
+                        tenKhachHang,
+                        sdt
+                    })
+                });
+
+                if (!res.ok) {
+                    showToast("Không thể gửi đánh giá!", "error");
+                    return;
+                }
+
+                const resData = await res.json();
+                showToast(resData.message, "success");
+                document.getElementById('rating-comment').value = '';
+
+                // Reload lại kết quả
+                setTimeout(() => executeCustomerSearch(), 800);
+
+            } catch (e) {
+                console.error("Lỗi đánh giá:", e);
+                showToast("Lỗi gửi đánh giá dịch vụ!", "error");
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = '<i class="fa-solid fa-paper-plane mr-1"></i> GỬI ĐÁNH GIÁ DỊCH VỤ';
+            }
+        }
+
+        function renderExistingRatings(ratings) {
+            const container = document.getElementById('res-existing-ratings');
+            if (!container) return;
+
+            if (ratings.length === 0) {
+                container.innerHTML = `<p class="text-[11px] text-slate-500 italic text-center py-1">Chưa có đánh giá nào được gửi cho phiếu này.</p>`;
+                return;
+            }
+
+            container.innerHTML = `
+                <p class="font-bold text-slate-400 text-[11px]">Đánh giá đã gửi gần đây:</p>
+                ${ratings.map(r => `
+                    <div class="p-2.5 rounded-xl bg-slate-900 border border-slate-800 space-y-1 text-[11px]">
+                        <div class="flex justify-between items-center">
+                            <span class="text-amber-400 font-bold">${'★'.repeat(r.soSao)}${'☆'.repeat(5 - r.soSao)} (${r.tieuChi})</span>
+                            <span class="text-slate-500">${r.thoiGian}</span>
+                        </div>
+                        ${r.noiDung ? `<p class="text-slate-300 italic font-medium">"${r.noiDung}"</p>` : ''}
+                    </div>
+                `).join('')}
+            `;
+        }
+
+        // --- 9. KHIẾU NẠI & GÓP Ý ---
+        function openComplaintModal() {
+            const modal = document.getElementById('modal-complaint');
+            if (modal) modal.classList.remove('hidden');
+
+            if (currentSearchedData && currentSearchedData.phieu) {
+                const nameInp = document.getElementById('complaint-name');
+                const phoneInp = document.getElementById('complaint-phone');
+                if (nameInp && currentSearchedData.phieu.tenKhachHang) nameInp.value = currentSearchedData.phieu.tenKhachHang;
+                if (phoneInp && currentSearchedData.phieu.sdt) phoneInp.value = currentSearchedData.phieu.sdt;
+            }
+        }
+
+        function closeComplaintModal() {
+            const modal = document.getElementById('modal-complaint');
+            if (modal) modal.classList.add('hidden');
+        }
+
+        async function submitComplaint() {
+            const type = document.getElementById('complaint-type').value;
+            const name = document.getElementById('complaint-name').value.trim();
+            const phone = document.getElementById('complaint-phone').value.trim();
+            const content = document.getElementById('complaint-content').value.trim();
+            const maPhieu = currentSearchedData && currentSearchedData.phieu ? currentSearchedData.phieu.maPhieu : "";
+
+            try {
+                const res = await fetch(`${API_BASE}/api/khach-hang/khieu-nai`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        maPhieu,
+                        hoTen: name,
+                        sdt: phone,
+                        noiDung: content,
+                        loai: type
+                    })
+                });
+
+                if (res.ok) {
+                    const data = await res.json();
+                    showToast(data.message, "success");
+                    closeComplaintModal();
+                } else {
+                    showToast("Không thể gửi khiếu nại!", "error");
+                }
+            } catch (e) {
+                showToast("Lỗi gửi khiếu nại!", "error");
+            }
+        }
+
+        // --- 10. MODAL ĐĂNG NHẬP NHÂN VIÊN GỌN GÀNG ---
+        function openStaffLoginModal() {
+            const modal = document.getElementById('modal-staff-login');
+            if (modal) {
+                const userInp = document.getElementById('staff-username');
+                const pwdInp = document.getElementById('staff-password');
+                if (userInp) userInp.value = '';
+                if (pwdInp) pwdInp.value = '';
+                modal.classList.remove('hidden');
+                setTimeout(() => {
+                    if (userInp) { userInp.value = ''; userInp.focus(); }
+                    if (pwdInp) pwdInp.value = '';
+                }, 100);
+            }
+        }
+
+        function togglePasswordVisibility(inputId, btn) {
+            const input = document.getElementById(inputId);
+            if (!input) return;
+            if (input.type === 'password') {
+                input.type = 'text';
+                btn.innerHTML = '<i class="fa-regular fa-eye-slash text-emerald-400"></i>';
+            } else {
+                input.type = 'password';
+                btn.innerHTML = '<i class="fa-regular fa-eye"></i>';
+            }
+        }
+
+        function closeStaffLoginModal() {
+            const modal = document.getElementById('modal-staff-login');
+            if (modal) modal.classList.add('hidden');
+            const err = document.getElementById('staff-login-error');
+            if (err) err.classList.add('hidden');
+        }
+
+        function quickLoginStaff(username, password) {
+            const u = document.getElementById('staff-username');
+            const p = document.getElementById('staff-password');
+            if (u) u.value = username;
+            if (p) p.value = password;
+            handleStaffLoginSubmit();
+        }
+
+        async function handleStaffLoginSubmit() {
+            const u = document.getElementById('staff-username').value.trim();
+            const p = document.getElementById('staff-password').value.trim();
+            const btn = document.getElementById('btn-staff-submit');
+            const errBox = document.getElementById('staff-login-error');
+            const errText = document.getElementById('staff-login-error-text');
+            const rememberCheck = document.getElementById('staff-remember');
+
+            if (!u || !p) {
+                if (errBox) {
+                    errText.innerText = 'Vui lòng nhập tên đăng nhập và mật khẩu!';
+                    errBox.classList.remove('hidden');
+                }
+                return;
+            }
+
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-1"></i> Đang đăng nhập...';
+
+            try {
+                const res = await fetch(`${API_BASE}/auth/login`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ tenDangNhap: u, matKhau: p })
+                });
+
+                if (!res.ok) {
+                    const err = await res.json().catch(() => ({}));
+                    const msg = err.detail || 'Tên đăng nhập hoặc mật khẩu không chính xác!';
+                    if (errBox) {
+                        errText.innerText = msg;
+                        errBox.classList.remove('hidden');
+                    }
+                    showToast(msg, 'error');
+                    return;
+                }
+
+                const userData = await res.json();
+                if (rememberCheck && rememberCheck.checked) {
+                    localStorage.setItem('phonecare_session', JSON.stringify(userData));
+                } else {
+                    sessionStorage.setItem('phonecare_session', JSON.stringify(userData));
+                }
+                showToast(`Chào ${userData.hoTen} (${userData.chucVu})! Đang chuyển trang...`, 'success');
+
+                // Chuyển hướng theo vai trò
+                setTimeout(() => {
+                    if (userData.chucVu === 'Admin') {
+                        window.location.href = '/admin';
+                    } else if (userData.chucVu === 'Lễ tân') {
+                        window.location.href = '/le-tan';
+                    } else if (userData.chucVu === 'Kỹ thuật viên') {
+                        window.location.href = '/ky-thuat-vien';
+                    } else if (userData.chucVu === 'Thu ngân') {
+                        window.location.href = '/thu-ngan';
+                    } else {
+                        window.location.href = '/';
+                    }
+                }, 800);
+
+            } catch (networkErr) {
+                if (errBox) {
+                    errText.innerText = 'Lỗi kết nối máy chủ xác thực!';
+                    errBox.classList.remove('hidden');
+                }
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fa-solid fa-arrow-right-to-bracket mr-1"></i> ĐĂNG NHẬP HỆ THỐNG';
+            }
+        }
+
+        // --- HELPER FORMATTERS ---
+        function renderStatusBadge(status) {
+            if (status === 'KhoiTao') {
+                return `<span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-black bg-amber-400 text-slate-950 shadow-md"><span class="w-2 h-2 rounded-full bg-slate-950 animate-ping"></span> Tiếp Nhận</span>`;
+            } else if (status === 'DangKiemTra') {
+                return `<span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-black bg-purple-500 text-white shadow-md"><span class="w-2 h-2 rounded-full bg-white"></span> Đang Kiểm Tra</span>`;
+            } else if (status === 'ChoLinhKien') {
+                return `<span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-black bg-orange-500 text-white shadow-md"><span class="w-2 h-2 rounded-full bg-white animate-pulse"></span> Chờ Linh Kiện</span>`;
+            } else if (status === 'DangSua') {
+                return `<span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-black bg-sky-500 text-white shadow-md"><span class="w-2 h-2 rounded-full bg-white animate-ping"></span> Đang Sửa</span>`;
+            } else if (status === 'DaSuaXong') {
+                return `<span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-black bg-emerald-500 text-white shadow-md"><span class="w-2 h-2 rounded-full bg-white"></span> Đã Sửa Xong</span>`;
+            } else if (status === 'DaThanhToan') {
+                return `<span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-black bg-indigo-500 text-white shadow-md"><span class="w-2 h-2 rounded-full bg-white"></span> Đã Bàn Giao</span>`;
+            }
+            return `<span class="px-3 py-1 rounded-full text-xs font-bold bg-slate-800 text-slate-300">${status}</span>`;
+        }
+    </script>
+
+<!-- AI CHATBOT WIDGET TƯ VẤN LINH KIỆN (CSDL THẬT) -->
+<style>
+#kh-chatbot-widget { position: fixed; bottom: 24px; right: 24px; z-index: 999; }
+#kh-chatbot-bubble { width: 60px; height: 60px; border-radius: 50%; background: linear-gradient(135deg, #6366f1, #8b5cf6); color: white; display: flex; align-items: center; justify-content: center; font-size: 26px; cursor: pointer; box-shadow: 0 8px 32px rgba(99,102,241,0.45); transition: transform 0.2s; animation: pulse-ring 2s infinite; }
+#kh-chatbot-bubble:hover { transform: scale(1.1); }
+@keyframes pulse-ring { 0% { box-shadow: 0 8px 32px rgba(99,102,241,0.45); } 50% { box-shadow: 0 8px 40px rgba(99,102,241,0.65), 0 0 0 12px rgba(99,102,241,0.1); } 100% { box-shadow: 0 8px 32px rgba(99,102,241,0.45); } }
+#kh-chatbot-panel { display: none; position: absolute; bottom: 72px; right: 0; width: 380px; border-radius: 20px; overflow: hidden; box-shadow: 0 24px 64px rgba(0,0,0,0.25); background: white; border: 1px solid #e2e8f0; }
+#kh-chatbot-panel.open { display: flex; flex-direction: column; }
+#kh-chat-messages { height: 340px; overflow-y: auto; padding: 12px; display: flex; flex-direction: column; gap: 8px; background: #f8fafc; }
+.kh-msg-user { align-self: flex-end; background: linear-gradient(135deg,#6366f1,#8b5cf6); color:white; padding:8px 12px; border-radius:14px 14px 4px 14px; max-width:85%; font-size:12px; line-height:1.5; box-shadow: 0 2px 8px rgba(99,102,241,0.25); }
+.kh-msg-bot { align-self: flex-start; background: white; border: 1px solid #e2e8f0; color: #334155; padding: 10px 12px; border-radius: 14px 14px 14px 4px; max-width: 90%; font-size: 12px; line-height: 1.7; white-space: pre-wrap; box-shadow: 0 2px 6px rgba(0,0,0,0.04); }
+.kh-quick-btn { background: #f1f5f9; border: 1px solid #cbd5e1; border-radius: 12px; padding: 4px 8px; font-size: 11px; color: #475569; font-weight: 600; cursor: pointer; transition: all 0.15s; text-align: left; }
+.kh-quick-btn:hover { background: #e0e7ff; border-color: #818cf8; color: #3730a3; }
+</style>
+
+<div id="kh-chatbot-widget">
+    <div id="kh-chatbot-panel">
+        <div style="background:linear-gradient(135deg,#4f46e5,#7c3aed);color:white;padding:12px 16px;display:flex;align-items:center;justify-content:space-between;">
+            <div>
+                <div style="display:flex;align-items:center;gap:6px;font-size:13px;font-weight:800;">
+                    <span>🤖</span> AI Kỹ Thuật FrogHippo Phone
+                </div>
+                <div style="font-size:10px;opacity:0.9;display:flex;align-items:center;gap:4px;margin-top:2px;">
+                    <span style="background:rgba(255,255,255,0.25);padding:1px 6px;border-radius:4px;font-weight:700;">QUY CHUẨN KỸ THUẬT</span>
+                    <span>•</span>
+                    <span>CHUẨN ĐOÁN KTV</span>
+                </div>
+            </div>
+            <button onclick="khCloseChatbot()" style="background:none;border:none;color:white;cursor:pointer;font-size:20px;opacity:0.85;line-height:1;">×</button>
+        </div>
+
+        <!-- Thanh trạng thái phiếu liên kết -->
+        <div id="kh-chat-ticket-bar" style="background:#e0e7ff;color:#3730a3;padding:5px 12px;font-size:11px;font-weight:700;display:none;align-items:center;justify-content:space-between;border-bottom:1px solid #c7d2fe;">
+            <span id="kh-chat-ticket-text">📌 Đang kết nối hồ sơ phiếu: #...</span>
+            <button onclick="khClearTicketLink()" style="background:none;border:none;color:#4338ca;cursor:pointer;font-size:12px;">Bỏ chọn</button>
+        </div>
+
+        <div id="kh-chat-messages"></div>
+
+        <!-- Quick question prompts -->
+        <div id="kh-quick-prompts" style="padding:6px 10px;background:#f8fafc;border-top:1px solid #f1f5f9;display:flex;flex-wrap:wrap;gap:4px;">
+            <button class="kh-quick-btn" onclick="khAskQuick('Kỹ thuật viên chuẩn đoán máy của tôi bị gì vậy?')">👨‍🔧 KTV chuẩn đoán máy tôi?</button>
+            <button class="kh-quick-btn" onclick="khAskQuick('Quy định đặt cọc 30% và thanh toán 70% thế nào?')">💳 Quy định cọc 30%?</button>
+            <button class="kh-quick-btn" onclick="khAskQuick('Chính sách bảo hành sau sửa chữa ra sao?')">🛡️ Bảo hành bao lâu?</button>
+            <button class="kh-quick-btn" onclick="khAskQuick('Giá màn hình OLED iPhone 13 Pro bao nhiêu tiền?')">📱 Giá màn hình iPhone 13 Pro?</button>
+        </div>
+
+        <div style="padding:8px 10px;border-top:1px solid #e2e8f0;display:flex;gap:6px;background:white;">
+            <input id="kh-chat-input" type="text" placeholder="Hỏi về chuẩn đoán KTV, linh kiện, bảo hành..." style="flex:1;border:1px solid #cbd5e1;border-radius:10px;padding:8px 12px;font-size:12px;outline:none;font-family:Inter,sans-serif;" onkeydown="if(event.key==='Enter')khSendChat()">
+            <button onclick="khSendChat()" style="background:linear-gradient(135deg,#4f46e5,#7c3aed);color:white;border:none;border-radius:10px;padding:8px 14px;cursor:pointer;font-size:14px;font-weight:bold;box-shadow:0 2px 6px rgba(79,70,229,0.3);">➤</button>
+        </div>
+    </div>
+    <div id="kh-chatbot-bubble" onclick="khToggleChatbot()" title="AI Trợ lý Kỹ thuật & Chuẩn đoán KTV">💬</div>
+</div>
+
+<script>
+let khChatLinkedMaPhieu = null;
+
+function khGetActiveMaPhieu() {
+    if (khChatLinkedMaPhieu) return khChatLinkedMaPhieu;
+    if (currentSearchedData && currentSearchedData.phieu && currentSearchedData.phieu.maPhieu) {
+        return currentSearchedData.phieu.maPhieu;
+    }
+    const urlParams = new URLSearchParams(window.location.search);
+    return urlParams.get('maPhieu') || urlParams.get('maphieu') || null;
+}
+
+function khUpdateTicketBar() {
+    const maP = khGetActiveMaPhieu();
+    const bar = document.getElementById('kh-chat-ticket-bar');
+    const textEl = document.getElementById('kh-chat-ticket-text');
+    if (maP) {
+        bar.style.display = 'flex';
+        textEl.textContent = `📌 Đang kết nối hồ sơ phiếu: #${maP}`;
+    } else {
+        bar.style.display = 'none';
+    }
+}
+
+function khClearTicketLink() {
+    khChatLinkedMaPhieu = null;
+    khUpdateTicketBar();
+    khAppendBot('Đã ngắt liên kết phiếu. Bạn có thể hỏi tư vấn chung về Bộ quy chuẩn kỹ thuật hoặc giá linh kiện trong kho!');
+}
+
+function khToggleChatbot() {
+    const panel = document.getElementById('kh-chatbot-panel');
+    panel.classList.toggle('open');
+    if (panel.classList.contains('open')) {
+        khUpdateTicketBar();
+        if (!document.getElementById('kh-chat-messages').children.length) {
+            const maP = khGetActiveMaPhieu();
+            let welcome = 'Xin chào! Em là Trợ lý AI Kỹ thuật của Trung tâm FrogHippo Phone 🐸📱\n\n' +
+                          'Em luôn túc trực hỗ trợ Quý khách dựa trên:\n' +
+                          '1. BỘ QUY CHUẨN SỬA CHỮA ĐIỆN THOẠI CHÍNH HÃNG\n' +
+                          '2. CHUẨN ĐOÁN TRỰC TIẾP TỪ KỸ THUẬT VIÊN (KTV)\n' +
+                          '3. DỮ LIỆU KHO LINH KIỆN NIÊM YẾT THỰC TẾ\n\n';
+            if (maP) {
+                welcome += `🔍 Em thấy Anh/Chị đang tra cứu phiếu #${maP}. Anh/Chị có thể hỏi em: "KTV chẩn đoán máy tôi bị gì?", "Chi phí và tiền cọc 30% ra sao?" nhé ạ!`;
+            } else {
+                welcome += 'Anh/Chị có thể hỏi giá linh kiện, tra cứu bệnh lý thiết bị hoặc nhập mã phiếu để em đối chiếu chẩn đoán từ KTV ạ!';
+            }
+            khAppendBot(welcome);
+        }
+        document.getElementById('kh-chat-input').focus();
+    }
+}
+
+function khCloseChatbot() { document.getElementById('kh-chatbot-panel').classList.remove('open'); }
+
+function khAppendUser(text) {
+    const c = document.getElementById('kh-chat-messages');
+    const el = document.createElement('div'); el.className = 'kh-msg-user'; el.textContent = text;
+    c.appendChild(el); c.scrollTop = c.scrollHeight;
+}
+
+function khAppendBot(text) {
+    const c = document.getElementById('kh-chat-messages');
+    const el = document.createElement('div'); el.className = 'kh-msg-bot'; el.textContent = text;
+    c.appendChild(el); c.scrollTop = c.scrollHeight;
+}
+
+function khShowTyping() {
+    const c = document.getElementById('kh-chat-messages');
+    const el = document.createElement('div'); el.id = 'kh-typing'; el.className = 'kh-msg-bot'; 
+    el.textContent = '⌛ Đang đối chiếu Bộ quy chuẩn & chuẩn đoán KTV...';
+    c.appendChild(el); c.scrollTop = c.scrollHeight;
+}
+
+function khHideTyping() { const e = document.getElementById('kh-typing'); if(e) e.remove(); }
+
+function khAskQuick(text) {
+    document.getElementById('kh-chat-input').value = text;
+    khSendChat();
+}
+
+async function khSendChat() {
+    const input = document.getElementById('kh-chat-input');
+    const msg = input.value.trim(); if (!msg) return;
+    input.value = '';
+    khAppendUser(msg); khShowTyping();
+
+    const activeMaPhieu = khGetActiveMaPhieu();
+
+    try {
+        const res = await fetch('/api/khach-hang/chatbot', {
+            method: 'POST', 
+            headers: {'Content-Type':'application/json'},
+            body: JSON.stringify({ 
+                message: msg,
+                maPhieu: activeMaPhieu
+            })
+        });
+        khHideTyping();
+        if (res.ok) { 
+            const d = await res.json(); 
+            khAppendBot(d.reply); 
+        } else { 
+            khAppendBot('Xin lỗi, hệ thống AI đang bận. Quý khách vui lòng gọi Hotline 1900 6868 để được hỗ trợ trực tiếp!'); 
+        }
+    } catch(e) { 
+        khHideTyping(); 
+        khAppendBot('Lỗi kết nối tới máy chủ. Quý khách vui lòng thử lại sau giây lát!'); 
+    }
+}
+</script>
+</body>
+</html>

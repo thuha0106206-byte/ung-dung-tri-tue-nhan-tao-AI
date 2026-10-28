@@ -1,0 +1,1410 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+    <title>Phân Hệ Thu Ngân & Thanh Toán - FrogHippo Phone</title>
+    <meta name="description" content="Hệ thống Quầy Thu Ngân & Quản Lý Ca Trực FrogHippo Phone: Thanh toán hóa đơn sửa chữa, tạo mã VietQR động, in phiếu thu và chốt ca trực đồng bộ MySQL.">
+    <link rel="icon" type="image/png" href="/froghippo_logo.png">
+
+    <!-- Google Fonts Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                    colors: {
+                        emerald: {
+                            50: '#ecfdf5',
+                            100: '#d1fae5',
+                            200: '#a7f3d0',
+                            300: '#6ee7b7',
+                            400: '#34d399',
+                            500: '#10b981',
+                            600: '#059669',
+                            700: '#047857',
+                            800: '#065f46',
+                            900: '#064e3b',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f0fdf4;
+        }
+        .glass-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(209, 250, 229, 0.9);
+        }
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 5px;
+            height: 5px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: #f1f5f9;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 9999px;
+        }
+
+        /* In ấn hóa đơn */
+        @media print {
+            body * {
+                visibility: hidden;
+            }
+            #print-bill-modal, #print-bill-modal *,
+            #print-shift-modal, #print-shift-modal * {
+                visibility: visible;
+            }
+            #print-bill-modal, #print-shift-modal {
+                position: absolute;
+                left: 0;
+                top: 0;
+                width: 100%;
+                background: white !important;
+                box-shadow: none !important;
+            }
+            .no-print {
+                display: none !important;
+            }
+        }
+    </style>
+</head>
+<body class="min-h-screen text-slate-800 flex flex-col bg-slate-50">
+
+    <!-- TOAST NOTIFICATION CONTAINER -->
+    <div id="toast-container" class="fixed top-5 right-5 z-50 flex flex-col gap-2 pointer-events-none"></div>
+
+    <!-- TOP HEADER -->
+    <header class="bg-white border-b border-emerald-100 sticky top-0 z-40 shadow-sm no-print">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+            <!-- Brand & Phân hệ -->
+            <div class="flex items-center gap-3">
+                <img src="/froghippo_logo.png" alt="FrogHippo Logo" class="h-10 w-auto rounded-xl object-contain shadow-xs" onerror="this.src='/logo.png'">
+                <div>
+                    <div class="flex items-center gap-2">
+                        <span class="font-black text-slate-900 text-base tracking-tight">FrogHippo Phone</span>
+                        <span class="px-2.5 py-0.5 rounded-full text-xs font-black bg-emerald-100 text-emerald-800 border border-emerald-200">
+                            💳 Quầy Thu Ngân & Thanh Toán
+                        </span>
+                    </div>
+                    <p class="text-[11px] text-slate-500 font-medium">Thanh toán hóa đơn, VietQR tự động & Chốt ca CSDL MySQL</p>
+                </div>
+            </div>
+
+            <!-- Nhân viên & Hành động ca trực -->
+            <div class="flex items-center gap-3">
+                <!-- Chọn Thu ngân đang trực -->
+                <div class="flex items-center gap-2 bg-emerald-50 border border-emerald-200/80 py-1.5 px-3 rounded-xl text-xs">
+                    <span class="text-emerald-700 font-bold"><i class="fa-solid fa-user-tag mr-1"></i>Thu ngân:</span>
+                    <select id="select-active-cashier" onchange="onCashierChange()" class="bg-transparent font-black text-emerald-900 focus:outline-none cursor-pointer">
+                        <option value="NV04" selected>Phạm Thị Dung (NV04)</option>
+                        <option value="NV01">Nguyễn Văn An (Admin - NV01)</option>
+                    </select>
+                </div>
+
+                <!-- Trạng thái Ca làm việc -->
+                <div id="shift-status-badge" class="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold bg-amber-50 text-amber-700 border border-amber-200">
+                    <span class="w-2 h-2 rounded-full bg-amber-500 animate-pulse"></span>
+                    <span id="shift-status-text">Đang kiểm tra ca...</span>
+                </div>
+
+                <!-- Nút Mở / Chốt ca -->
+                <button onclick="handleOpenShiftModal()" id="btn-shift-action" class="bg-emerald-600 hover:bg-emerald-700 text-white px-3.5 py-1.5 rounded-xl text-xs font-black shadow-sm transition active:scale-95 flex items-center gap-1.5">
+                    <i class="fa-solid fa-calculator"></i>
+                    <span id="btn-shift-text">Chốt Ca Trực</span>
+                </button>
+
+                <!-- Lối tắt các phân hệ -->
+                <div class="hidden md:flex items-center gap-1.5 border-l border-slate-200 pl-3">
+                    <a href="/" title="Phân Hệ Lễ Tân & Tiếp Nhận" class="p-2 rounded-xl text-slate-600 hover:text-pink-600 hover:bg-pink-50 text-xs font-bold transition">
+                        💁 Lễ Tân
+                    </a>
+                    <a href="/ky-thuat-vien" target="_blank" title="Trang Kỹ Thuật Viên" class="p-2 rounded-xl text-slate-600 hover:text-sky-600 hover:bg-sky-50 text-xs font-bold transition">
+                        🛠️ KTV
+                    </a>
+                    <a href="/" class="p-2 rounded-xl text-slate-600 hover:text-indigo-600 hover:bg-indigo-50 text-xs font-bold transition flex items-center gap-1">
+                        <i class="fa-solid fa-house"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- MAIN BODY -->
+    <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
+
+        <!-- 4 THẺ KPI DOANH THU & TIẾN ĐỘ CA (LIVE MYSQL) -->
+        <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 no-print">
+            <div class="glass-card p-4 rounded-2xl shadow-sm border border-emerald-100 flex items-center gap-3.5">
+                <div class="w-11 h-11 rounded-xl bg-emerald-100 text-emerald-700 flex items-center justify-center text-xl">
+                    💰
+                </div>
+                <div>
+                    <p class="text-xs text-slate-500 font-semibold">Doanh Thu Trong Ca</p>
+                    <p id="stat-total-revenue" class="text-xl font-black text-emerald-700">0 đ</p>
+                </div>
+            </div>
+
+            <div class="glass-card p-4 rounded-2xl shadow-sm border border-emerald-100 flex items-center gap-3.5">
+                <div class="w-11 h-11 rounded-xl bg-amber-100 text-amber-700 flex items-center justify-center text-xl">
+                    💵
+                </div>
+                <div>
+                    <p class="text-xs text-slate-500 font-semibold">Tiền Mặt Đang Giữ</p>
+                    <p id="stat-cash-revenue" class="text-xl font-black text-amber-700">0 đ</p>
+                </div>
+            </div>
+
+            <div class="glass-card p-4 rounded-2xl shadow-sm border border-emerald-100 flex items-center gap-3.5">
+                <div class="w-11 h-11 rounded-xl bg-sky-100 text-sky-700 flex items-center justify-center text-xl">
+                    📲
+                </div>
+                <div>
+                    <p class="text-xs text-slate-500 font-semibold">Chuyển Khoản (VietQR)</p>
+                    <p id="stat-bank-revenue" class="text-xl font-black text-sky-700">0 đ</p>
+                </div>
+            </div>
+
+            <div class="glass-card p-4 rounded-2xl shadow-sm border border-emerald-100 flex items-center gap-3.5">
+                <div class="w-11 h-11 rounded-xl bg-purple-100 text-purple-700 flex items-center justify-center text-xl">
+                    🧾
+                </div>
+                <div>
+                    <p class="text-xs text-slate-500 font-semibold">Hóa Đơn Đã Thu</p>
+                    <p id="stat-paid-count" class="text-xl font-black text-purple-700">0 đơn</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- TABS ĐIỀU HƯỚNG NỘI BỘ -->
+        <div class="flex border-b border-slate-200 gap-2 no-print">
+            <button onclick="switchCashierTab('pos')" id="tab-btn-pos" class="px-4 py-2.5 text-xs font-black border-b-2 border-emerald-600 text-emerald-700 flex items-center gap-2 transition">
+                <i class="fa-solid fa-cash-register"></i> Quầy Thu Ngân & Xuất Hóa Đơn
+            </button>
+            <button onclick="switchCashierTab('history')" id="tab-btn-history" class="px-4 py-2.5 text-xs font-bold border-b-2 border-transparent text-slate-500 hover:text-slate-800 flex items-center gap-2 transition">
+                <i class="fa-solid fa-clock-rotate-left"></i> Lịch Sử Hóa Đơn (MySQL)
+            </button>
+            <button onclick="switchCashierTab('shifts')" id="tab-btn-shifts" class="px-4 py-2.5 text-xs font-bold border-b-2 border-transparent text-slate-500 hover:text-slate-800 flex items-center gap-2 transition">
+                <i class="fa-solid fa-business-time"></i> Nhật Ký Chốt Ca
+            </button>
+        </div>
+
+        <!-- ============================================================== -->
+        <!-- VIEW 1: QUẦY THU NGÂN CHÍNH (POS SPLIT LAYOUT) -->
+        <!-- ============================================================== -->
+        <div id="view-pos" class="grid grid-cols-1 lg:grid-cols-12 gap-6 no-print">
+
+            <!-- CỘT TRÁI (5 Cột): DANH SÁCH PHIẾU CHỜ THANH TOÁN -->
+            <div class="lg:col-span-5 space-y-4">
+                <div class="bg-white rounded-2xl border border-slate-200 p-4 shadow-xs space-y-3">
+                    <div class="flex items-center justify-between">
+                        <h2 class="text-xs font-black text-slate-900 uppercase tracking-wider flex items-center gap-2">
+                            <i class="fa-solid fa-list-check text-emerald-600"></i> Phiếu Chờ Thanh Toán
+                            <span id="pending-ticket-count" class="px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 text-[10px] font-black">0</span>
+                        </h2>
+                        <button onclick="loadPendingTickets()" class="text-xs text-slate-400 hover:text-emerald-600 transition" title="Làm mới">
+                            <i class="fa-solid fa-rotate-right"></i>
+                        </button>
+                    </div>
+
+                    <!-- Ô tìm kiếm phiếu -->
+                    <div class="relative">
+                        <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-xs"></i>
+                        <input id="search-ticket-input" type="text" oninput="filterPendingTickets()" placeholder="Tìm theo mã phiếu, tên khách, số ĐT..." 
+                            class="w-full bg-slate-50 border border-slate-200 pl-8 pr-3 py-2 rounded-xl text-xs font-semibold text-slate-800 placeholder:text-slate-400 focus:outline-none focus:border-emerald-500 focus:bg-white transition">
+                    </div>
+
+                    <!-- Danh sách phiếu scrollable -->
+                    <div id="tickets-list-container" class="space-y-2.5 max-h-[580px] overflow-y-auto custom-scrollbar pr-1">
+                        <div class="text-center py-10 text-xs text-slate-400">
+                            <i class="fa-solid fa-spinner fa-spin text-lg mb-2"></i>
+                            <p>Đang tải danh sách phiếu từ MySQL...</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- CỘT PHẢI (7 Cột): KHUNG XUẤT HÓA ĐƠN & THU TIỀN -->
+            <div class="lg:col-span-7 space-y-4">
+                <div class="bg-white rounded-2xl border border-emerald-200/80 p-5 shadow-xs space-y-5">
+                    
+                    <!-- Header hóa đơn -->
+                    <div class="flex flex-wrap items-center justify-between pb-3 border-b border-slate-100 gap-2">
+                        <div>
+                            <span class="text-[10px] font-black text-emerald-600 uppercase tracking-widest">HÓA ĐƠN DỊCH VỤ SỬA CHỮA</span>
+                            <h3 id="bill-ticket-title" class="text-lg font-black text-slate-900">Vui lòng chọn phiếu bên trái</h3>
+                        </div>
+                        <div id="bill-status-pill" class="hidden px-2.5 py-1 rounded-full text-xs font-black bg-slate-100 text-slate-600">
+                            Chờ Thu Tiền
+                        </div>
+                    </div>
+
+                    <!-- Thông tin khách hàng & KTV -->
+                    <div class="grid grid-cols-2 sm:grid-cols-3 gap-3 p-3 bg-slate-50 rounded-xl text-xs border border-slate-100">
+                        <div>
+                            <span class="text-slate-400 block text-[10px] font-bold">Khách Hàng</span>
+                            <strong id="bill-customer-name" class="text-slate-800 font-extrabold truncate block">---</strong>
+                            <span id="bill-customer-phone" class="text-[11px] text-slate-500">---</span>
+                        </div>
+                        <div>
+                            <span class="text-slate-400 block text-[10px] font-bold">KTV Phụ Trách</span>
+                            <strong id="bill-technician-name" class="text-slate-800 font-extrabold truncate block">---</strong>
+                            <span class="text-[11px] text-slate-500">Phòng Kỹ Thuật</span>
+                        </div>
+                        <div class="col-span-2 sm:col-span-1">
+                            <span class="text-slate-400 block text-[10px] font-bold">Mô Tả Lỗi Thiết Bị</span>
+                            <p id="bill-device-symptom" class="text-slate-700 text-[11px] truncate">---</p>
+                        </div>
+                    </div>
+
+                    <!-- Bảng chi tiết linh kiện & dịch vụ -->
+                    <div>
+                        <p class="text-xs font-black text-slate-800 mb-2 flex items-center gap-1.5">
+                            <i class="fa-solid fa-boxes-stacked text-emerald-600"></i> Chi Tiết Linh Kiện & Dịch Vụ Thay Thế:
+                        </p>
+                        <div class="border border-slate-200 rounded-xl overflow-hidden text-xs">
+                            <table class="w-full text-left">
+                                <thead class="bg-slate-100/80 text-[11px] font-bold text-slate-600 uppercase border-b border-slate-200">
+                                    <tr>
+                                        <th class="p-2.5">Nội dung / Linh kiện</th>
+                                        <th class="p-2.5 text-center">SL</th>
+                                        <th class="p-2.5 text-right">Đơn Giá</th>
+                                        <th class="p-2.5 text-right">Thành Tiền</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="bill-items-tbody" class="divide-y divide-slate-100 font-medium">
+                                    <tr>
+                                        <td colspan="4" class="p-6 text-center text-slate-400 italic">
+                                            Chưa có phiếu nào được chọn
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- Tổng kết tài chính -->
+                    <div class="p-4 bg-emerald-50/60 border border-emerald-100 rounded-2xl space-y-2">
+                        <div class="flex justify-between text-xs text-slate-600">
+                            <span>Tiền linh kiện thay thế:</span>
+                            <span id="bill-parts-cost" class="font-bold text-slate-800">0 đ</span>
+                        </div>
+                        <div class="flex justify-between text-xs text-slate-600">
+                            <span>Tiền công kỹ thuật & vệ sinh máy:</span>
+                            <span id="bill-labor-cost" class="font-bold text-slate-800">150.000 đ</span>
+                        </div>
+                        <div class="pt-2 border-t border-emerald-200/80 flex justify-between items-baseline">
+                            <span class="text-xs font-black text-emerald-900 uppercase">TỔNG TIỀN THANH TOÁN:</span>
+                            <span id="bill-total-cost" class="text-2xl font-black text-emerald-700">0 đ</span>
+                        </div>
+                    </div>
+
+                    <!-- Chọn phương thức thanh toán -->
+                    <div class="space-y-3 pt-1">
+                        <label class="block text-xs font-black text-slate-800 uppercase tracking-wider">
+                            Hình thức thanh toán:
+                        </label>
+                        <div class="grid grid-cols-2 gap-3">
+                            <button type="button" onclick="selectPaymentMethod('TienMat')" id="btn-method-cash" 
+                                class="p-3 rounded-xl border-2 border-emerald-600 bg-emerald-50/80 text-emerald-900 font-extrabold text-xs flex items-center justify-center gap-2 transition">
+                                <i class="fa-solid fa-money-bill-wave text-emerald-600 text-sm"></i>
+                                <span>Tiền Mặt Tại Quầy</span>
+                            </button>
+                            <button type="button" onclick="selectPaymentMethod('ChuyenKhoan')" id="btn-method-bank" 
+                                class="p-3 rounded-xl border-2 border-slate-200 hover:border-slate-300 bg-white text-slate-700 font-extrabold text-xs flex items-center justify-center gap-2 transition">
+                                <i class="fa-solid fa-qrcode text-sky-600 text-sm"></i>
+                                <span>Chuyển Khoản VietQR</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- BOX TIỀN MẶT -->
+                    <div id="box-cash-payment" class="space-y-3 p-4 bg-slate-50 rounded-xl border border-slate-200 text-xs">
+                        <div class="flex items-center justify-between">
+                            <label class="font-bold text-slate-700">Khách đưa (VND):</label>
+                            <!-- Nút điền nhanh -->
+                            <div class="flex gap-1">
+                                <button type="button" onclick="fillExactCash()" class="px-2 py-1 bg-white border border-slate-300 rounded text-[10px] font-bold text-slate-600 hover:bg-slate-100">Đúng số tiền</button>
+                                <button type="button" onclick="addCash(200000)" class="px-2 py-1 bg-white border border-slate-300 rounded text-[10px] font-bold text-slate-600 hover:bg-slate-100">+200k</button>
+                                <button type="button" onclick="addCash(500000)" class="px-2 py-1 bg-white border border-slate-300 rounded text-[10px] font-bold text-slate-600 hover:bg-slate-100">+500k</button>
+                            </div>
+                        </div>
+                        <input id="input-cash-given" type="number" oninput="calculateChange()" placeholder="0" 
+                            class="w-full bg-white border border-slate-300 p-2.5 rounded-xl font-black text-slate-900 text-base focus:border-emerald-500 focus:outline-none">
+                        
+                        <div class="flex justify-between items-center pt-1 text-slate-600">
+                            <span class="font-bold">Tiền thừa trả khách:</span>
+                            <span id="label-cash-change" class="text-base font-black text-amber-600">0 đ</span>
+                        </div>
+                    </div>
+
+                    <!-- BOX CHUYỂN KHOẢN VIETQR ĐỘNG -->
+                    <div id="box-qr-payment" class="hidden p-4 bg-sky-50 border border-sky-200 rounded-xl text-xs space-y-3">
+                        <div class="flex flex-col sm:flex-row items-center gap-4">
+                            <div class="w-36 h-36 bg-white p-1.5 rounded-xl border border-sky-200 shadow-xs flex-shrink-0 flex items-center justify-center">
+                                <img id="vietqr-image" src="" alt="VietQR" class="w-full h-full object-contain rounded-lg" onerror="this.src='/logo.png'">
+                            </div>
+                            <div class="space-y-1.5 flex-1 text-slate-700">
+                                <span class="px-2 py-0.5 rounded text-[10px] font-extrabold bg-sky-600 text-white">VIETQR NAPAS 247</span>
+                                <p class="text-xs"><strong>Ngân hàng:</strong> <span class="text-sky-800 font-bold">MBBank (Quân Đội)</span></p>
+                                <p class="text-xs"><strong>Số tài khoản:</strong> <span class="font-mono font-black text-slate-900 bg-white px-2 py-0.5 rounded border border-slate-200">0345678901</span></p>
+                                <p class="text-xs"><strong>Chủ tài khoản:</strong> <span class="font-bold text-slate-800">FROG HIPPO PHONE CARE</span></p>
+                                <p class="text-xs"><strong>Nội dung CK:</strong> <span id="qr-transfer-content" class="font-mono font-bold text-sky-700">TT PS01</span></p>
+                            </div>
+                        </div>
+                        <p class="text-[11px] text-sky-600 italic text-center sm:text-left">
+                            <i class="fa-solid fa-circle-info mr-1"></i> Khách hàng có thể mở bất kỳ ứng dụng ngân hàng hoặc ví điện tử để quét mã thanh toán ngay.
+                        </p>
+                    </div>
+
+                    <!-- Ghi chú hóa đơn -->
+                    <div>
+                        <input id="input-bill-notes" type="text" placeholder="Ghi chú hóa đơn (vd: Khách nhận lại phụ kiện cũ, giảm giá bảo hành...)" 
+                            class="w-full bg-slate-50 border border-slate-200 p-2.5 rounded-xl text-xs text-slate-800 placeholder:text-slate-400 focus:outline-none focus:border-emerald-500 focus:bg-white transition">
+                    </div>
+
+                    <!-- Nút hành động thanh toán -->
+                    <div class="flex gap-3 pt-2">
+                        <button onclick="handleConfirmPayment()" id="btn-submit-payment" 
+                            class="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white py-3.5 rounded-xl font-black text-sm shadow-md shadow-emerald-600/20 transition transform active:scale-[0.98] flex items-center justify-center gap-2">
+                            <i class="fa-solid fa-check-circle"></i>
+                            <span>XÁC NHẬN THANH TOÁN</span>
+                        </button>
+                        <button onclick="handlePrintCurrentBill()" id="btn-print-bill-quick" 
+                            class="px-4 py-3.5 rounded-xl border border-slate-300 hover:bg-slate-100 text-slate-700 font-black text-xs transition flex items-center gap-1.5 shadow-xs">
+                            <i class="fa-solid fa-print"></i>
+                            <span>In Phiếu Thu</span>
+                        </button>
+                    </div>
+
+                </div>
+            </div>
+
+        </div>
+
+        <!-- ============================================================== -->
+        <!-- VIEW 2: LỊCH SỬ HÓA ĐƠN TRONG MYSQL -->
+        <!-- ============================================================== -->
+        <div id="view-history" class="hidden bg-white rounded-2xl border border-slate-200 p-5 shadow-xs space-y-4 no-print">
+            <div class="flex flex-wrap items-center justify-between gap-3">
+                <h3 class="text-sm font-black text-slate-900 flex items-center gap-2">
+                    <i class="fa-solid fa-database text-emerald-600"></i> Danh Sách Hóa Đơn Đã Lưu Trong CSDL MySQL
+                </h3>
+                <div class="flex items-center gap-2 text-xs">
+                    <select id="filter-history-method" onchange="loadInvoiceHistory()" class="bg-slate-50 border border-slate-200 p-2 rounded-xl font-semibold">
+                        <option value="ALL">Tất cả phương thức</option>
+                        <option value="TienMat">Tiền mặt</option>
+                        <option value="ChuyenKhoan">Chuyển khoản VietQR</option>
+                    </select>
+                    <input id="search-history-input" type="text" oninput="loadInvoiceHistory()" placeholder="Tìm mã HĐ, mã phiếu, khách..." 
+                        class="bg-slate-50 border border-slate-200 p-2 rounded-xl text-xs font-semibold focus:outline-none focus:border-emerald-500">
+                    <button onclick="loadInvoiceHistory()" class="bg-emerald-600 text-white px-3 py-2 rounded-xl font-bold hover:bg-emerald-700">
+                        <i class="fa-solid fa-rotate"></i>
+                    </button>
+                </div>
+            </div>
+
+            <div class="border border-slate-200 rounded-xl overflow-x-auto text-xs">
+                <table class="w-full text-left min-w-[700px]">
+                    <thead class="bg-slate-100 text-[11px] font-bold text-slate-600 uppercase border-b border-slate-200">
+                        <tr>
+                            <th class="p-3">Mã Hóa Đơn</th>
+                            <th class="p-3">Mã Phiếu</th>
+                            <th class="p-3">Khách Hàng</th>
+                            <th class="p-3">Phương Thức</th>
+                            <th class="p-3 text-right">Tổng Tiền</th>
+                            <th class="p-3">Thời Gian Thu</th>
+                            <th class="p-3">Thu Ngân</th>
+                            <th class="p-3 text-center">In Phiếu</th>
+                        </tr>
+                    </thead>
+                    <tbody id="history-tbody" class="divide-y divide-slate-100 font-medium">
+                        <tr>
+                            <td colspan="8" class="p-6 text-center text-slate-400">Đang tải lịch sử hóa đơn...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- ============================================================== -->
+        <!-- VIEW 3: NHẬT KÝ CHỐT CA TRỰC (MYSQL) -->
+        <!-- ============================================================== -->
+        <div id="view-shifts" class="hidden bg-white rounded-2xl border border-slate-200 p-5 shadow-xs space-y-4 no-print">
+            <div class="flex items-center justify-between">
+                <h3 class="text-sm font-black text-slate-900 flex items-center gap-2">
+                    <i class="fa-solid fa-clipboard-list text-emerald-600"></i> Lịch Sử Các Ca Làm Việc Đã Chốt Trong MySQL
+                </h3>
+                <button onclick="loadShiftHistory()" class="text-xs bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold px-3 py-1.5 rounded-xl transition">
+                    <i class="fa-solid fa-rotate mr-1"></i> Làm mới
+                </button>
+            </div>
+
+            <div class="border border-slate-200 rounded-xl overflow-x-auto text-xs">
+                <table class="w-full text-left min-w-[750px]">
+                    <thead class="bg-slate-100 text-[11px] font-bold text-slate-600 uppercase border-b border-slate-200">
+                        <tr>
+                            <th class="p-3">Mã Ca</th>
+                            <th class="p-3">Thu Ngân</th>
+                            <th class="p-3">Thời Gian Mở Ca</th>
+                            <th class="p-3">Thời Gian Đóng Ca</th>
+                            <th class="p-3 text-center">Số Đơn</th>
+                            <th class="p-3 text-right">Tiền Mặt</th>
+                            <th class="p-3 text-right">Chuyển Khoản</th>
+                            <th class="p-3 text-right">Tổng DT</th>
+                            <th class="p-3 text-right">Thực Tế</th>
+                            <th class="p-3 text-right">Chênh Lệch</th>
+                        </tr>
+                    </thead>
+                    <tbody id="shifts-tbody" class="divide-y divide-slate-100 font-medium">
+                        <tr>
+                            <td colspan="10" class="p-6 text-center text-slate-400">Đang tải lịch sử ca trực...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- ============================================================== -->
+    <!-- MODAL 1: CHỐT CA LÀM VIỆC & BÀN GIAO TIỀN MẶT -->
+    <!-- ============================================================== -->
+    <div id="modal-close-shift" class="fixed inset-0 z-50 hidden flex items-center justify-center p-4 bg-slate-950/60 backdrop-blur-xs no-print">
+        <div class="bg-white rounded-3xl max-w-lg w-full p-6 border border-emerald-100 shadow-2xl space-y-4">
+            <div class="flex items-center justify-between pb-3 border-b border-slate-100">
+                <div class="flex items-center gap-2">
+                    <div class="w-8 h-8 rounded-xl bg-emerald-100 text-emerald-700 flex items-center justify-center text-base">
+                        📊
+                    </div>
+                    <div>
+                        <h4 class="text-sm font-black text-slate-900">Biên Bản Chốt Ca Thu Ngân</h4>
+                        <p class="text-[11px] text-slate-400">Kiểm đếm tiền mặt & lưu hồ sơ vào CSDL MySQL</p>
+                    </div>
+                </div>
+                <button onclick="closeModalCloseShift()" class="text-slate-400 hover:text-slate-600 text-sm">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+
+            <!-- Tóm tắt số liệu ca -->
+            <div class="bg-slate-50 p-3.5 rounded-2xl border border-slate-200/80 space-y-2 text-xs">
+                <div class="flex justify-between">
+                    <span class="text-slate-500">Mã ca / Thu ngân:</span>
+                    <strong id="modal-shift-code-user" class="text-slate-900">CA-2026 / NV04</strong>
+                </div>
+                <div class="flex justify-between">
+                    <span class="text-slate-500">Thời gian mở ca:</span>
+                    <span id="modal-shift-open-time" class="font-bold text-slate-800">---</span>
+                </div>
+                <div class="flex justify-between">
+                    <span class="text-slate-500">Tổng số đơn thanh toán:</span>
+                    <span id="modal-shift-order-count" class="font-bold text-slate-800">0 đơn</span>
+                </div>
+                <div class="flex justify-between">
+                    <span class="text-slate-500">Doanh thu Chuyển khoản (VietQR):</span>
+                    <span id="modal-shift-bank-total" class="font-bold text-sky-700">0 đ</span>
+                </div>
+                <div class="flex justify-between pt-1 border-t border-slate-200">
+                    <span class="font-extrabold text-emerald-900">Tiền mặt hệ thống ghi nhận:</span>
+                    <span id="modal-shift-cash-system" class="font-black text-emerald-700 text-sm">0 đ</span>
+                </div>
+            </div>
+
+            <!-- Nhập tiền mặt thực tế kiểm đếm -->
+            <div class="space-y-1.5 text-xs">
+                <label class="block font-bold text-slate-800">
+                    Tiền mặt thực tế kiểm đếm tại quầy (VND):
+                </label>
+                <input id="input-actual-cash" type="number" oninput="calculateShiftDifference()" placeholder="Nhập số tiền mặt đếm được trong ngăn kéo..." 
+                    class="w-full bg-slate-50 border border-slate-300 focus:border-emerald-500 p-2.5 rounded-xl font-black text-slate-900 text-sm focus:outline-none">
+                
+                <div class="flex justify-between items-center pt-1">
+                    <span class="font-bold text-slate-600">Chênh lệch tiền mặt:</span>
+                    <span id="label-shift-diff" class="font-black text-sm text-emerald-600">Khớp 100% (0 đ)</span>
+                </div>
+            </div>
+
+            <!-- Ghi chú giao ca -->
+            <div class="space-y-1 text-xs">
+                <label class="block font-bold text-slate-800">Ghi chú bàn giao ca:</label>
+                <textarea id="input-shift-notes" rows="2" placeholder="Ghi chú thêm về các khoản chi phụ, tiền lẻ còn lại..." 
+                    class="w-full bg-slate-50 border border-slate-300 p-2 rounded-xl text-xs focus:outline-none focus:border-emerald-500"></textarea>
+            </div>
+
+            <div class="flex gap-2 pt-2">
+                <button onclick="closeModalCloseShift()" class="flex-1 py-2.5 rounded-xl border border-slate-300 hover:bg-slate-100 text-slate-700 font-bold text-xs transition">
+                    Hủy Bỏ
+                </button>
+                <button onclick="submitCloseShift()" class="flex-1 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-black text-xs shadow-md shadow-emerald-600/20 transition flex items-center justify-center gap-1.5">
+                    <i class="fa-solid fa-lock"></i>
+                    <span>Xác Nhận Đóng Ca</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============================================================== -->
+    <!-- MODAL 2: IN HÓA ĐƠN BÁN HÀNG / BIÊN LAI THANH TOÁN (K80/A5) -->
+    <!-- ============================================================== -->
+    <div id="print-bill-modal" class="fixed inset-0 z-50 hidden flex items-center justify-center p-4 bg-slate-950/60 backdrop-blur-xs">
+        <div class="bg-white rounded-3xl max-w-md w-full p-6 border border-slate-200 shadow-2xl space-y-4 max-h-[90vh] overflow-y-auto">
+            
+            <!-- Phiếu in thực tế -->
+            <div id="printable-receipt-area" class="text-slate-900 text-xs space-y-3 font-sans">
+                <!-- Header phiếu -->
+                <div class="text-center pb-2 border-b border-dashed border-slate-400">
+                    <div class="flex justify-center mb-1">
+                        <img src="/froghippo_logo.png" alt="FrogHippo" class="h-10 w-auto object-contain" onerror="this.src='/logo.png'">
+                    </div>
+                    <h2 class="text-sm font-black uppercase">FROG HIPPO PHONE</h2>
+                    <p class="text-[11px] text-slate-500">Trung Tâm Bảo Hành & Sửa Chữa Điện Thoại</p>
+                    <p class="text-[10px] text-slate-500">Đ/c: Số 123 Đường Cầu Giấy, Hà Nội • Hotline: 098.765.4321</p>
+                    <div class="mt-2 text-xs font-black uppercase tracking-wider text-slate-800">
+                        HÓA ĐƠN THANH TOÁN DỊCH VỤ
+                    </div>
+                    <p class="text-[10px] text-slate-500 font-mono" id="print-hd-number">Số HĐ: HD-PS01-12345</p>
+                </div>
+
+                <!-- Thông tin phiếu & khách -->
+                <div class="space-y-1 text-[11px] pb-2 border-b border-dashed border-slate-400">
+                    <div class="flex justify-between">
+                        <span class="text-slate-500">Thời gian:</span>
+                        <span id="print-hd-date" class="font-bold">28/09/2026 20:30</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span class="text-slate-500">Mã phiếu sửa:</span>
+                        <span id="print-hd-ticket" class="font-black text-emerald-800">#PS01</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span class="text-slate-500">Khách hàng:</span>
+                        <span id="print-hd-customer" class="font-bold">Nguyễn Văn Long</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span class="text-slate-500">Số điện thoại:</span>
+                        <span id="print-hd-phone" class="font-bold">0918123456</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span class="text-slate-500">KTV sửa chữa:</span>
+                        <span id="print-hd-ktv" class="font-bold">Lê Văn Cường</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span class="text-slate-500">Thu ngân:</span>
+                        <span id="print-hd-cashier" class="font-bold">Phạm Thị Dung</span>
+                    </div>
+                </div>
+
+                <!-- Bảng mục chi phí -->
+                <div>
+                    <table class="w-full text-left text-[11px]">
+                        <thead>
+                            <tr class="border-b border-slate-300 font-bold">
+                                <th class="py-1">Dịch vụ / Linh kiện</th>
+                                <th class="py-1 text-center">SL</th>
+                                <th class="py-1 text-right">T.Tiền</th>
+                            </tr>
+                        </thead>
+                        <tbody id="print-hd-items" class="divide-y divide-slate-100">
+                            <!-- Dòng linh kiện -->
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Tổng tiền -->
+                <div class="space-y-1 pt-2 border-t border-dashed border-slate-400 text-xs">
+                    <div class="flex justify-between">
+                        <span class="text-slate-600">Tiền linh kiện:</span>
+                        <span id="print-hd-parts" class="font-bold">0 đ</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span class="text-slate-600">Tiền công kỹ thuật:</span>
+                        <span id="print-hd-labor" class="font-bold">150.000 đ</span>
+                    </div>
+                    <div class="flex justify-between text-sm font-black pt-1 border-t border-slate-300">
+                        <span>TỔNG CỘNG:</span>
+                        <span id="print-hd-total" class="text-emerald-700">0 đ</span>
+                    </div>
+                    <div class="flex justify-between text-[11px] text-slate-500">
+                        <span>Phương thức:</span>
+                        <span id="print-hd-method" class="font-bold text-slate-800">Tiền mặt</span>
+                    </div>
+                    <div id="print-hd-cash-detail" class="flex justify-between text-[11px] text-slate-500">
+                        <span>Khách đưa: <strong id="print-hd-given">0 đ</strong></span>
+                        <span>Tiền thối: <strong id="print-hd-change">0 đ</strong></span>
+                    </div>
+                </div>
+
+                <!-- Footer cảm ơn & chính sách -->
+                <div class="text-center pt-3 border-t border-dashed border-slate-400 space-y-1 text-[10px] text-slate-500">
+                    <p class="font-bold text-slate-700">Cảm ơn Quý khách đã tin tưởng FrogHippo Phone!</p>
+                    <p>Linh kiện thay thế được bảo hành chính hãng theo tem dán.</p>
+                    <p>Quý khách vui lòng giữ hóa đơn để được phục vụ bảo hành tốt nhất.</p>
+                    <div class="pt-2 flex justify-around text-slate-600">
+                        <div class="text-center">
+                            <span class="font-bold block">Khách hàng</span>
+                            <span class="italic text-[9px]">(Ký, ghi rõ họ tên)</span>
+                        </div>
+                        <div class="text-center">
+                            <span class="font-bold block">Người thu tiền</span>
+                            <span class="italic text-[9px]">(Ký, ghi rõ họ tên)</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Nút in và đóng modal -->
+            <div class="flex gap-2 pt-3 no-print border-t border-slate-200">
+                <button onclick="closeModalPrintBill()" class="flex-1 py-2.5 rounded-xl border border-slate-300 hover:bg-slate-100 text-slate-700 font-bold text-xs transition">
+                    Đóng
+                </button>
+                <button onclick="window.print()" class="flex-1 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-black text-xs shadow-md transition flex items-center justify-center gap-1.5">
+                    <i class="fa-solid fa-print"></i>
+                    <span>In Hóa Đơn Ngay</span>
+                </button>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- JAVASCRIPT XỬ LÝ TOÀN BỘ PHÂN HỆ THU NGÂN (KẾT NỐI MYSQL) -->
+    <script>
+        // State toàn cục
+        let allPendingTickets = [];
+        let selectedTicketData = null;
+        let currentPaymentMethod = 'TienMat';
+        let activeCashierCode = 'NV04';
+        let currentShiftData = null;
+
+        // Khởi động
+        window.addEventListener('DOMContentLoaded', () => {
+            initCashier();
+        });
+
+        async function initCashier() {
+            // Lấy thông tin user đã đăng nhập nếu có từ localStorage
+            const savedUser = localStorage.getItem('phonecare_user');
+            if (savedUser) {
+                try {
+                    const u = JSON.parse(savedUser);
+                    if (u.maNV) {
+                        activeCashierCode = u.maNV;
+                        const selectEl = document.getElementById('select-active-cashier');
+                        if (selectEl) {
+                            // Nếu có trong option thì chọn, không thì thêm option
+                            let opt = Array.from(selectEl.options).find(o => o.value === u.maNV);
+                            if (!opt) {
+                                opt = new Option(`${u.hoTen} (${u.maNV})`, u.maNV);
+                                selectEl.add(opt);
+                            }
+                            selectEl.value = u.maNV;
+                        }
+                    }
+                } catch(e) {}
+            }
+
+            await loadPendingTickets();
+            await loadShiftStatus();
+        }
+
+        function onCashierChange() {
+            activeCashierCode = document.getElementById('select-active-cashier').value;
+            loadShiftStatus();
+            showToast('Đã đổi thu ngân phụ trách: ' + activeCashierCode, 'info');
+        }
+
+        // --- 1. TẢI PHIẾU CHỜ THANH TOÁN TỪ MYSQL ---
+        async function loadPendingTickets() {
+            const container = document.getElementById('tickets-list-container');
+            container.innerHTML = `
+                <div class="text-center py-10 text-xs text-slate-400">
+                    <i class="fa-solid fa-spinner fa-spin text-lg mb-2"></i>
+                    <p>Đang tải dữ liệu từ CSDL MySQL...</p>
+                </div>
+            `;
+
+            try {
+                const res = await fetch('/api/thu-ngan/phieu-cho-thanh-toan');
+                if (!res.ok) throw new Error('Không thể tải danh sách phiếu');
+                allPendingTickets = await res.json();
+                renderPendingTickets(allPendingTickets);
+
+                // Cập nhật số lượng
+                const unpaid = allPendingTickets.filter(p => !p.daThanhToan);
+                document.getElementById('pending-ticket-count').innerText = unpaid.length;
+
+                // Nếu có phiếu đầu tiên chưa thanh toán thì tự động chọn
+                if (unpaid.length > 0) {
+                    selectTicket(unpaid[0].maPhieu);
+                } else if (allPendingTickets.length > 0) {
+                    selectTicket(allPendingTickets[0].maPhieu);
+                }
+            } catch (err) {
+                console.error(err);
+                container.innerHTML = `
+                    <div class="p-4 bg-rose-50 text-rose-700 text-xs rounded-xl border border-rose-200">
+                        Lỗi kết nối CSDL MySQL: ${err.message}
+                    </div>
+                `;
+            }
+        }
+
+        function filterPendingTickets() {
+            const query = (document.getElementById('search-ticket-input').value || '').trim().toLowerCase();
+            if (!query) {
+                renderPendingTickets(allPendingTickets);
+                return;
+            }
+            const filtered = allPendingTickets.filter(p => 
+                p.maPhieu.toLowerCase().includes(query) ||
+                (p.tenKH && p.tenKH.toLowerCase().includes(query)) ||
+                (p.sdtKH && p.sdtKH.includes(query)) ||
+                (p.maKH && p.maKH.toLowerCase().includes(query))
+            );
+            renderPendingTickets(filtered);
+        }
+
+        function noHash(id) { return String(id || '').replace(/^#+/, ''); }
+        function pid(id) { return encodeURIComponent(String(id || '')); }
+
+        function renderPendingTickets(list) {
+            const container = document.getElementById('tickets-list-container');
+            if (!container) return;
+
+            if (!list || list.length === 0) {
+                container.innerHTML = `
+                    <div class="text-center py-12 text-slate-400 text-xs">
+                        <i class="fa-solid fa-inbox text-3xl mb-2 text-slate-300"></i>
+                        <p class="font-medium">Không có phiếu nào đang chờ thanh toán</p>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = list.map(p => {
+                const isPaid = p.daThanhToan;
+                const statusBadge = isPaid 
+                    ? `<span class="px-2 py-0.5 rounded-full text-[10px] font-extrabold bg-emerald-100 text-emerald-800 border border-emerald-200">ĐÃ THANH TOÁN</span>`
+                    : `<span class="px-2 py-0.5 rounded-full text-[10px] font-extrabold bg-amber-100 text-amber-800 border border-amber-200">CHỜ THU TIỀN</span>`;
+
+                const cleanId = noHash(p.maPhieu);
+                return `
+                    <div onclick="selectTicket('${p.maPhieu}')" id="ticket-card-${cleanId}" 
+                        class="ticket-card p-3 rounded-xl border border-slate-200 hover:border-emerald-500 bg-white hover:bg-emerald-50/40 cursor-pointer transition space-y-1.5 shadow-xs">
+                        <div class="flex items-center justify-between">
+                            <span class="font-black text-xs text-slate-900 flex items-center gap-1.5">
+                                <i class="fa-solid fa-receipt text-emerald-600"></i> #${cleanId}
+                            </span>
+                            ${statusBadge}
+                        </div>
+                        <div class="flex justify-between items-baseline text-xs">
+                            <div class="overflow-hidden pr-2">
+                                <p class="font-bold text-slate-800 truncate">${p.tenKH || p.maKH}</p>
+                                <p class="text-[11px] text-slate-500">${p.sdtKH ? p.sdtKH : 'KTV: ' + (p.tenKTV || '---')}</p>
+                            </div>
+                            <div class="text-right flex-shrink-0">
+                                <span class="font-black text-emerald-700 text-xs">${formatMoney(p.tongTien)}</span>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // --- 2. CHỌN PHIẾU VÀ TẢI CHI TIẾT THANH TOÁN ---
+        async function selectTicket(maPhieu) {
+            if (!maPhieu) return;
+            const cleanId = noHash(maPhieu);
+
+            // Đánh dấu card active
+            document.querySelectorAll('.ticket-card').forEach(c => {
+                c.classList.remove('border-emerald-600', 'bg-emerald-50/70', 'ring-2', 'ring-emerald-500/20');
+            });
+            const activeCard = document.getElementById(`ticket-card-${cleanId}`) || document.getElementById(`ticket-card-${maPhieu}`);
+            if (activeCard) {
+                activeCard.classList.add('border-emerald-600', 'bg-emerald-50/70', 'ring-2', 'ring-emerald-500/20');
+            }
+
+            try {
+                // Ưu tiên truyền mã qua query param để an toàn 100% trước ký tự '#'
+                const encoded = encodeURIComponent(maPhieu);
+                let res = await fetch(`/api/thu-ngan/chi-tiet-thanh-toan?maPhieu=${encoded}`);
+                if (!res.ok) {
+                    res = await fetch(`/api/thu-ngan/chi-tiet-thanh-toan/${encoded}`);
+                }
+                if (!res.ok) throw new Error('Không thể tải chi tiết phiếu');
+                selectedTicketData = await res.json();
+                renderTicketDetails(selectedTicketData);
+            } catch (err) {
+                console.error(err);
+                showToast(err.message, 'error');
+            }
+        }
+
+        function renderTicketDetails(data) {
+            document.getElementById('bill-ticket-title').innerText = `Hóa Đơn Phiếu #${noHash(data.maPhieu)}`;
+            document.getElementById('bill-customer-name').innerText = data.tenKH || data.maKH;
+            document.getElementById('bill-customer-phone').innerText = data.sdtKH || 'Chưa cập nhật SĐT';
+            document.getElementById('bill-technician-name').innerText = data.tenKTV || 'Chưa phân công';
+            document.getElementById('bill-device-symptom').innerText = data.moTaLoi || 'Sửa chữa bảo dưỡng thiết bị';
+
+            // Trạng thái thanh toán
+            const statusPill = document.getElementById('bill-status-pill');
+            statusPill.classList.remove('hidden');
+            if (data.daThanhToan) {
+                statusPill.className = 'px-3 py-1 rounded-full text-xs font-black bg-emerald-100 text-emerald-800 border border-emerald-300';
+                statusPill.innerText = 'ĐÃ THANH TOÁN';
+                document.getElementById('btn-submit-payment').innerHTML = '<i class="fa-solid fa-check"></i> ĐÃ THANH TOÁN THÀNH CÔNG';
+                document.getElementById('btn-submit-payment').classList.add('opacity-60', 'cursor-not-allowed');
+                document.getElementById('btn-submit-payment').disabled = true;
+            } else {
+                statusPill.className = 'px-3 py-1 rounded-full text-xs font-black bg-amber-100 text-amber-800 border border-amber-300 animate-pulse';
+                statusPill.innerText = 'CHỜ THANH TOÁN';
+                document.getElementById('btn-submit-payment').innerHTML = '<i class="fa-solid fa-check-circle"></i> XÁC NHẬN THANH TOÁN';
+                document.getElementById('btn-submit-payment').classList.remove('opacity-60', 'cursor-not-allowed');
+                document.getElementById('btn-submit-payment').disabled = false;
+            }
+
+            // Bảng linh kiện
+            const tbody = document.getElementById('bill-items-tbody');
+            let itemsHtml = '';
+
+            // Dòng tiền công
+            itemsHtml += `
+                <tr class="hover:bg-slate-50">
+                    <td class="p-2.5 font-bold text-slate-800">
+                        Tiền công kỹ thuật & bảo dưỡng
+                        <span class="block text-[10px] text-slate-400 font-normal">Kiểm tra vi mạch, sấy khô, vệ sinh toàn diện</span>
+                    </td>
+                    <td class="p-2.5 text-center font-bold">1</td>
+                    <td class="p-2.5 text-right font-medium text-slate-600">${formatMoney(data.tienCong)}</td>
+                    <td class="p-2.5 text-right font-black text-slate-800">${formatMoney(data.tienCong)}</td>
+                </tr>
+            `;
+
+            if (data.linhKien && data.linhKien.length > 0) {
+                data.linhKien.forEach(lk => {
+                    itemsHtml += `
+                        <tr class="hover:bg-slate-50">
+                            <td class="p-2.5 font-bold text-slate-800">
+                                ${lk.tenLK}
+                                <span class="block text-[10px] text-emerald-600 font-semibold">BH: ${lk.thoiGianBaoHanh}</span>
+                            </td>
+                            <td class="p-2.5 text-center font-bold">${lk.soLuong}</td>
+                            <td class="p-2.5 text-right font-medium text-slate-600">${formatMoney(lk.donGia)}</td>
+                            <td class="p-2.5 text-right font-black text-slate-800">${formatMoney(lk.thanhTien)}</td>
+                        </tr>
+                    `;
+                });
+            }
+
+            tbody.innerHTML = itemsHtml;
+
+            // Số tiền
+            document.getElementById('bill-parts-cost').innerText = formatMoney(data.tienLinhKien);
+            document.getElementById('bill-labor-cost').innerText = formatMoney(data.tienCong);
+            document.getElementById('bill-total-cost').innerText = formatMoney(data.tongTien);
+
+            // Mặc định ô tiền khách đưa
+            document.getElementById('input-cash-given').value = data.tongTien;
+            calculateChange();
+
+            // Cập nhật mã VietQR động
+            updateVietQR(data.maPhieu, data.tongTien);
+        }
+
+        // Cập nhật mã VietQR động
+        function updateVietQR(maPhieu, tongTien) {
+            const addInfo = `TT ${maPhieu}`.trim();
+            const accountNo = "0345678901";
+            const bankCode = "MB";
+            const accountName = "FROG HIPPO PHONE CARE";
+            const qrUrl = `https://img.vietqr.io/image/${bankCode}-${accountNo}-compact2.png?amount=${tongTien}&addInfo=${encodeURIComponent(addInfo)}&accountName=${encodeURIComponent(accountName)}`;
+            
+            document.getElementById('vietqr-image').src = qrUrl;
+            document.getElementById('qr-transfer-content').innerText = addInfo;
+        }
+
+        function selectPaymentMethod(method) {
+            currentPaymentMethod = method;
+            const btnCash = document.getElementById('btn-method-cash');
+            const btnBank = document.getElementById('btn-method-bank');
+            const boxCash = document.getElementById('box-cash-payment');
+            const boxQr = document.getElementById('box-qr-payment');
+
+            if (method === 'TienMat') {
+                btnCash.className = 'p-3 rounded-xl border-2 border-emerald-600 bg-emerald-50/80 text-emerald-900 font-extrabold text-xs flex items-center justify-center gap-2 transition';
+                btnBank.className = 'p-3 rounded-xl border-2 border-slate-200 hover:border-slate-300 bg-white text-slate-700 font-extrabold text-xs flex items-center justify-center gap-2 transition';
+                boxCash.classList.remove('hidden');
+                boxQr.classList.add('hidden');
+            } else {
+                btnBank.className = 'p-3 rounded-xl border-2 border-sky-600 bg-sky-50/80 text-sky-900 font-extrabold text-xs flex items-center justify-center gap-2 transition';
+                btnCash.className = 'p-3 rounded-xl border-2 border-slate-200 hover:border-slate-300 bg-white text-slate-700 font-extrabold text-xs flex items-center justify-center gap-2 transition';
+                boxQr.classList.remove('hidden');
+                boxCash.classList.add('hidden');
+            }
+        }
+
+        function calculateChange() {
+            if (!selectedTicketData) return;
+            const total = selectedTicketData.tongTien || 0;
+            const given = parseFloat(document.getElementById('input-cash-given').value) || 0;
+            const change = Math.max(0, given - total);
+            document.getElementById('label-cash-change').innerText = formatMoney(change);
+        }
+
+        function fillExactCash() {
+            if (!selectedTicketData) return;
+            document.getElementById('input-cash-given').value = selectedTicketData.tongTien || 0;
+            calculateChange();
+        }
+
+        function addCash(amount) {
+            const curr = parseFloat(document.getElementById('input-cash-given').value) || 0;
+            document.getElementById('input-cash-given').value = curr + amount;
+            calculateChange();
+        }
+
+        // --- 3. XÁC NHẬN THANH TOÁN VÀO MYSQL ---
+        async function handleConfirmPayment() {
+            if (!selectedTicketData) {
+                showToast('Vui lòng chọn phiếu sửa chữa cần thanh toán!', 'warning');
+                return;
+            }
+
+            if (selectedTicketData.daThanhToan) {
+                showToast('Phiếu này đã thanh toán trước đó!', 'info');
+                return;
+            }
+
+            const total = selectedTicketData.tongTien;
+            const cashGiven = parseFloat(document.getElementById('input-cash-given').value) || total;
+            
+            if (currentPaymentMethod === 'TienMat' && cashGiven < total) {
+                showToast(`Tiền khách đưa (${formatMoney(cashGiven)}) chưa đủ thanh toán (${formatMoney(total)})!`, 'warning');
+                return;
+            }
+
+            const notes = document.getElementById('input-bill-notes').value || '';
+
+            const payload = {
+                maPhieu: selectedTicketData.maPhieu,
+                phuongThuc: currentPaymentMethod,
+                tienLinhKien: selectedTicketData.tienLinhKien,
+                tienCong: selectedTicketData.tienCong,
+                tongTien: total,
+                tienKhachDua: cashGiven,
+                tienTraLai: Math.max(0, cashGiven - total),
+                maThuNgan: activeCashierCode,
+                tenThuNgan: document.getElementById('select-active-cashier').selectedOptions[0].text.split('(')[0].trim(),
+                ghiChu: notes
+            };
+
+            const btn = document.getElementById('btn-submit-payment');
+            const oldHtml = btn.innerHTML;
+            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Đang ghi MySQL...';
+            btn.disabled = true;
+
+            try {
+                const res = await fetch('/api/thu-ngan/thanh-toan', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                const data = await res.json();
+                if (!res.ok) throw new Error(data.detail || 'Lỗi thanh toán');
+
+                showToast(`Thanh toán thành công hóa đơn #${data.hoaDon.maHD}!`, 'success');
+
+                // Cập nhật lại ca & danh sách phiếu
+                await loadPendingTickets();
+                await selectTicket(selectedTicketData.maPhieu);
+                await loadShiftStatus();
+
+                // Mở modal in hóa đơn ngay
+                openModalPrintBill(selectedTicketData.maPhieu, data.hoaDon.maHD);
+
+            } catch (err) {
+                console.error(err);
+                showToast(err.message, 'error');
+            } finally {
+                btn.innerHTML = oldHtml;
+                btn.disabled = false;
+            }
+        }
+
+        // --- 4. MODAL VÀ IN HÓA ĐƠN ---
+        async function openModalPrintBill(maPhieu, maHD) {
+            try {
+                const targetCode = encodeURIComponent(maHD || maPhieu);
+                const res = await fetch(`/api/thu-ngan/in-hoa-don/${targetCode}`);
+                if (!res.ok) throw new Error('Không lấy được dữ liệu in hóa đơn');
+                const d = await res.json();
+
+                document.getElementById('print-hd-number').innerText = `Số HĐ: ${d.maHD}`;
+                document.getElementById('print-hd-date').innerText = d.ngayThanhToan;
+                document.getElementById('print-hd-ticket').innerText = `#${noHash(d.maPhieu)}`;
+                document.getElementById('print-hd-customer').innerText = d.khachHang.tenKH;
+                document.getElementById('print-hd-phone').innerText = d.khachHang.sdt || '---';
+                document.getElementById('print-hd-ktv').innerText = d.kyThuatVien;
+                document.getElementById('print-hd-cashier').innerText = d.thuNgan;
+
+                // Danh sách linh kiện in
+                let itemsHtml = `
+                    <tr>
+                        <td class="py-1">Tiền công sửa chữa & dịch vụ</td>
+                        <td class="py-1 text-center font-bold">1</td>
+                        <td class="py-1 text-right font-bold">${formatMoney(d.tienCong)}</td>
+                    </tr>
+                `;
+                if (d.linhKien) {
+                    d.linhKien.forEach(item => {
+                        itemsHtml += `
+                            <tr>
+                                <td class="py-1">
+                                    ${item.tenLK}
+                                    <span class="block text-[9px] text-slate-400">BH: ${item.baoHanh}</span>
+                                </td>
+                                <td class="py-1 text-center font-bold">${item.soLuong}</td>
+                                <td class="py-1 text-right font-bold">${formatMoney(item.thanhTien)}</td>
+                            </tr>
+                        `;
+                    });
+                }
+                document.getElementById('print-hd-items').innerHTML = itemsHtml;
+
+                document.getElementById('print-hd-parts').innerText = formatMoney(d.tienLinhKien);
+                document.getElementById('print-hd-labor').innerText = formatMoney(d.tienCong);
+                document.getElementById('print-hd-total').innerText = formatMoney(d.tongTien);
+                document.getElementById('print-hd-method').innerText = d.phuongThuc === 'TienMat' ? 'Tiền mặt' : 'Chuyển khoản VietQR';
+                
+                if (d.phuongThuc === 'TienMat') {
+                    document.getElementById('print-hd-cash-detail').classList.remove('hidden');
+                    document.getElementById('print-hd-given').innerText = formatMoney(d.tienKhachDua);
+                    document.getElementById('print-hd-change').innerText = formatMoney(d.tienTraLai);
+                } else {
+                    document.getElementById('print-hd-cash-detail').classList.add('hidden');
+                }
+
+                document.getElementById('print-bill-modal').classList.remove('hidden');
+            } catch (err) {
+                console.error(err);
+                showToast(err.message, 'error');
+            }
+        }
+
+        function handlePrintCurrentBill() {
+            if (!selectedTicketData) {
+                showToast('Chưa chọn phiếu để in hóa đơn!', 'warning');
+                return;
+            }
+            openModalPrintBill(selectedTicketData.maPhieu, selectedTicketData.hoaDon ? selectedTicketData.hoaDon.maHD : null);
+        }
+
+        function closeModalPrintBill() {
+            document.getElementById('print-bill-modal').classList.add('hidden');
+        }
+
+        // --- 5. QUẢN LÝ CA TRỰC THU NGÂN (MYSQL) ---
+        async function loadShiftStatus() {
+            try {
+                const res = await fetch(`/api/thu-ngan/ca-hien-tai?maThuNgan=${activeCashierCode}`);
+                if (!res.ok) throw new Error('Không thể tải thông tin ca trực');
+                currentShiftData = await res.json();
+
+                // Cập nhật 4 thẻ KPI
+                document.getElementById('stat-total-revenue').innerText = formatMoney(currentShiftData.tongDoanhThu);
+                document.getElementById('stat-cash-revenue').innerText = formatMoney(currentShiftData.tongTienMat);
+                document.getElementById('stat-bank-revenue').innerText = formatMoney(currentShiftData.tongChuyenKhoan);
+                document.getElementById('stat-paid-count').innerText = `${currentShiftData.soDon} đơn`;
+
+                // Badge ca
+                const badge = document.getElementById('shift-status-badge');
+                badge.classList.remove('hidden');
+                if (currentShiftData.coCaMo) {
+                    badge.className = 'hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold bg-emerald-50 text-emerald-700 border border-emerald-200';
+                    document.getElementById('shift-status-text').innerText = `Ca Trực: #${currentShiftData.maCa}`;
+                    document.getElementById('btn-shift-text').innerText = 'Chốt Ca Trực';
+                } else {
+                    badge.className = 'hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold bg-amber-50 text-amber-700 border border-amber-200';
+                    document.getElementById('shift-status-text').innerText = 'Chưa Mở Ca Mới';
+                    document.getElementById('btn-shift-text').innerText = 'Mở Ca Trực Mới';
+                }
+
+            } catch (err) {
+                console.error(err);
+            }
+        }
+
+        async function handleOpenShiftModal() {
+            if (!currentShiftData || !currentShiftData.coCaMo) {
+                // Chưa có ca mở -> Hỏi mở ca
+                if (confirm(`Bạn có muốn mở ca làm việc mới cho Thu Ngân ${activeCashierCode}?`)) {
+                    try {
+                        const res = await fetch('/api/thu-ngan/mo-ca', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ maNV: activeCashierCode, ghiChu: 'Mở ca quầy thu ngân' })
+                        });
+                        const data = await res.json();
+                        showToast(data.message, 'success');
+                        await loadShiftStatus();
+                    } catch(err) {
+                        showToast(err.message, 'error');
+                    }
+                }
+                return;
+            }
+
+            // Có ca đang mở -> Mở modal chốt ca
+            document.getElementById('modal-shift-code-user').innerText = `${currentShiftData.maCa} • ${activeCashierCode}`;
+            document.getElementById('modal-shift-open-time').innerText = currentShiftData.thoiGianMoCa;
+            document.getElementById('modal-shift-order-count').innerText = `${currentShiftData.soDon} đơn`;
+            document.getElementById('modal-shift-bank-total').innerText = formatMoney(currentShiftData.tongChuyenKhoan);
+            document.getElementById('modal-shift-cash-system').innerText = formatMoney(currentShiftData.tongTienMat);
+
+            document.getElementById('input-actual-cash').value = currentShiftData.tongTienMat;
+            calculateShiftDifference();
+
+            document.getElementById('modal-close-shift').classList.remove('hidden');
+        }
+
+        function calculateShiftDifference() {
+            if (!currentShiftData) return;
+            const systemCash = currentShiftData.tongTienMat || 0;
+            const actualCash = parseFloat(document.getElementById('input-actual-cash').value) || 0;
+            const diff = actualCash - systemCash;
+            const label = document.getElementById('label-shift-diff');
+
+            if (diff === 0) {
+                label.className = 'font-black text-sm text-emerald-600';
+                label.innerText = 'Khớp 100% (0 đ)';
+            } else if (diff > 0) {
+                label.className = 'font-black text-sm text-purple-600';
+                label.innerText = `Thừa: +${formatMoney(diff)}`;
+            } else {
+                label.className = 'font-black text-sm text-rose-600';
+                label.innerText = `Thiếu: -${formatMoney(Math.abs(diff))}`;
+            }
+        }
+
+        async function submitCloseShift() {
+            const actualCash = parseFloat(document.getElementById('input-actual-cash').value) || 0;
+            const notes = document.getElementById('input-shift-notes').value || '';
+
+            try {
+                const res = await fetch('/api/thu-ngan/chot-ca', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        maCa: currentShiftData.maCa,
+                        maNV: activeCashierCode,
+                        tienMatThucTe: actualCash,
+                        ghiChu: notes
+                    })
+                });
+                const data = await res.json();
+                if (!res.ok) throw new Error(data.detail || 'Lỗi khi chốt ca');
+
+                showToast(`Chốt ca #${data.bienBanChotCa.maCa} thành công và lưu MySQL!`, 'success');
+                closeModalCloseShift();
+                await loadShiftStatus();
+                switchCashierTab('shifts');
+            } catch (err) {
+                console.error(err);
+                showToast(err.message, 'error');
+            }
+        }
+
+        function closeModalCloseShift() {
+            document.getElementById('modal-close-shift').classList.add('hidden');
+        }
+
+        // --- 6. VIEW TAB 2: LỊCH SỬ HÓA ĐƠN MYSQL ---
+        async function loadInvoiceHistory() {
+            const method = document.getElementById('filter-history-method').value;
+            const search = document.getElementById('search-history-input').value;
+            const tbody = document.getElementById('history-tbody');
+            tbody.innerHTML = `<tr><td colspan="8" class="p-6 text-center text-slate-400"><i class="fa-solid fa-spinner fa-spin"></i> Đang tải từ MySQL...</td></tr>`;
+
+            try {
+                const res = await fetch(`/api/thu-ngan/lich-su-hoa-don?phuongThuc=${method}&search=${encodeURIComponent(search || '')}`);
+                if (!res.ok) throw new Error('Không thể tải lịch sử');
+                const list = await res.json();
+
+                if (!list || list.length === 0) {
+                    tbody.innerHTML = `<tr><td colspan="8" class="p-6 text-center text-slate-400">Không tìm thấy hóa đơn nào phù hợp.</td></tr>`;
+                    return;
+                }
+
+                tbody.innerHTML = list.map(h => {
+                    const methodBadge = h.phuongThuc === 'TienMat'
+                        ? `<span class="px-2 py-0.5 rounded text-[10px] font-bold bg-amber-50 text-amber-700 border border-amber-200">Tiền mặt</span>`
+                        : `<span class="px-2 py-0.5 rounded text-[10px] font-bold bg-sky-50 text-sky-700 border border-sky-200">VietQR</span>`;
+
+                    return `
+                        <tr class="hover:bg-slate-50">
+                            <td class="p-3 font-mono font-bold text-slate-900">${h.maHD}</td>
+                            <td class="p-3 font-black text-emerald-700">#${h.maPhieu}</td>
+                            <td class="p-3">
+                                <span class="font-bold text-slate-800">${h.tenKH}</span>
+                                <span class="block text-[10px] text-slate-400">${h.sdtKH || ''}</span>
+                            </td>
+                            <td class="p-3">${methodBadge}</td>
+                            <td class="p-3 text-right font-black text-slate-900">${formatMoney(h.tongTien)}</td>
+                            <td class="p-3 text-slate-500">${h.ngayThanhToan}</td>
+                            <td class="p-3 font-medium text-slate-600">${h.tenThuNgan}</td>
+                            <td class="p-3 text-center">
+                                <button onclick="openModalPrintBill('${h.maPhieu}', '${h.maHD}')" class="p-1.5 rounded-lg text-emerald-600 hover:bg-emerald-50 transition" title="In lại hóa đơn">
+                                    <i class="fa-solid fa-print"></i>
+                                </button>
+                            </td>
+                        </tr>
+                    `;
+                }).join('');
+            } catch (err) {
+                tbody.innerHTML = `<tr><td colspan="8" class="p-4 text-center text-rose-600 font-bold">${err.message}</td></tr>`;
+            }
+        }
+
+        // --- 7. VIEW TAB 3: NHẬT KÝ CHỐT CA MYSQL ---
+        async function loadShiftHistory() {
+            const tbody = document.getElementById('shifts-tbody');
+            tbody.innerHTML = `<tr><td colspan="10" class="p-6 text-center text-slate-400"><i class="fa-solid fa-spinner fa-spin"></i> Đang tải từ MySQL...</td></tr>`;
+
+            try {
+                const res = await fetch('/api/thu-ngan/lich-su-ca');
+                if (!res.ok) throw new Error('Không thể tải lịch sử ca');
+                const list = await res.json();
+
+                if (!list || list.length === 0) {
+                    tbody.innerHTML = `<tr><td colspan="10" class="p-6 text-center text-slate-400">Chưa có ca làm việc nào được chốt trong hệ thống.</td></tr>`;
+                    return;
+                }
+
+                tbody.innerHTML = list.map(c => {
+                    let diffClass = 'text-emerald-600';
+                    let diffText = 'Khớp';
+                    if (c.chenhLech > 0) {
+                        diffClass = 'text-purple-600';
+                        diffText = `+${formatMoney(c.chenhLech)}`;
+                    } else if (c.chenhLech < 0) {
+                        diffClass = 'text-rose-600';
+                        diffText = `-${formatMoney(Math.abs(c.chenhLech))}`;
+                    }
+
+                    return `
+                        <tr class="hover:bg-slate-50">
+                            <td class="p-3 font-mono font-bold text-slate-900">${c.maCa}</td>
+                            <td class="p-3 font-bold text-slate-800">${c.tenNV}</td>
+                            <td class="p-3 text-slate-500">${c.thoiGianMoCa}</td>
+                            <td class="p-3 text-slate-500">${c.thoiGianDongCa || '<span class="text-emerald-600 font-bold">Đang Mở</span>'}</td>
+                            <td class="p-3 text-center font-bold">${c.soDonThanhToan}</td>
+                            <td class="p-3 text-right font-medium text-slate-700">${formatMoney(c.tongTienMat)}</td>
+                            <td class="p-3 text-right font-medium text-sky-700">${formatMoney(c.tongChuyenKhoan)}</td>
+                            <td class="p-3 text-right font-black text-slate-900">${formatMoney(c.tongDoanhThu)}</td>
+                            <td class="p-3 text-right font-bold text-slate-800">${formatMoney(c.tienMatThucTe)}</td>
+                            <td class="p-3 text-right font-bold ${diffClass}">${diffText}</td>
+                        </tr>
+                    `;
+                }).join('');
+            } catch (err) {
+                tbody.innerHTML = `<tr><td colspan="10" class="p-4 text-center text-rose-600 font-bold">${err.message}</td></tr>`;
+            }
+        }
+
+        // --- 8. ĐIỀU HƯỚNG TABS NỘI BỘ ---
+        function switchCashierTab(tab) {
+            document.getElementById('view-pos').classList.add('hidden');
+            document.getElementById('view-history').classList.add('hidden');
+            document.getElementById('view-shifts').classList.add('hidden');
+
+            document.getElementById('tab-btn-pos').className = 'px-4 py-2.5 text-xs font-bold border-b-2 border-transparent text-slate-500 hover:text-slate-800 flex items-center gap-2 transition';
+            document.getElementById('tab-btn-history').className = 'px-4 py-2.5 text-xs font-bold border-b-2 border-transparent text-slate-500 hover:text-slate-800 flex items-center gap-2 transition';
+            document.getElementById('tab-btn-shifts').className = 'px-4 py-2.5 text-xs font-bold border-b-2 border-transparent text-slate-500 hover:text-slate-800 flex items-center gap-2 transition';
+
+            if (tab === 'pos') {
+                document.getElementById('view-pos').classList.remove('hidden');
+                document.getElementById('tab-btn-pos').className = 'px-4 py-2.5 text-xs font-black border-b-2 border-emerald-600 text-emerald-700 flex items-center gap-2 transition';
+            } else if (tab === 'history') {
+                document.getElementById('view-history').classList.remove('hidden');
+                document.getElementById('tab-btn-history').className = 'px-4 py-2.5 text-xs font-black border-b-2 border-emerald-600 text-emerald-700 flex items-center gap-2 transition';
+                loadInvoiceHistory();
+            } else if (tab === 'shifts') {
+                document.getElementById('view-shifts').classList.remove('hidden');
+                document.getElementById('tab-btn-shifts').className = 'px-4 py-2.5 text-xs font-black border-b-2 border-emerald-600 text-emerald-700 flex items-center gap-2 transition';
+                loadShiftHistory();
+            }
+        }
+
+        // Helper format tiền tệ VND
+        function formatMoney(amount) {
+            return (amount || 0).toLocaleString('vi-VN') + ' đ';
+        }
+
+        // Helper Toast notification
+        let _lastThuNganToast = { msg: '', at: 0 };
+        function showToast(message, type = 'info') {
+            const container = document.getElementById('toast-container');
+            if (!container) return;
+
+            let msg = (message && typeof message === 'object') ? (message.detail || message.message || JSON.stringify(message)) : String(message || '');
+            msg = msg.trim();
+            if (!msg || msg === 'Not Found' || msg.includes('[object Object]')) {
+                msg = type === 'error' ? 'Không tìm thấy dữ liệu phiếu yêu cầu!' : 'Thông báo';
+            }
+
+            const now = Date.now();
+            if (msg === _lastThuNganToast.msg && now - _lastThuNganToast.at < 2500) return;
+            _lastThuNganToast = { msg, at: now };
+
+            while (container.children.length >= 3) container.removeChild(container.firstChild);
+
+            const toast = document.createElement('div');
+            let bg = 'bg-slate-900 border-slate-700 text-white';
+            let icon = 'fa-info-circle text-sky-400';
+            if (type === 'success') {
+                bg = 'bg-emerald-950 border-emerald-800 text-emerald-100';
+                icon = 'fa-circle-check text-emerald-400';
+            } else if (type === 'warning') {
+                bg = 'bg-amber-950 border-amber-800 text-amber-100';
+                icon = 'fa-triangle-exclamation text-amber-400';
+            } else if (type === 'error') {
+                bg = 'bg-rose-950 border-rose-800 text-rose-100';
+                icon = 'fa-circle-xmark text-rose-400';
+            }
+
+            toast.className = `p-3 rounded-2xl border ${bg} text-xs font-semibold shadow-xl flex items-center gap-2.5 transform transition duration-300 translate-y-2 pointer-events-auto`;
+            toast.innerHTML = `<i class="fa-solid ${icon} text-sm flex-shrink-0"></i> <span>${msg}</span>`;
+            
+            container.appendChild(toast);
+            setTimeout(() => { toast.classList.remove('translate-y-2'); }, 10);
+            setTimeout(() => {
+                toast.classList.add('opacity-0', 'translate-y-2');
+                setTimeout(() => toast.remove(), 300);
+            }, 3500);
+        }
+    </script>
+</body>
+</html>

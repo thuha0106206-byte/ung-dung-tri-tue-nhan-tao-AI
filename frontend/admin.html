@@ -1,0 +1,2240 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FrogHippo Phone - Cổng Quản Lý & Quản Trị Hệ Thống (Admin Portal)</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            50: '#f5f3ff',
+                            100: '#ede9fe',
+                            500: '#8b5cf6',
+                            600: '#7c3aed',
+                            700: '#6d28d9',
+                            800: '#5b21b6',
+                            900: '#4c1d95',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- FontAwesome 6 Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Chart.js CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap');
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background-color: #090d16;
+            color: #f1f5f9;
+        }
+        .glass-panel {
+            background: rgba(17, 24, 39, 0.75);
+            backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+        .glass-card {
+            background: rgba(30, 41, 59, 0.6);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.06);
+        }
+        .active-tab-btn {
+            background: linear-gradient(135deg, #7c3aed, #4f46e5);
+            color: #ffffff !important;
+            box-shadow: 0 4px 20px -2px rgba(124, 58, 237, 0.5);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col bg-slate-950 text-slate-100 selection:bg-purple-600 selection:text-white">
+
+    <!-- TOP BAR / HEADER -->
+    <header class="glass-panel sticky top-0 z-50 border-b border-slate-800">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 py-3 flex flex-wrap justify-between items-center gap-4">
+            
+            <!-- Logo & Brand Identity -->
+            <div class="flex items-center space-x-3 cursor-pointer select-none" onclick="window.location.href='/'">
+                <img src="/froghippo_logo.png" alt="FrogHippo Phone" class="w-10 h-10 object-contain rounded-2xl shadow-lg bg-white/95 p-0.5 border border-purple-400/50">
+                <div>
+                    <div class="flex items-center gap-2">
+                        <span class="text-xl font-black tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-purple-400 via-indigo-300 to-pink-300">FrogHippo Phone</span>
+                        <span class="px-2 py-0.5 rounded-full text-[10px] font-extrabold bg-gradient-to-r from-purple-600 to-indigo-600 text-white uppercase tracking-wider">ADMIN PORTAL</span>
+                    </div>
+                    <span class="text-[11px] text-purple-300/80 font-medium">Trung Tâm Điều Hành & Quản Trị Hệ Thống Toàn Quyền</span>
+                </div>
+            </div>
+
+            <!-- Header Quick Links & User Badge -->
+            <div class="flex items-center gap-2.5">
+                <a href="/" class="px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white text-xs font-bold transition flex items-center gap-1.5 border border-slate-700">
+                    <i class="fa-solid fa-house"></i>
+                    <span class="hidden sm:inline">Trang Chủ</span>
+                </a>
+                <a href="/thu-ngan" target="_blank" class="px-3 py-1.5 rounded-xl bg-emerald-950/60 hover:bg-emerald-900/80 text-emerald-300 text-xs font-bold transition flex items-center gap-1.5 border border-emerald-800/60">
+                    <i class="fa-solid fa-cash-register"></i>
+                    <span class="hidden md:inline">Thu Ngân</span>
+                </a>
+                <a href="/ky-thuat-vien" target="_blank" class="px-3 py-1.5 rounded-xl bg-sky-950/60 hover:bg-sky-900/80 text-sky-300 text-xs font-bold transition flex items-center gap-1.5 border border-sky-800/60">
+                    <i class="fa-solid fa-screwdriver-wrench"></i>
+                    <span class="hidden md:inline">Bàn KTV</span>
+                </a>
+
+                <!-- Admin Profile Badge -->
+                <div class="flex items-center gap-2 bg-purple-950/40 border border-purple-500/30 px-3 py-1.5 rounded-xl">
+                    <div class="w-6 h-6 rounded-lg bg-gradient-to-tr from-purple-600 to-indigo-500 flex items-center justify-center text-white text-xs font-black">
+                        👑
+                    </div>
+                    <div class="text-left">
+                        <p id="admin-user-name" class="text-xs font-black text-white leading-tight">Admin Quản Trị</p>
+                        <p class="text-[10px] text-purple-300 font-bold leading-tight">Toàn Quyền</p>
+                    </div>
+                </div>
+
+                <button onclick="handleLogout()" title="Đăng xuất" class="p-2 rounded-xl bg-rose-950/60 hover:bg-rose-900/80 text-rose-400 hover:text-rose-200 border border-rose-800/60 text-xs transition">
+                    <i class="fa-solid fa-arrow-right-from-bracket"></i>
+                </button>
+            </div>
+
+        </div>
+
+        <!-- 3 MAIN TABS ACCORDING TO USE CASE DIAGRAM -->
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 pt-1 pb-3 flex overflow-x-auto gap-2 border-t border-slate-800/60 no-scrollbar">
+            <!-- Group 1 -->
+            <button onclick="switchAdminGroup('staff')" id="nav-group-staff" class="group-tab-btn active-tab-btn flex items-center gap-2 px-5 py-2.5 rounded-2xl text-xs font-bold whitespace-nowrap transition">
+                <i class="fa-solid fa-users-gear text-sm"></i>
+                <span>1. Quản Lý Nhân Sự & Phân Quyền</span>
+            </button>
+            <!-- Group 2 -->
+            <button onclick="switchAdminGroup('inventory')" id="nav-group-inventory" class="group-tab-btn flex items-center gap-2 px-5 py-2.5 rounded-2xl text-xs font-bold text-slate-400 hover:text-slate-200 hover:bg-slate-800/60 whitespace-nowrap transition border border-transparent">
+                <i class="fa-solid fa-boxes-packing text-sm"></i>
+                <span>2. Quản Lý Kho & Bảng Giá Dịch Vụ</span>
+            </button>
+            <!-- Group 3 -->
+            <button onclick="switchAdminGroup('reports')" id="nav-group-reports" class="group-tab-btn flex items-center gap-2 px-5 py-2.5 rounded-2xl text-xs font-bold text-slate-400 hover:text-slate-200 hover:bg-slate-800/60 whitespace-nowrap transition border border-transparent">
+                <i class="fa-solid fa-chart-line text-sm"></i>
+                <span>3. Xem Báo Cáo & Cấu Hình Hệ Thống</span>
+            </button>
+        </div>
+    </header>
+
+    <!-- MAIN BODY CONTENT -->
+    <main class="flex-grow max-w-7xl w-full mx-auto px-4 sm:px-6 py-6 space-y-6">
+
+        <!-- ============================================================== -->
+        <!-- GROUP 1: QUẢN LÝ NHÂN SỰ & PHÂN QUYỀN -->
+        <!-- ============================================================== -->
+        <section id="section-staff" class="admin-section space-y-6">
+            
+            <!-- Banner tóm tắt chức năng Group 1 -->
+            <div class="bg-gradient-to-r from-purple-950/70 via-indigo-950/60 to-slate-900 border border-purple-800/40 p-6 rounded-3xl flex flex-wrap justify-between items-center gap-4">
+                <div class="space-y-1">
+                    <div class="flex items-center gap-2">
+                        <span class="px-3 py-1 rounded-full text-[11px] font-black uppercase bg-purple-500/20 text-purple-300 border border-purple-400/30">
+                            Phân Hệ Nhân Sự
+                        </span>
+                        <span class="text-xs text-slate-400">4 Chức năng nghiệp vụ theo Sơ đồ Use Case</span>
+                    </div>
+                    <h1 class="text-2xl font-black text-white">Quản Lý Nhân Sự, Nhóm Vai Trò & Phân Quyền Truy Cập</h1>
+                    <p class="text-xs text-slate-400">Tạo mới nhân viên, thiết lập vai trò, ma trận cấp quyền và khóa/mở khóa tài khoản bảo mật.</p>
+                </div>
+                <div class="flex gap-2">
+                    <button onclick="openModalCreateStaff()" class="px-4 py-2.5 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white rounded-xl text-xs font-black shadow-lg shadow-purple-600/30 transition flex items-center gap-2">
+                        <i class="fa-solid fa-user-plus"></i> Thêm Nhân Viên Mới
+                    </button>
+                    <button onclick="openModalRolesMatrix()" class="px-4 py-2.5 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-xl text-xs font-bold border border-slate-700 transition flex items-center gap-2">
+                        <i class="fa-solid fa-shield-halved text-purple-400"></i> Ma Trận Vai Trò
+                    </button>
+                </div>
+            </div>
+
+            <!-- Bảng Danh Sách Nhân Sự & Trạng Thái Khóa/Mở -->
+            <div class="glass-panel rounded-3xl overflow-hidden shadow-xl">
+                <div class="p-5 border-b border-slate-800 flex flex-wrap justify-between items-center gap-3">
+                    <div class="flex items-center gap-3">
+                        <h3 class="text-sm font-black text-white flex items-center gap-2">
+                            <i class="fa-solid fa-users text-purple-400"></i> Danh Sách Nhân Viên & Trạng Thái Truy Cập
+                        </h3>
+                        <span id="staff-total-badge" class="px-2.5 py-0.5 rounded-full text-xs font-bold bg-purple-500/20 text-purple-300">0 nhân sự</span>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <input id="staff-search-input" oninput="renderStaffTable()" type="text" placeholder="Tìm theo tên, mã NV, tên đăng nhập..." class="bg-slate-900 border border-slate-700/80 px-3.5 py-1.5 rounded-xl text-xs text-white placeholder-slate-500 focus:outline-none focus:border-purple-500">
+                    </div>
+                </div>
+
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left text-xs">
+                        <thead>
+                            <tr class="bg-slate-900/80 text-slate-400 uppercase tracking-wider font-bold border-b border-slate-800">
+                                <th class="py-3.5 px-4">Mã NV</th>
+                                <th class="py-3.5 px-4">Họ Và Tên</th>
+                                <th class="py-3.5 px-4">Tên Đăng Nhập</th>
+                                <th class="py-3.5 px-4">Số Điện Thoại</th>
+                                <th class="py-3.5 px-4">Vai Trò / Chức Vụ</th>
+                                <th class="py-3.5 px-4 text-center">Trạng Thái Tài Khoản</th>
+                                <th class="py-3.5 px-4 text-center">Quyền Truy Cập</th>
+                                <th class="py-3.5 px-4 text-center">Thao Tác Nghiệp Vụ</th>
+                            </tr>
+                        </thead>
+                        <tbody id="staff-table-body" class="divide-y divide-slate-800/60 font-medium">
+                            <!-- Injected by JS -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+        </section>
+
+
+        <!-- ============================================================== -->
+        <!-- GROUP 2: QUẢN LÝ KHO & BẢNG GIÁ DỊCH VỤ -->
+        <!-- ============================================================== -->
+        <section id="section-inventory" class="admin-section hidden space-y-6">
+
+            <!-- Banner tóm tắt chức năng Group 2 -->
+            <div class="bg-gradient-to-r from-emerald-950/70 via-teal-950/60 to-slate-900 border border-emerald-800/40 p-6 rounded-3xl flex flex-wrap justify-between items-center gap-4">
+                <div class="space-y-1">
+                    <div class="flex items-center gap-2">
+                        <span class="px-3 py-1 rounded-full text-[11px] font-black uppercase bg-emerald-500/20 text-emerald-300 border border-emerald-400/30">
+                            Phân Hệ Kho & Dịch Vụ
+                        </span>
+                        <span class="text-xs text-slate-400">4 Chức năng nghiệp vụ theo Sơ đồ Use Case</span>
+                    </div>
+                    <h1 class="text-2xl font-black text-white">Quản Lý Kho Hàng, Nhập Kho, Bảng Giá & Dịch Vụ Sửa Chữa</h1>
+                    <p class="text-xs text-slate-400">Kiểm kê định kỳ, cảnh báo mức tồn, quản lý nhập kho tự động cộng tồn và cấu hình bảng giá tiền công.</p>
+                </div>
+                <div class="flex flex-wrap gap-2">
+                    <button onclick="openModalCreatePart()" class="px-4 py-2.5 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white rounded-xl text-xs font-black shadow-lg shadow-emerald-600/30 transition flex items-center gap-2">
+                        <i class="fa-solid fa-plus-circle"></i> Thêm Linh Kiện / Phụ Kiện
+                    </button>
+                    <button onclick="openModalNhapKho()" class="px-4 py-2.5 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-xl text-xs font-bold border border-slate-700 transition flex items-center gap-2">
+                        <i class="fa-solid fa-dolly text-emerald-400"></i> Lập Phiếu Nhập Kho
+                    </button>
+                    <button onclick="openModalCreateService()" class="px-4 py-2.5 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-xl text-xs font-bold border border-slate-700 transition flex items-center gap-2">
+                        <i class="fa-solid fa-screwdriver-wrench text-emerald-400"></i> Thêm Dịch Vụ Mới
+                    </button>
+                </div>
+            </div>
+
+            <!-- 4 Thẻ KPI Kho & Dịch Vụ -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                <div class="glass-card rounded-2xl p-4 border-l-4 border-emerald-500">
+                    <p class="text-xs font-bold text-slate-400 uppercase">Tổng mặt hàng</p>
+                    <p id="inv-stat-items" class="text-2xl font-black text-white mt-1">0 món</p>
+                    <p class="text-[11px] text-emerald-400 mt-1">Linh kiện sẵn sàng sửa chữa</p>
+                </div>
+                <div class="glass-card rounded-2xl p-4 border-l-4 border-amber-500">
+                    <p class="text-xs font-bold text-slate-400 uppercase">Cảnh báo sắp hết</p>
+                    <p id="inv-stat-warning" class="text-2xl font-black text-amber-400 mt-1">0 mặt hàng</p>
+                    <p class="text-[11px] text-amber-300 mt-1">Tồn kho ≤ định mức an toàn</p>
+                </div>
+                <div class="glass-card rounded-2xl p-4 border-l-4 border-indigo-500">
+                    <p class="text-xs font-bold text-slate-400 uppercase">Ước tính giá trị kho</p>
+                    <p id="inv-stat-value" class="text-2xl font-black text-indigo-300 mt-1">0 đ</p>
+                    <p class="text-[11px] text-indigo-400 mt-1">Vốn linh kiện đang lưu kho</p>
+                </div>
+                <div class="glass-card rounded-2xl p-4 border-l-4 border-purple-500">
+                    <p class="text-xs font-bold text-slate-400 uppercase">Danh mục dịch vụ</p>
+                    <p id="inv-stat-services" class="text-2xl font-black text-purple-300 mt-1">0 loại</p>
+                    <p class="text-[11px] text-purple-400 mt-1">Bảng giá tiền công chuẩn</p>
+                </div>
+            </div>
+
+            <!-- Tabs Con Giữa: Kho Linh Kiện vs Danh Mục Dịch Vụ vs Lịch Sử Nhập Kho -->
+            <div class="flex gap-2 border-b border-slate-800 pb-2">
+                <button onclick="switchInvSubTab('stock')" id="btn-inv-sub-stock" class="px-4 py-2 rounded-xl text-xs font-black bg-emerald-600 text-white transition flex items-center gap-1.5">
+                    <i class="fa-solid fa-boxes-stacked"></i> Kiểm Kê & Bảng Giá Linh Kiện
+                </button>
+                <button onclick="switchInvSubTab('services')" id="btn-inv-sub-services" class="px-4 py-2 rounded-xl text-xs font-bold text-slate-400 hover:text-white transition flex items-center gap-1.5">
+                    <i class="fa-solid fa-screwdriver-wrench"></i> Danh Mục Loại Dịch Vụ Sửa Chữa
+                </button>
+                <button onclick="switchInvSubTab('history')" id="btn-inv-sub-history" class="px-4 py-2 rounded-xl text-xs font-bold text-slate-400 hover:text-white transition flex items-center gap-1.5">
+                    <i class="fa-solid fa-clock-rotate-left"></i> Lịch Sử Nhập Kho
+                </button>
+            </div>
+
+            <!-- Bảng 1: Kiểm Kê Kho & Bảng Giá Linh Kiện -->
+            <div id="inv-panel-stock" class="glass-panel rounded-3xl overflow-hidden shadow-xl">
+                <div class="p-4 border-b border-slate-800 flex flex-wrap justify-between items-center gap-2">
+                    <div class="flex flex-wrap items-center gap-2">
+                        <span class="text-xs font-bold text-slate-400">Lọc mức tồn:</span>
+                        <select id="filter-stock-status" onchange="renderStockTable()" class="bg-slate-900 border border-slate-700 text-xs text-white rounded-lg px-2.5 py-1">
+                            <option value="ALL">Tất cả trạng thái</option>
+                            <option value="WARNING">Chỉ xem hàng sắp hết / hết hàng ⚠️</option>
+                            <option value="SAFE">Chỉ xem hàng an toàn ✅</option>
+                        </select>
+                        <span class="text-xs font-bold text-slate-400 ml-2">Phân loại:</span>
+                        <select id="filter-stock-category" onchange="renderStockTable()" class="bg-slate-900 border border-slate-700 text-xs text-white rounded-lg px-2.5 py-1">
+                            <option value="ALL">Tất cả danh mục (134 SKU)</option>
+                            <option value="MH">Màn hình & Bộ phận hiển thị</option>
+                            <option value="PIN">Pin & Nguồn điện</option>
+                            <option value="CAM">Camera & Kính bảo vệ cam</option>
+                            <option value="SAC">Cụm chân sạc (Lightning/USB-C)</option>
+                            <option value="LOA">Loa, Chuông & Micro</option>
+                            <option value="CAP">Cáp phím, Action Button, Taptic</option>
+                            <option value="KL">Kính lưng, Khung sườn & Khay SIM</option>
+                            <option value="PK">Phụ kiện bán riêng (Sạc, Ốp, Tai nghe)</option>
+                            <option value="VT">Vật tư & Dụng cụ sửa chữa</option>
+                        </select>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <input id="stock-search-input" oninput="renderStockTable()" type="text" placeholder="Tìm theo tên/mã linh kiện/model..." class="bg-slate-900 border border-slate-700 px-3 py-1.5 rounded-xl text-xs text-white placeholder-slate-500 focus:outline-none focus:border-emerald-500 w-64">
+                    </div>
+                </div>
+
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left text-xs">
+                        <thead>
+                            <tr class="bg-slate-900/80 text-slate-400 uppercase tracking-wider font-bold border-b border-slate-800">
+                                <th class="py-3 px-4">Mã LK</th>
+                                <th class="py-3 px-4">Tên Linh Kiện</th>
+                                <th class="py-3 px-4 text-center">Tồn Kho</th>
+                                <th class="py-3 px-4 text-center">Định Mức Tối Thiểu</th>
+                                <th class="py-3 px-4 text-right">Giá Nhập</th>
+                                <th class="py-3 px-4 text-right">Giá Bán Khách</th>
+                                <th class="py-3 px-4 text-center">Tình Trạng</th>
+                                <th class="py-3 px-4 text-center">Thao Tác</th>
+                            </tr>
+                        </thead>
+                        <tbody id="stock-table-body" class="divide-y divide-slate-800/60 font-medium">
+                            <!-- Injected by JS -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Bảng 2: Danh Mục Dịch Vụ Sửa Chữa & Tiền Công -->
+            <div id="inv-panel-services" class="glass-panel rounded-3xl overflow-hidden shadow-xl hidden">
+                <div class="p-4 border-b border-slate-800 flex justify-between items-center">
+                    <h3 class="text-sm font-black text-white flex items-center gap-2">
+                        <i class="fa-solid fa-list-check text-emerald-400"></i> Bảng Danh Mục Dịch Vụ Sửa Chữa & Đơn Giá Tiền Công
+                    </h3>
+                    <button onclick="openModalCreateService()" class="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-500 text-white rounded-lg text-xs font-bold transition flex items-center gap-1">
+                        <i class="fa-solid fa-plus"></i> Thêm Dịch Vụ
+                    </button>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left text-xs">
+                        <thead>
+                            <tr class="bg-slate-900/80 text-slate-400 uppercase tracking-wider font-bold border-b border-slate-800">
+                                <th class="py-3 px-4">Mã DV</th>
+                                <th class="py-3 px-4">Tên Dịch Vụ</th>
+                                <th class="py-3 px-4">Phạm Vi Thiết Bị</th>
+                                <th class="py-3 px-4 text-right">Đơn Giá Tiền Công</th>
+                                <th class="py-3 px-4 text-center">Bảo Hành</th>
+                                <th class="py-3 px-4">Mô Tả Kỹ Thuật</th>
+                                <th class="py-3 px-4 text-center">Thao Tác</th>
+                            </tr>
+                        </thead>
+                        <tbody id="services-table-body" class="divide-y divide-slate-800/60 font-medium">
+                            <!-- Injected by JS -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Bảng 3: Lịch Sử Nhập Kho -->
+            <div id="inv-panel-history" class="glass-panel rounded-3xl overflow-hidden shadow-xl hidden">
+                <div class="p-4 border-b border-slate-800 flex justify-between items-center">
+                    <h3 class="text-sm font-black text-white flex items-center gap-2">
+                        <i class="fa-solid fa-receipt text-emerald-400"></i> Lịch Sử Các Phiếu Nhập Kho Linh Kiện
+                    </h3>
+                    <button onclick="loadNhapKhoHistory()" class="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-lg text-xs font-bold transition flex items-center gap-1">
+                        <i class="fa-solid fa-rotate-right"></i> Làm Mới
+                    </button>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left text-xs">
+                        <thead>
+                            <tr class="bg-slate-900/80 text-slate-400 uppercase tracking-wider font-bold border-b border-slate-800">
+                                <th class="py-3 px-4">Mã Phiếu</th>
+                                <th class="py-3 px-4">Thời Gian Nhập</th>
+                                <th class="py-3 px-4">Tên Linh Kiện</th>
+                                <th class="py-3 px-4 text-center">Số Lượng</th>
+                                <th class="py-3 px-4 text-right">Giá Nhập</th>
+                                <th class="py-3 px-4 text-right">Tổng Tiền</th>
+                                <th class="py-3 px-4">Nhà Cung Cấp</th>
+                                <th class="py-3 px-4">Người Nhập</th>
+                            </tr>
+                        </thead>
+                        <tbody id="nhap-kho-table-body" class="divide-y divide-slate-800/60 font-medium">
+                            <!-- Injected by JS -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+        </section>
+
+
+        <!-- ============================================================== -->
+        <!-- GROUP 3: XEM BÁO CÁO & CẤU HÌNH HỆ THỐNG -->
+        <!-- ============================================================== -->
+        <section id="section-reports" class="admin-section hidden space-y-6">
+
+            <!-- Banner tóm tắt chức năng Group 3 -->
+            <div class="bg-gradient-to-r from-blue-950/70 via-indigo-950/60 to-slate-900 border border-blue-800/40 p-6 rounded-3xl flex flex-wrap justify-between items-center gap-4">
+                <div class="space-y-1">
+                    <div class="flex items-center gap-2">
+                        <span class="px-3 py-1 rounded-full text-[11px] font-black uppercase bg-blue-500/20 text-blue-300 border border-blue-400/30">
+                            Phân Hệ Báo Cáo & AI
+                        </span>
+                        <span class="text-xs text-slate-400">4 Chức năng nghiệp vụ theo Sơ đồ Use Case</span>
+                    </div>
+                    <h1 class="text-2xl font-black text-white">Thống Kê Doanh Thu, Đánh Giá KTV, Quản Lý Voucher & AI</h1>
+                    <p class="text-xs text-slate-400">Báo cáo tài chính theo thời gian thực, bảng xếp hạng năng suất KTV, tạo voucher giảm giá và tinh chỉnh tham số AI.</p>
+                </div>
+                <div class="flex gap-2">
+                    <button onclick="openModalCreateVoucher()" class="px-4 py-2.5 bg-gradient-to-r from-pink-600 to-rose-600 hover:from-pink-500 hover:to-rose-500 text-white rounded-xl text-xs font-black shadow-lg shadow-pink-600/30 transition flex items-center gap-2">
+                        <i class="fa-solid fa-ticket"></i> Tạo Voucher Mới
+                    </button>
+                    <button onclick="switchReportsSubTab('ai')" class="px-4 py-2.5 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-xl text-xs font-bold border border-slate-700 transition flex items-center gap-2">
+                        <i class="fa-solid fa-sliders text-indigo-400"></i> Cấu Hình AI
+                    </button>
+                </div>
+            </div>
+
+            <!-- Subtabs của Group 3 -->
+            <div class="flex gap-2 border-b border-slate-800 pb-2">
+                <button onclick="switchReportsSubTab('revenue')" id="btn-rep-revenue" class="px-4 py-2 rounded-xl text-xs font-black bg-blue-600 text-white transition flex items-center gap-1.5">
+                    <i class="fa-solid fa-chart-pie"></i> Thống Kê Doanh Thu
+                </button>
+                <button onclick="switchReportsSubTab('ktv')" id="btn-rep-ktv" class="px-4 py-2 rounded-xl text-xs font-bold text-slate-400 hover:text-white transition flex items-center gap-1.5">
+                    <i class="fa-solid fa-medal"></i> Đánh Giá Hiệu Suất KTV
+                </button>
+                <button onclick="switchReportsSubTab('voucher')" id="btn-rep-voucher" class="px-4 py-2 rounded-xl text-xs font-bold text-slate-400 hover:text-white transition flex items-center gap-1.5">
+                    <i class="fa-solid fa-tags"></i> Quản Lý Voucher & Khuyến Mãi
+                </button>
+                <button onclick="switchReportsSubTab('ai')" id="btn-rep-ai" class="px-4 py-2 rounded-xl text-xs font-bold text-slate-400 hover:text-white transition flex items-center gap-1.5">
+                    <i class="fa-solid fa-robot"></i> Cấu Hình Tham Số AI
+                </button>
+            </div>
+
+            <!-- Tab Con 3.1: Thống Kê Doanh Thu -->
+            <div id="panel-rep-revenue" class="space-y-5">
+                <div class="flex flex-wrap justify-between items-center gap-3">
+                    <h3 class="text-sm font-black text-white flex items-center gap-2">
+                        <i class="fa-solid fa-coins text-amber-400"></i> Phân Tích Doanh Thu & Cơ Cấu Tài Chính
+                    </h3>
+                    <div class="flex items-center gap-2">
+                        <span class="text-xs text-slate-400 font-bold">Kỳ báo cáo:</span>
+                        <select id="select-revenue-period" onchange="loadRevenueReport()" class="bg-slate-900 border border-slate-700 text-xs text-white rounded-xl px-3 py-1.5 font-bold">
+                            <option value="thang_nay">Tháng Này (Hiện tại)</option>
+                            <option value="7_ngay">7 Ngày Gần Nhất</option>
+                            <option value="hom_nay">Hôm Nay</option>
+                            <option value="tat_ca">Toàn Thời Gian</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- 4 KPI Tài Chính -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                    <div class="glass-card rounded-2xl p-4 border-l-4 border-emerald-500">
+                        <p class="text-xs font-bold text-slate-400 uppercase">Tổng Doanh Thu</p>
+                        <p id="rev-total" class="text-2xl font-black text-emerald-400 mt-1">0 đ</p>
+                        <p id="rev-invoices-count" class="text-[11px] text-slate-400 mt-1">0 hóa đơn thanh toán</p>
+                    </div>
+                    <div class="glass-card rounded-2xl p-4 border-l-4 border-sky-500">
+                        <p class="text-xs font-bold text-slate-400 uppercase">Tiền Linh Kiện</p>
+                        <p id="rev-parts" class="text-2xl font-black text-sky-400 mt-1">0 đ</p>
+                        <p class="text-[11px] text-slate-400 mt-1">Doanh thu phụ tùng thay thế</p>
+                    </div>
+                    <div class="glass-card rounded-2xl p-4 border-l-4 border-purple-500">
+                        <p class="text-xs font-bold text-slate-400 uppercase">Tiền Công Kỹ Thuật</p>
+                        <p id="rev-labor" class="text-2xl font-black text-purple-400 mt-1">0 đ</p>
+                        <p class="text-[11px] text-slate-400 mt-1">Tiền công dịch vụ sửa chữa</p>
+                    </div>
+                    <div class="glass-card rounded-2xl p-4 border-l-4 border-amber-500">
+                        <p class="text-xs font-bold text-slate-400 uppercase">Lợi Nhuận Ước Tính</p>
+                        <p id="rev-profit" class="text-2xl font-black text-amber-400 mt-1">0 đ</p>
+                        <p class="text-[11px] text-slate-400 mt-1">Tiền công + Lãi gộp linh kiện</p>
+                    </div>
+                </div>
+
+                <!-- Biểu đồ & Tỷ lệ thanh toán -->
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <div class="glass-panel p-5 rounded-3xl">
+                        <h4 class="text-xs font-black uppercase text-slate-300 mb-3 flex items-center gap-2">
+                            <i class="fa-solid fa-chart-pie text-emerald-400"></i> Cơ Cấu Doanh Thu (Linh Kiện vs Tiền Công)
+                        </h4>
+                        <div class="h-60 flex items-center justify-center">
+                            <canvas id="chart-rev-breakdown"></canvas>
+                        </div>
+                    </div>
+                    <div class="glass-panel p-5 rounded-3xl">
+                        <h4 class="text-xs font-black uppercase text-slate-300 mb-3 flex items-center gap-2">
+                            <i class="fa-solid fa-wallet text-sky-400"></i> Hình Thức Thanh Toán (Tiền Mặt vs QR Chuyển Khoản)
+                        </h4>
+                        <div class="h-60 flex items-center justify-center">
+                            <canvas id="chart-payment-method"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tab Con 3.2: Đánh Giá Hiệu Suất KTV -->
+            <div id="panel-rep-ktv" class="glass-panel rounded-3xl overflow-hidden shadow-xl hidden">
+                <div class="p-4 border-b border-slate-800 flex justify-between items-center">
+                    <div>
+                        <h3 class="text-sm font-black text-white flex items-center gap-2">
+                            <i class="fa-solid fa-trophy text-amber-400"></i> Bảng Đánh Giá & Xếp Hạng Hiệu Suất Kỹ Thuật Viên
+                        </h3>
+                        <p class="text-xs text-slate-400">Theo dõi năng lực tiếp nhận, tỷ lệ sửa thành công và doanh số đóng góp</p>
+                    </div>
+                    <button onclick="loadKtvReport()" class="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-lg text-xs font-bold transition flex items-center gap-1">
+                        <i class="fa-solid fa-rotate-right"></i> Cập Nhật
+                    </button>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left text-xs">
+                        <thead>
+                            <tr class="bg-slate-900/80 text-slate-400 uppercase tracking-wider font-bold border-b border-slate-800">
+                                <th class="py-3 px-4">KTV</th>
+                                <th class="py-3 px-4 text-center">Tổng Nhận</th>
+                                <th class="py-3 px-4 text-center">Đã Sửa Xong</th>
+                                <th class="py-3 px-4 text-center">Đang Xử Lý</th>
+                                <th class="py-3 px-4 text-center">Chờ Nhận</th>
+                                <th class="py-3 px-4 text-center">Tỷ Lệ Hoàn Thành</th>
+                                <th class="py-3 px-4 text-right">Doanh Số Tiền Công</th>
+                                <th class="py-3 px-4 text-center">Xếp Loại Thi Đua</th>
+                            </tr>
+                        </thead>
+                        <tbody id="ktv-table-body" class="divide-y divide-slate-800/60 font-medium">
+                            <!-- Injected by JS -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Tab Con 3.3: Quản Lý Voucher & Khuyến Mãi -->
+            <div id="panel-rep-voucher" class="glass-panel rounded-3xl overflow-hidden shadow-xl hidden">
+                <div class="p-4 border-b border-slate-800 flex justify-between items-center">
+                    <div>
+                        <h3 class="text-sm font-black text-white flex items-center gap-2">
+                            <i class="fa-solid fa-ticket text-pink-400"></i> Danh Sách Mã Giảm Giá & Voucher Khuyến Mãi
+                        </h3>
+                        <p class="text-xs text-slate-400">Áp dụng trực tiếp tại quầy Thu Ngân khi thanh toán hóa đơn</p>
+                    </div>
+                    <button onclick="openModalCreateVoucher()" class="px-3.5 py-1.5 bg-pink-600 hover:bg-pink-500 text-white rounded-xl text-xs font-black shadow transition flex items-center gap-1.5">
+                        <i class="fa-solid fa-plus"></i> Tạo Mã Mới
+                    </button>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left text-xs">
+                        <thead>
+                            <tr class="bg-slate-900/80 text-slate-400 uppercase tracking-wider font-bold border-b border-slate-800">
+                                <th class="py-3 px-4">Mã Voucher</th>
+                                <th class="py-3 px-4">Tên Chương Trình</th>
+                                <th class="py-3 px-4">Mức Giảm</th>
+                                <th class="py-3 px-4">Đơn Tối Thiểu</th>
+                                <th class="py-3 px-4 text-center">Đã Dùng / Tổng</th>
+                                <th class="py-3 px-4 text-center">Trạng Thái</th>
+                                <th class="py-3 px-4 text-center">Thao Tác</th>
+                            </tr>
+                        </thead>
+                        <tbody id="voucher-table-body" class="divide-y divide-slate-800/60 font-medium">
+                            <!-- Injected by JS -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Tab Con 3.4: Cấu Hình Tham Số AI -->
+            <div id="panel-rep-ai" class="glass-panel p-6 rounded-3xl shadow-xl hidden space-y-5 max-w-3xl mx-auto">
+                <div class="border-b border-slate-800 pb-3 flex justify-between items-center">
+                    <div>
+                        <h3 class="text-base font-black text-white flex items-center gap-2">
+                            <i class="fa-solid fa-brain text-purple-400"></i> Cấu Hình Tham Số AI & Trợ Lý Kỹ Thuật
+                        </h3>
+                        <p class="text-xs text-slate-400">Tùy biến mô hình Gemini / OpenAI, API Key, độ sáng tạo và tiền công chuẩn</p>
+                    </div>
+                    <span id="ai-status-indicator" class="px-3 py-1 rounded-full text-[11px] font-black uppercase bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">
+                        ONLINE (Sẵn sàng)
+                    </span>
+                </div>
+
+                <form onsubmit="event.preventDefault(); handleSaveAiConfig();" class="space-y-4 text-xs">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block font-bold text-slate-300 mb-1">Nhà Cung Cấp AI (Provider)</label>
+                            <select id="cfg-ai-provider" class="w-full bg-slate-900 border border-slate-700 p-2.5 rounded-xl font-bold text-white focus:border-purple-500">
+                                <option value="Gemini">Google Gemini (Recommended)</option>
+                                <option value="OpenAI">OpenAI (ChatGPT)</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block font-bold text-slate-300 mb-1">Tên Model AI</label>
+                            <input id="cfg-ai-model" type="text" value="gemini-1.5-flash" class="w-full bg-slate-900 border border-slate-700 p-2.5 rounded-xl font-bold text-white focus:border-purple-500">
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block font-bold text-slate-300 mb-1">Khóa API Key (Bảo mật)</label>
+                        <input id="cfg-ai-key" type="password" placeholder="Nhập API Key để cập nhật mới (để trống nếu giữ nguyên)..." class="w-full bg-slate-900 border border-slate-700 p-2.5 rounded-xl font-bold text-white focus:border-purple-500">
+                    </div>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block font-bold text-slate-300 mb-1">Độ Sáng Tạo (Temperature: 0.0 - 1.0)</label>
+                            <input id="cfg-ai-temp" type="number" step="0.1" min="0" max="1" value="0.3" class="w-full bg-slate-900 border border-slate-700 p-2.5 rounded-xl font-bold text-white focus:border-purple-500">
+                        </div>
+                        <div>
+                            <label class="block font-bold text-slate-300 mb-1">Tiền Công Tiêu Chuẩn Mặc Định (VNĐ)</label>
+                            <input id="cfg-labor-fee" type="number" step="10000" value="150000" class="w-full bg-slate-900 border border-slate-700 p-2.5 rounded-xl font-bold text-white focus:border-purple-500">
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block font-bold text-slate-300 mb-1">System Prompt (Lời nhắc chỉ dẫn cho AI)</label>
+                        <textarea id="cfg-ai-prompt" rows="3" class="w-full bg-slate-900 border border-slate-700 p-2.5 rounded-xl font-medium text-white focus:border-purple-500"></textarea>
+                    </div>
+
+                    <div class="flex justify-end gap-2 pt-2">
+                        <button type="button" onclick="handleTestAiConnection()" class="px-4 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 font-bold transition flex items-center gap-1.5">
+                            <i class="fa-solid fa-vial-circle-check text-purple-400"></i> Test Kết Nối AI
+                        </button>
+                        <button type="submit" class="px-5 py-2.5 rounded-xl bg-purple-600 hover:bg-purple-500 text-white font-black shadow-lg shadow-purple-600/30 transition flex items-center gap-1.5">
+                            <i class="fa-solid fa-floppy-disk"></i> Lưu & Kích Hoạt Cấu Hình
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+        </section>
+
+    </main>
+
+
+    <!-- ============================================================== -->
+    <!-- MODALS SECTION -->
+    <!-- ============================================================== -->
+
+    <!-- MODAL 1: THÊM / CẬP NHẬT NHÂN VIÊN -->
+    <div id="modal-staff" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="glass-panel bg-slate-900 border border-slate-700 rounded-3xl max-w-md w-full p-6 shadow-2xl space-y-4 text-xs">
+            <div class="flex justify-between items-center pb-2 border-b border-slate-800">
+                <h3 id="modal-staff-title" class="text-base font-black text-white flex items-center gap-2">
+                    <i class="fa-solid fa-user-plus text-purple-400"></i> Thêm Nhân Viên Mới
+                </h3>
+                <button onclick="closeModal('modal-staff')" class="text-slate-400 hover:text-white">
+                    <i class="fa-solid fa-xmark text-lg"></i>
+                </button>
+            </div>
+
+            <form onsubmit="event.preventDefault(); handleStaffFormSubmit();" class="space-y-3">
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block font-bold text-slate-300 mb-1">Mã NV <span class="text-rose-500">*</span></label>
+                        <input id="form-staff-manv" type="text" required placeholder="VD: NV05" class="w-full bg-slate-950 border border-slate-700 p-2.5 rounded-xl font-bold text-white focus:border-purple-500">
+                    </div>
+                    <div>
+                        <label class="block font-bold text-slate-300 mb-1">Số Điện Thoại</label>
+                        <input id="form-staff-sdt" type="text" placeholder="0988..." class="w-full bg-slate-950 border border-slate-700 p-2.5 rounded-xl font-bold text-white focus:border-purple-500">
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block font-bold text-slate-300 mb-1">Họ Và Tên <span class="text-rose-500">*</span></label>
+                    <input id="form-staff-hoten" type="text" required placeholder="VD: Nguyễn Văn Nam" class="w-full bg-slate-950 border border-slate-700 p-2.5 rounded-xl font-bold text-white focus:border-purple-500">
+                </div>
+
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block font-bold text-slate-300 mb-1">Vai Trò Nghiệp Vụ</label>
+                        <select id="form-staff-vaitro" onchange="handleRoleChangeInForm()" class="w-full bg-slate-950 border border-slate-700 p-2.5 rounded-xl font-bold text-white focus:border-purple-500">
+                            <option value="Admin">Admin Toàn Quyền (Quản Lý)</option>
+                            <option value="LeTan">Lễ Tân</option>
+                            <option value="KyThuatVien">Kỹ Thuật Viên</option>
+                            <option value="ThuNgan">Thu Ngân</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block font-bold text-slate-300 mb-1">Chức Vụ Hiển Thị</label>
+                        <input id="form-staff-chucvu" type="text" value="Kỹ thuật viên" class="w-full bg-slate-950 border border-slate-700 p-2.5 rounded-xl font-bold text-white focus:border-purple-500">
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block font-bold text-slate-300 mb-1">Tên Đăng Nhập <span class="text-rose-500">*</span></label>
+                        <input id="form-staff-username" type="text" required placeholder="tuanhv" class="w-full bg-slate-950 border border-slate-700 p-2.5 rounded-xl font-bold text-white focus:border-purple-500">
+                    </div>
+                    <div>
+                        <label class="block font-bold text-slate-300 mb-1">Mật Khẩu</label>
+                        <input id="form-staff-password" type="password" placeholder="Mặc định: 123456" class="w-full bg-slate-950 border border-slate-700 p-2.5 rounded-xl font-bold text-white focus:border-purple-500">
+                    </div>
+                </div>
+
+                <div class="flex justify-end gap-2 pt-3 border-t border-slate-800">
+                    <button type="button" onclick="closeModal('modal-staff')" class="px-4 py-2 rounded-xl text-slate-400 hover:bg-slate-800 font-bold">Hủy</button>
+                    <button type="submit" class="px-5 py-2 rounded-xl bg-purple-600 hover:bg-purple-500 text-white font-black shadow-lg">Lưu Nhân Viên</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL 2: GÁN QUYỀN TRUY CẬP CHO NHÂN VIÊN -->
+    <div id="modal-permissions" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="glass-panel bg-slate-900 border border-slate-700 rounded-3xl max-w-lg w-full p-6 shadow-2xl space-y-4 text-xs">
+            <div class="flex justify-between items-center pb-2 border-b border-slate-800">
+                <div>
+                    <h3 class="text-base font-black text-white flex items-center gap-2">
+                        <i class="fa-solid fa-key text-amber-400"></i> Gán Quyền Truy Cập Hệ Thống
+                    </h3>
+                    <p class="text-slate-400 text-[11px]">Cấp quyền chi tiết cho nhân viên: <strong id="perm-staff-name" class="text-purple-300"></strong></p>
+                </div>
+                <button onclick="closeModal('modal-permissions')" class="text-slate-400 hover:text-white">
+                    <i class="fa-solid fa-xmark text-lg"></i>
+                </button>
+            </div>
+
+            <div class="space-y-2 max-h-80 overflow-y-auto pr-1" id="permissions-checkbox-list">
+                <!-- Injected by JS -->
+            </div>
+
+            <div class="flex justify-between items-center pt-3 border-t border-slate-800">
+                <button type="button" onclick="toggleSelectAllPermissions()" class="text-purple-400 hover:underline font-bold text-[11px]">
+                    Chọn / Bỏ chọn tất cả
+                </button>
+                <div class="flex gap-2">
+                    <button type="button" onclick="closeModal('modal-permissions')" class="px-4 py-2 rounded-xl text-slate-400 hover:bg-slate-800 font-bold">Đóng</button>
+                    <button type="button" onclick="saveStaffPermissions()" class="px-5 py-2 rounded-xl bg-purple-600 hover:bg-purple-500 text-white font-black shadow">Lưu Quyền</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL 3: MA TRẬN NHÓM VAI TRÒ -->
+    <div id="modal-roles" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="glass-panel bg-slate-900 border border-slate-700 rounded-3xl max-w-3xl w-full p-6 shadow-2xl space-y-4 text-xs">
+            <div class="flex justify-between items-center pb-2 border-b border-slate-800">
+                <h3 class="text-base font-black text-white flex items-center gap-2">
+                    <i class="fa-solid fa-shield-halved text-purple-400"></i> Ma Trận Nhóm Vai Trò Hệ Thống
+                </h3>
+                <button onclick="closeModal('modal-roles')" class="text-slate-400 hover:text-white">
+                    <i class="fa-solid fa-xmark text-lg"></i>
+                </button>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-3 max-h-96 overflow-y-auto pr-1" id="roles-cards-container">
+                <!-- Injected by JS -->
+            </div>
+
+            <div class="flex justify-end pt-2 border-t border-slate-800">
+                <button onclick="closeModal('modal-roles')" class="px-4 py-2 rounded-xl bg-slate-800 text-slate-300 font-bold hover:bg-slate-700">Đóng</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL 4: LẬP PHIẾU NHẬP KHO -->
+    <div id="modal-nhap-kho" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="glass-panel bg-slate-900 border border-slate-700 rounded-3xl max-w-md w-full p-6 shadow-2xl space-y-4 text-xs">
+            <div class="flex justify-between items-center pb-2 border-b border-slate-800">
+                <h3 class="text-base font-black text-white flex items-center gap-2">
+                    <i class="fa-solid fa-dolly text-emerald-400"></i> Lập Phiếu Nhập Kho Linh Kiện
+                </h3>
+                <button onclick="closeModal('modal-nhap-kho')" class="text-slate-400 hover:text-white">
+                    <i class="fa-solid fa-xmark text-lg"></i>
+                </button>
+            </div>
+
+            <form onsubmit="event.preventDefault(); handleNhapKhoSubmit();" class="space-y-3">
+                <div>
+                    <label class="block font-bold text-slate-300 mb-1">Chọn Linh Kiện Cần Nhập</label>
+                    <select id="nhapkho-malk" onchange="autoFillNhapKhoPrice()" class="w-full bg-slate-950 border border-slate-700 p-2.5 rounded-xl font-bold text-white focus:border-emerald-500">
+                        <!-- Injected -->
+                    </select>
+                </div>
+
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block font-bold text-slate-300 mb-1">Số Lượng Nhập</label>
+                        <input id="nhapkho-soluong" oninput="calcNhapKhoTotal()" type="number" min="1" value="10" required class="w-full bg-slate-950 border border-slate-700 p-2.5 rounded-xl font-bold text-white focus:border-emerald-500">
+                    </div>
+                    <div>
+                        <label class="block font-bold text-slate-300 mb-1">Giá Nhập Đơn Vị (VNĐ)</label>
+                        <input id="nhapkho-gianhap" oninput="calcNhapKhoTotal()" type="number" step="1000" required class="w-full bg-slate-950 border border-slate-700 p-2.5 rounded-xl font-bold text-white focus:border-emerald-500">
+                    </div>
+                </div>
+
+                <div class="p-3 bg-emerald-950/40 border border-emerald-800/40 rounded-xl flex justify-between items-center">
+                    <span class="text-slate-400 font-bold">Tổng Giá Trị Phiếu:</span>
+                    <strong id="nhapkho-tongtien" class="text-emerald-400 text-sm font-black">0 đ</strong>
+                </div>
+
+                <div>
+                    <label class="block font-bold text-slate-300 mb-1">Nhà Cung Cấp</label>
+                    <input id="nhapkho-ncc" type="text" value="Tổng kho linh kiện chính hãng Hà Nội" class="w-full bg-slate-950 border border-slate-700 p-2.5 rounded-xl font-bold text-white focus:border-emerald-500">
+                </div>
+
+                <div>
+                    <label class="block font-bold text-slate-300 mb-1">Ghi Chú Nhập Hàng</label>
+                    <input id="nhapkho-ghichu" type="text" placeholder="Lô hàng mới nguyên seal..." class="w-full bg-slate-950 border border-slate-700 p-2.5 rounded-xl font-bold text-white focus:border-emerald-500">
+                </div>
+
+                <div class="flex justify-end gap-2 pt-3 border-t border-slate-800">
+                    <button type="button" onclick="closeModal('modal-nhap-kho')" class="px-4 py-2 rounded-xl text-slate-400 hover:bg-slate-800 font-bold">Hủy</button>
+                    <button type="submit" class="px-5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-black shadow">Xác Nhận Nhập Kho & Cộng Tồn</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL 4B: THÊM LINH KIỆN / PHỤ KIỆN MỚI -->
+    <div id="modal-create-part" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="glass-panel bg-slate-900 border border-slate-700 rounded-3xl max-w-lg w-full p-6 shadow-2xl space-y-4 text-xs">
+            <div class="flex justify-between items-center pb-2 border-b border-slate-800">
+                <h3 class="text-base font-black text-white flex items-center gap-2">
+                    <i class="fa-solid fa-plus-circle text-emerald-400"></i> Thêm Linh Kiện / Phụ Kiện Mới Vào Kho
+                </h3>
+                <button onclick="closeModal('modal-create-part')" class="text-slate-400 hover:text-white">
+                    <i class="fa-solid fa-xmark text-lg"></i>
+                </button>
+            </div>
+
+            <form onsubmit="event.preventDefault(); handleCreatePartSubmit();" class="space-y-3">
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block font-bold text-slate-300 mb-1">Mã Linh Kiện (Duy Nhất) <span class="text-rose-500">*</span></label>
+                        <input id="part-create-malk" type="text" required placeholder="VD: LK-iP16PM-MH hoặc PK16" class="w-full bg-slate-950 border border-slate-700 p-2.5 rounded-xl font-bold text-white focus:border-emerald-500 font-mono">
+                    </div>
+                    <div>
+                        <label class="block font-bold text-slate-300 mb-1">Gợi Ý Tiền Tố Mã</label>
+                        <select onchange="if(this.value){document.getElementById('part-create-malk').value=this.value;}" class="w-full bg-slate-950 border border-slate-700 p-2.5 rounded-xl text-slate-300 focus:border-emerald-500">
+                            <option value="">-- Chọn tiền tố nhanh --</option>
+                            <option value="LK-iP">LK-iP (Linh kiện iPhone)</option>
+                            <option value="PK">PK (Phụ kiện bán riêng)</option>
+                            <option value="VT">VT (Vật tư tiêu hao)</option>
+                            <option value="DC">DC (Dụng cụ kỹ thuật)</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block font-bold text-slate-300 mb-1">Tên Chi Tiết Sản Phẩm <span class="text-rose-500">*</span></label>
+                    <input id="part-create-tenlk" type="text" required placeholder="VD: Màn hình OLED Dynamic Island iPhone 16 Pro Max..." class="w-full bg-slate-950 border border-slate-700 p-2.5 rounded-xl font-bold text-white focus:border-emerald-500">
+                </div>
+
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block font-bold text-slate-300 mb-1">Giá Nhập Đơn Vị (VNĐ)</label>
+                        <input id="part-create-gianhap" type="number" step="1000" min="0" value="0" required class="w-full bg-slate-950 border border-slate-700 p-2.5 rounded-xl font-bold text-white focus:border-emerald-500 font-mono">
+                    </div>
+                    <div>
+                        <label class="block font-bold text-slate-300 mb-1">Giá Bán Khách (VNĐ) <span class="text-rose-500">*</span></label>
+                        <input id="part-create-giaban" type="number" step="1000" min="0" value="0" required class="w-full bg-slate-950 border border-slate-700 p-2.5 rounded-xl font-bold text-emerald-300 focus:border-emerald-500 font-mono">
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block font-bold text-slate-300 mb-1">Tồn Kho Khởi Tạo</label>
+                        <input id="part-create-ton" type="number" min="0" value="5" required class="w-full bg-slate-950 border border-slate-700 p-2.5 rounded-xl font-bold text-white focus:border-emerald-500 font-mono">
+                    </div>
+                    <div>
+                        <label class="block font-bold text-slate-300 mb-1">Định Mức Tối Thiểu (Cảnh Báo)</label>
+                        <input id="part-create-min" type="number" min="1" value="3" required class="w-full bg-slate-950 border border-slate-700 p-2.5 rounded-xl font-bold text-amber-300 focus:border-emerald-500 font-mono">
+                    </div>
+                </div>
+
+                <div class="flex justify-end gap-2 pt-3 border-t border-slate-800">
+                    <button type="button" onclick="closeModal('modal-create-part')" class="px-4 py-2 rounded-xl text-slate-400 hover:bg-slate-800 font-bold">Hủy</button>
+                    <button type="submit" class="px-5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-black shadow-lg shadow-emerald-600/30">
+                        <i class="fa-solid fa-check"></i> Lưu & Thêm Vào Kho
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL 4C: CHỈNH SỬA TOÀN DIỆN LINH KIỆN -->
+    <div id="modal-edit-part" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="glass-panel bg-slate-900 border border-slate-700 rounded-3xl max-w-lg w-full p-6 shadow-2xl space-y-4 text-xs">
+            <div class="flex justify-between items-center pb-2 border-b border-slate-800">
+                <h3 class="text-base font-black text-white flex items-center gap-2">
+                    <i class="fa-solid fa-pen-to-square text-emerald-400"></i> Chỉnh Sửa Thông Tin Linh Kiện / Bảng Giá
+                </h3>
+                <button onclick="closeModal('modal-edit-part')" class="text-slate-400 hover:text-white">
+                    <i class="fa-solid fa-xmark text-lg"></i>
+                </button>
+            </div>
+
+            <form onsubmit="event.preventDefault(); handleEditPartSubmit();" class="space-y-3">
+                <div>
+                    <label class="block font-bold text-slate-400 mb-1">Mã Linh Kiện (Khóa cố định)</label>
+                    <input id="part-edit-malk" type="text" readonly class="w-full bg-slate-950/60 border border-slate-800 p-2.5 rounded-xl font-bold text-emerald-300 font-mono cursor-not-allowed">
+                </div>
+
+                <div>
+                    <label class="block font-bold text-slate-300 mb-1">Tên Chi Tiết Linh Kiện <span class="text-rose-500">*</span></label>
+                    <input id="part-edit-tenlk" type="text" required class="w-full bg-slate-950 border border-slate-700 p-2.5 rounded-xl font-bold text-white focus:border-emerald-500">
+                </div>
+
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block font-bold text-slate-300 mb-1">Giá Nhập Đơn Vị (VNĐ)</label>
+                        <input id="part-edit-gianhap" type="number" step="1000" min="0" required class="w-full bg-slate-950 border border-slate-700 p-2.5 rounded-xl font-bold text-white focus:border-emerald-500 font-mono">
+                    </div>
+                    <div>
+                        <label class="block font-bold text-slate-300 mb-1">Giá Bán Khách (VNĐ) <span class="text-rose-500">*</span></label>
+                        <input id="part-edit-giaban" type="number" step="1000" min="0" required class="w-full bg-slate-950 border border-slate-700 p-2.5 rounded-xl font-bold text-emerald-300 focus:border-emerald-500 font-mono">
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block font-bold text-slate-300 mb-1">Số Lượng Tồn Kho Thực Tế</label>
+                        <input id="part-edit-ton" type="number" min="0" required class="w-full bg-slate-950 border border-slate-700 p-2.5 rounded-xl font-bold text-white focus:border-emerald-500 font-mono">
+                    </div>
+                    <div>
+                        <label class="block font-bold text-slate-300 mb-1">Định Mức Tối Thiểu (Cảnh Báo)</label>
+                        <input id="part-edit-min" type="number" min="1" required class="w-full bg-slate-950 border border-slate-700 p-2.5 rounded-xl font-bold text-amber-300 focus:border-emerald-500 font-mono">
+                    </div>
+                </div>
+
+                <div class="flex justify-end gap-2 pt-3 border-t border-slate-800">
+                    <button type="button" onclick="closeModal('modal-edit-part')" class="px-4 py-2 rounded-xl text-slate-400 hover:bg-slate-800 font-bold">Hủy</button>
+                    <button type="submit" class="px-5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-black shadow-lg shadow-emerald-600/30">
+                        <i class="fa-solid fa-floppy-disk"></i> Cập Nhật Thay Đổi
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL 5: THÊM / CẬP NHẬT LOẠI DỊCH VỤ -->
+    <div id="modal-service" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="glass-panel bg-slate-900 border border-slate-700 rounded-3xl max-w-md w-full p-6 shadow-2xl space-y-4 text-xs">
+            <div class="flex justify-between items-center pb-2 border-b border-slate-800">
+                <h3 id="modal-service-title" class="text-base font-black text-white flex items-center gap-2">
+                    <i class="fa-solid fa-screwdriver-wrench text-emerald-400"></i> Thêm Loại Dịch Vụ Mới
+                </h3>
+                <button onclick="closeModal('modal-service')" class="text-slate-400 hover:text-white">
+                    <i class="fa-solid fa-xmark text-lg"></i>
+                </button>
+            </div>
+
+            <form onsubmit="event.preventDefault(); handleServiceFormSubmit();" class="space-y-3">
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block font-bold text-slate-300 mb-1">Mã Dịch Vụ <span class="text-rose-500">*</span></label>
+                        <input id="form-dv-madv" type="text" required placeholder="VD: DV06" class="w-full bg-slate-950 border border-slate-700 p-2.5 rounded-xl font-bold text-white focus:border-emerald-500">
+                    </div>
+                    <div>
+                        <label class="block font-bold text-slate-300 mb-1">Thời Hạn BH</label>
+                        <input id="form-dv-baohanh" type="text" value="12 Tháng" class="w-full bg-slate-950 border border-slate-700 p-2.5 rounded-xl font-bold text-white focus:border-emerald-500">
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block font-bold text-slate-300 mb-1">Tên Dịch Vụ Sửa Chữa <span class="text-rose-500">*</span></label>
+                    <input id="form-dv-tendv" type="text" required placeholder="VD: Thay Cụm Chân Sạc Type-C" class="w-full bg-slate-950 border border-slate-700 p-2.5 rounded-xl font-bold text-white focus:border-emerald-500">
+                </div>
+
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block font-bold text-slate-300 mb-1">Áp Dụng Thiết Bị</label>
+                        <input id="form-dv-loaimay" type="text" value="Tất cả dòng máy" class="w-full bg-slate-950 border border-slate-700 p-2.5 rounded-xl font-bold text-white focus:border-emerald-500">
+                    </div>
+                    <div>
+                        <label class="block font-bold text-slate-300 mb-1">Đơn Giá Tiền Công</label>
+                        <input id="form-dv-tiencong" type="number" step="10000" value="150000" class="w-full bg-slate-950 border border-slate-700 p-2.5 rounded-xl font-bold text-white focus:border-emerald-500">
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block font-bold text-slate-300 mb-1">Mô Tả Quy Trình / Lưu Ý</label>
+                    <textarea id="form-dv-mota" rows="2" class="w-full bg-slate-950 border border-slate-700 p-2.5 rounded-xl font-medium text-white focus:border-emerald-500"></textarea>
+                </div>
+
+                <div class="flex justify-end gap-2 pt-3 border-t border-slate-800">
+                    <button type="button" onclick="closeModal('modal-service')" class="px-4 py-2 rounded-xl text-slate-400 hover:bg-slate-800 font-bold">Hủy</button>
+                    <button type="submit" class="px-5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-black shadow">Lưu Dịch Vụ</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL 6: TẠO VOUCHER KHUYẾN MÃI -->
+    <div id="modal-voucher" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="glass-panel bg-slate-900 border border-slate-700 rounded-3xl max-w-md w-full p-6 shadow-2xl space-y-4 text-xs">
+            <div class="flex justify-between items-center pb-2 border-b border-slate-800">
+                <h3 class="text-base font-black text-white flex items-center gap-2">
+                    <i class="fa-solid fa-ticket text-pink-400"></i> Tạo Voucher Khuyến Mãi Mới
+                </h3>
+                <button onclick="closeModal('modal-voucher')" class="text-slate-400 hover:text-white">
+                    <i class="fa-solid fa-xmark text-lg"></i>
+                </button>
+            </div>
+
+            <form onsubmit="event.preventDefault(); handleVoucherSubmit();" class="space-y-3">
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block font-bold text-slate-300 mb-1">Mã Voucher <span class="text-rose-500">*</span></label>
+                        <input id="form-vc-code" type="text" required placeholder="VD: TET2026" class="w-full bg-slate-950 border border-slate-700 p-2.5 rounded-xl font-bold uppercase text-white focus:border-pink-500">
+                    </div>
+                    <div>
+                        <label class="block font-bold text-slate-300 mb-1">Loại Giảm Giá</label>
+                        <select id="form-vc-type" class="w-full bg-slate-950 border border-slate-700 p-2.5 rounded-xl font-bold text-white focus:border-pink-500">
+                            <option value="PHAN_TRAM">Theo Phần Trăm (%)</option>
+                            <option value="SO_TIEN">Theo Số Tiền Trực Tiếp (VNĐ)</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block font-bold text-slate-300 mb-1">Tên Chương Trình Ưu Đãi <span class="text-rose-500">*</span></label>
+                    <input id="form-vc-name" type="text" required placeholder="VD: Khai xuân đón lộc giảm giá 10%" class="w-full bg-slate-950 border border-slate-700 p-2.5 rounded-xl font-bold text-white focus:border-pink-500">
+                </div>
+
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block font-bold text-slate-300 mb-1">Giá Trị Giảm (% hoặc VNĐ)</label>
+                        <input id="form-vc-value" type="number" required placeholder="10 hoặc 50000" class="w-full bg-slate-950 border border-slate-700 p-2.5 rounded-xl font-bold text-white focus:border-pink-500">
+                    </div>
+                    <div>
+                        <label class="block font-bold text-slate-300 mb-1">Đơn Hàng Tối Thiểu</label>
+                        <input id="form-vc-min" type="number" value="200000" class="w-full bg-slate-950 border border-slate-700 p-2.5 rounded-xl font-bold text-white focus:border-pink-500">
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block font-bold text-slate-300 mb-1">Số Lượng Phát Hành</label>
+                    <input id="form-vc-qty" type="number" value="100" class="w-full bg-slate-950 border border-slate-700 p-2.5 rounded-xl font-bold text-white focus:border-pink-500">
+                </div>
+
+                <div class="flex justify-end gap-2 pt-3 border-t border-slate-800">
+                    <button type="button" onclick="closeModal('modal-voucher')" class="px-4 py-2 rounded-xl text-slate-400 hover:bg-slate-800 font-bold">Hủy</button>
+                    <button type="submit" class="px-5 py-2 rounded-xl bg-pink-600 hover:bg-pink-500 text-white font-black shadow">Kích Hoạt Voucher</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+
+    <!-- ============================================================== -->
+    <!-- TOAST NOTIFICATION CONTAINER -->
+    <!-- ============================================================== -->
+    <div id="toast-container" class="fixed bottom-5 right-5 z-50 flex flex-col gap-2 max-w-sm pointer-events-none"></div>
+
+
+    <!-- ============================================================== -->
+    <!-- JAVASCRIPT LOGIC CLIENT SIDE -->
+    <!-- ============================================================== -->
+    <script>
+        const API_BASE = "";
+        let currentStaffList = [];
+        let currentStockList = [];
+        let currentServicesList = [];
+        let currentVoucherList = [];
+        let allRolesData = null;
+        let selectedStaffForPerm = null;
+
+        let chartRevenueBreakdown = null;
+        let chartPaymentMethod = null;
+
+        // --- KHỞI CHẠY HỆ THỐNG ---
+        document.addEventListener("DOMContentLoaded", async () => {
+            // Lấy thông tin phiên làm việc
+            const savedUser = localStorage.getItem("phonecare_user");
+            if (savedUser) {
+                try {
+                    const u = JSON.parse(savedUser);
+                    document.getElementById("admin-user-name").textContent = u.hoTen || u.tenDangNhap;
+                } catch(e) {}
+            }
+
+            // Tải dữ liệu ban đầu
+            await Promise.all([
+                loadStaffData(),
+                loadRolesMatrix(),
+                loadStockData(),
+                loadServicesData(),
+                loadRevenueReport(),
+                loadKtvReport(),
+                loadVouchersData(),
+                loadAiConfig()
+            ]);
+        });
+
+        // --- CHUYỂN NHÓM PHÂN HỆ LỚN (1, 2, 3) ---
+        function switchAdminGroup(groupId) {
+            document.querySelectorAll(".admin-section").forEach(sec => sec.classList.add("hidden"));
+            document.querySelectorAll(".group-tab-btn").forEach(btn => {
+                btn.classList.remove("active-tab-btn");
+                btn.classList.add("text-slate-400");
+            });
+
+            const activeBtn = document.getElementById(`nav-group-${groupId}`);
+            if (activeBtn) {
+                activeBtn.classList.add("active-tab-btn");
+                activeBtn.classList.remove("text-slate-400");
+            }
+
+            const targetSec = document.getElementById(`section-${groupId}`);
+            if (targetSec) targetSec.classList.remove("hidden");
+        }
+
+        // --- SUBTABS NHÓM 2: KHO & DỊCH VỤ ---
+        function switchInvSubTab(tab) {
+            document.getElementById("inv-panel-stock").classList.add("hidden");
+            document.getElementById("inv-panel-services").classList.add("hidden");
+            document.getElementById("inv-panel-history").classList.add("hidden");
+
+            ["stock", "services", "history"].forEach(t => {
+                const b = document.getElementById(`btn-inv-sub-${t}`);
+                if (b) {
+                    b.className = "px-4 py-2 rounded-xl text-xs font-bold text-slate-400 hover:text-white transition flex items-center gap-1.5";
+                }
+            });
+
+            const activeBtn = document.getElementById(`btn-inv-sub-${tab}`);
+            if (activeBtn) {
+                activeBtn.className = "px-4 py-2 rounded-xl text-xs font-black bg-emerald-600 text-white transition flex items-center gap-1.5 shadow-lg shadow-emerald-600/30";
+            }
+
+            document.getElementById(`inv-panel-${tab}`).classList.remove("hidden");
+            if (tab === "history") loadNhapKhoHistory();
+        }
+
+        // --- SUBTABS NHÓM 3: BÁO CÁO & AI ---
+        function switchReportsSubTab(tab) {
+            document.getElementById("panel-rep-revenue").classList.add("hidden");
+            document.getElementById("panel-rep-ktv").classList.add("hidden");
+            document.getElementById("panel-rep-voucher").classList.add("hidden");
+            document.getElementById("panel-rep-ai").classList.add("hidden");
+
+            ["revenue", "ktv", "voucher", "ai"].forEach(t => {
+                const b = document.getElementById(`btn-rep-${t}`);
+                if (b) {
+                    b.className = "px-4 py-2 rounded-xl text-xs font-bold text-slate-400 hover:text-white transition flex items-center gap-1.5";
+                }
+            });
+
+            const activeBtn = document.getElementById(`btn-rep-${tab}`);
+            if (activeBtn) {
+                activeBtn.className = "px-4 py-2 rounded-xl text-xs font-black bg-blue-600 text-white transition flex items-center gap-1.5 shadow-lg shadow-blue-600/30";
+            }
+
+            document.getElementById(`panel-rep-${tab}`).classList.remove("hidden");
+        }
+
+
+        // ==============================================================
+        // 1. NGHIỆP VỤ NHÂN SỰ & PHÂN QUYỀN
+        // ==============================================================
+
+        async function loadStaffData() {
+            try {
+                const res = await fetch(`${API_BASE}/api/admin/nhan-vien`);
+                if (res.ok) {
+                    currentStaffList = await res.json();
+                    renderStaffTable();
+                    document.getElementById("staff-total-badge").textContent = `${currentStaffList.length} nhân sự`;
+                }
+            } catch(e) {
+                console.error("Lỗi tải nhân sự:", e);
+            }
+        }
+
+        function renderStaffTable() {
+            const tbody = document.getElementById("staff-table-body");
+            const q = document.getElementById("staff-search-input").value.trim().toLowerCase();
+
+            const filtered = currentStaffList.filter(s => 
+                s.maNV.toLowerCase().includes(q) || 
+                s.hoTen.toLowerCase().includes(q) || 
+                s.tenDangNhap.toLowerCase().includes(q) ||
+                (s.chucVu && s.chucVu.toLowerCase().includes(q))
+            );
+
+            if (filtered.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="8" class="text-center py-8 text-slate-500 italic">Không tìm thấy nhân sự phù hợp</td></tr>`;
+                return;
+            }
+
+            tbody.innerHTML = filtered.map(s => {
+                const isLocked = s.trangThai === "KHOA";
+                const isAdminRoot = s.tenDangNhap.toLowerCase() === "admin" || s.maNV === "NV01";
+                const statusBadge = isLocked 
+                    ? `<span class="px-2.5 py-1 rounded-full text-[10px] font-black bg-rose-950/80 text-rose-300 border border-rose-800/80"><i class="fa-solid fa-lock mr-1"></i>BỊ KHÓA</span>`
+                    : `<span class="px-2.5 py-1 rounded-full text-[10px] font-black bg-emerald-950/80 text-emerald-300 border border-emerald-800/80"><i class="fa-solid fa-circle-check mr-1"></i>HOẠT ĐỘNG</span>`;
+
+                const roleBadgeColor = {
+                    "Admin": "text-purple-300 bg-purple-950/60 border-purple-800/60",
+                    "QuanLy": "text-indigo-300 bg-indigo-950/60 border-indigo-800/60",
+                    "KyThuatVien": "text-sky-300 bg-sky-950/60 border-sky-800/60",
+                    "Kỹ thuật viên": "text-sky-300 bg-sky-950/60 border-sky-800/60",
+                    "LeTan": "text-pink-300 bg-pink-950/60 border-pink-800/60",
+                    "Lễ tân": "text-pink-300 bg-pink-950/60 border-pink-800/60",
+                    "ThuNgan": "text-emerald-300 bg-emerald-950/60 border-emerald-800/60",
+                    "Thu ngân": "text-emerald-300 bg-emerald-950/60 border-emerald-800/60",
+                    "ThuKho": "text-amber-300 bg-amber-950/60 border-amber-800/60"
+                }[s.vaiTro || s.chucVu] || "text-slate-300 bg-slate-900 border-slate-700";
+
+                const permCount = Array.isArray(s.quyenTruyCap) ? s.quyenTruyCap.length : 0;
+
+                return `
+                    <tr class="hover:bg-slate-900/60 transition">
+                        <td class="py-3 px-4 font-mono font-bold text-purple-300">${s.maNV}</td>
+                        <td class="py-3 px-4 font-bold text-white">${s.hoTen}</td>
+                        <td class="py-3 px-4 text-slate-300 font-mono">@${s.tenDangNhap}</td>
+                        <td class="py-3 px-4 text-slate-400">${s.sdt || '-'}</td>
+                        <td class="py-3 px-4">
+                            <span class="px-2 py-0.5 rounded-lg text-[11px] font-bold border ${roleBadgeColor}">
+                                ${s.chucVu || s.vaiTro}
+                            </span>
+                        </td>
+                        <td class="py-3 px-4 text-center">${statusBadge}</td>
+                        <td class="py-3 px-4 text-center">
+                            <button onclick="openModalPermissions('${s.maNV}')" class="px-2.5 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 font-bold text-[11px] transition">
+                                <i class="fa-solid fa-key text-amber-400 mr-1"></i> ${permCount} quyền
+                            </button>
+                        </td>
+                        <td class="py-3 px-4 text-center">
+                            <div class="inline-flex items-center gap-1.5">
+                                ${!isAdminRoot ? `
+                                    <button onclick="toggleStaffLock('${s.maNV}', ${isLocked})" title="${isLocked ? 'Mở khóa tài khoản' : 'Khóa tài khoản'}" class="p-1.5 rounded-lg ${isLocked ? 'bg-emerald-900/60 text-emerald-300 hover:bg-emerald-800' : 'bg-rose-900/60 text-rose-300 hover:bg-rose-800'} transition">
+                                        <i class="fa-solid ${isLocked ? 'fa-lock-open' : 'fa-lock'}"></i>
+                                    </button>
+                                    <button onclick="openModalEditStaff('${s.maNV}')" title="Sửa thông tin" class="p-1.5 rounded-lg bg-slate-800 text-slate-300 hover:text-white hover:bg-slate-700 transition">
+                                        <i class="fa-solid fa-pen-to-square"></i>
+                                    </button>
+                                    <button onclick="deleteStaff('${s.maNV}')" title="Xóa nhân viên" class="p-1.5 rounded-lg bg-slate-800 text-rose-400 hover:text-white hover:bg-rose-900/60 transition">
+                                        <i class="fa-solid fa-trash"></i>
+                                    </button>
+                                ` : `
+                                    <span class="text-[10px] text-purple-400 font-black px-2 py-0.5 rounded bg-purple-950/60">GỐC</span>
+                                `}
+                            </div>
+                        </td>
+                    </tr>
+                `;
+            }).join("");
+        }
+
+        async function toggleStaffLock(maNV, currentlyLocked) {
+            const action = currentlyLocked ? "MỞ KHÓA" : "KHÓA";
+            if (!confirm(`Bạn có chắc chắn muốn ${action} tài khoản nhân sự [${maNV}] không?`)) return;
+
+            try {
+                const res = await fetch(`${API_BASE}/api/admin/nhan-vien/${maNV}/toggle-status`, { method: "PUT" });
+                const data = await res.json();
+                if (res.ok) {
+                    showToast(data.message, "success");
+                    await loadStaffData();
+                } else {
+                    showToast(data.detail || "Thao tác thất bại!", "error");
+                }
+            } catch(e) {
+                showToast("Lỗi kết nối máy chủ!", "error");
+            }
+        }
+
+        async function deleteStaff(maNV) {
+            if (!confirm(`Xác nhận XÓA vĩnh viễn nhân viên [${maNV}] khỏi hệ thống?`)) return;
+
+            try {
+                const res = await fetch(`${API_BASE}/api/admin/nhan-vien/${maNV}`, { method: "DELETE" });
+                const data = await res.json();
+                if (res.ok) {
+                    showToast(data.message, "success");
+                    await loadStaffData();
+                } else {
+                    showToast(data.detail || "Không thể xóa nhân viên này!", "error");
+                }
+            } catch(e) {
+                showToast("Lỗi kết nối máy chủ!", "error");
+            }
+        }
+
+        function openModalCreateStaff() {
+            document.getElementById("modal-staff-title").innerHTML = `<i class="fa-solid fa-user-plus text-purple-400"></i> Thêm Nhân Viên Mới`;
+            document.getElementById("form-staff-manv").value = `NV0${currentStaffList.length + 1}`;
+            document.getElementById("form-staff-manv").readOnly = false;
+            document.getElementById("form-staff-hoten").value = "";
+            document.getElementById("form-staff-sdt").value = "";
+            document.getElementById("form-staff-username").value = "";
+            document.getElementById("form-staff-password").value = "123456";
+            document.getElementById("form-staff-vaitro").value = "KyThuatVien";
+            document.getElementById("form-staff-chucvu").value = "Kỹ thuật viên";
+            openModal("modal-staff");
+        }
+
+        function openModalEditStaff(maNV) {
+            const s = currentStaffList.find(x => x.maNV === maNV);
+            if (!s) return;
+
+            document.getElementById("modal-staff-title").innerHTML = `<i class="fa-solid fa-user-pen text-purple-400"></i> Cập Nhật Nhân Viên #${s.maNV}`;
+            document.getElementById("form-staff-manv").value = s.maNV;
+            document.getElementById("form-staff-manv").readOnly = true;
+            document.getElementById("form-staff-hoten").value = s.hoTen;
+            document.getElementById("form-staff-sdt").value = s.sdt || "";
+            document.getElementById("form-staff-username").value = s.tenDangNhap;
+            document.getElementById("form-staff-password").value = "";
+            document.getElementById("form-staff-vaitro").value = s.vaiTro || "KyThuatVien";
+            document.getElementById("form-staff-chucvu").value = s.chucVu;
+            openModal("modal-staff");
+        }
+
+        function handleRoleChangeInForm() {
+            const vt = document.getElementById("form-staff-vaitro").value;
+            const cvInput = document.getElementById("form-staff-chucvu");
+            const names = {
+                "Admin": "Quản Trị Viên (Quản Lý)",
+                "KyThuatVien": "Kỹ thuật viên",
+                "LeTan": "Lễ tân tiếp nhận",
+                "ThuNgan": "Thu ngân & ca"
+            };
+            cvInput.value = names[vt] || vt;
+        }
+
+        async function handleStaffFormSubmit() {
+            const maNV = document.getElementById("form-staff-manv").value.trim();
+            const isEdit = document.getElementById("form-staff-manv").readOnly;
+
+            const payload = {
+                hoTen: document.getElementById("form-staff-hoten").value.trim(),
+                chucVu: document.getElementById("form-staff-chucvu").value.trim(),
+                vaiTro: document.getElementById("form-staff-vaitro").value,
+                sdt: document.getElementById("form-staff-sdt").value.trim(),
+            };
+
+            const pwd = document.getElementById("form-staff-password").value.trim();
+            if (pwd) payload.matKhau = pwd;
+
+            try {
+                let res;
+                if (isEdit) {
+                    res = await fetch(`${API_BASE}/api/admin/nhan-vien/${maNV}`, {
+                        method: "PUT",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify(payload)
+                    });
+                } else {
+                    payload.maNV = maNV;
+                    payload.tenDangNhap = document.getElementById("form-staff-username").value.trim();
+                    payload.matKhau = pwd || "123456";
+                    res = await fetch(`${API_BASE}/api/admin/nhan-vien`, {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify(payload)
+                    });
+                }
+
+                const data = await res.json();
+                if (res.ok) {
+                    showToast(data.message, "success");
+                    closeModal("modal-staff");
+                    await loadStaffData();
+                } else {
+                    showToast(data.detail || "Lưu thông tin thất bại!", "error");
+                }
+            } catch(e) {
+                showToast("Lỗi kết nối máy chủ!", "error");
+            }
+        }
+
+        // --- MA TRẬN VAI TRÒ VÀ GÁN QUYỀN TRUY CẬP ---
+        async function loadRolesMatrix() {
+            try {
+                const res = await fetch(`${API_BASE}/api/admin/vai-tro`);
+                if (res.ok) {
+                    allRolesData = await res.json();
+                }
+            } catch(e) {}
+        }
+
+        function openModalRolesMatrix() {
+            if (!allRolesData) return;
+            const container = document.getElementById("roles-cards-container");
+            container.innerHTML = allRolesData.nhomVaiTro.map(r => `
+                <div class="glass-card p-4 rounded-2xl border border-slate-700/60 space-y-2">
+                    <div class="flex justify-between items-center">
+                        <strong class="text-white text-sm flex items-center gap-1.5">
+                            <i class="fa-solid fa-shield text-purple-400"></i> ${r.tenVaiTro}
+                        </strong>
+                        <span class="text-[10px] font-mono text-purple-300 px-2 py-0.5 rounded bg-purple-950/60">${r.maVaiTro}</span>
+                    </div>
+                    <p class="text-slate-400 text-[11px] leading-relaxed">${r.moTa}</p>
+                    <div class="pt-1 flex flex-wrap gap-1">
+                        ${r.quyen.map(q => `<span class="px-1.5 py-0.5 rounded text-[10px] bg-slate-800 text-slate-300 font-mono">${q}</span>`).join('')}
+                    </div>
+                </div>
+            `).join("");
+            openModal("modal-roles");
+        }
+
+        function openModalPermissions(maNV) {
+            selectedStaffForPerm = currentStaffList.find(x => x.maNV === maNV);
+            if (!selectedStaffForPerm || !allRolesData) return;
+
+            document.getElementById("perm-staff-name").textContent = `${selectedStaffForPerm.hoTen} (${selectedStaffForPerm.maNV})`;
+
+            const staffPerms = new Set(selectedStaffForPerm.quyenTruyCap || []);
+            const container = document.getElementById("permissions-checkbox-list");
+
+            container.innerHTML = allRolesData.danhSachQuyen.map(q => {
+                const isChecked = staffPerms.has(q.ma);
+                return `
+                    <label class="flex items-start gap-2.5 p-2 rounded-xl hover:bg-slate-800/80 cursor-pointer select-none transition border border-slate-800/60">
+                        <input type="checkbox" value="${q.ma}" ${isChecked ? 'checked' : ''} class="perm-checkbox mt-0.5 w-4 h-4 rounded accent-purple-500">
+                        <div>
+                            <p class="font-bold text-white text-xs">${q.ten} <span class="font-mono text-[10px] text-purple-400 ml-1">(${q.ma})</span></p>
+                            <p class="text-[10px] text-slate-400">Nhóm: ${q.nhom}</p>
+                        </div>
+                    </label>
+                `;
+            }).join("");
+
+            openModal("modal-permissions");
+        }
+
+        function toggleSelectAllPermissions() {
+            const checkboxes = document.querySelectorAll(".perm-checkbox");
+            const allChecked = Array.from(checkboxes).every(cb => cb.checked);
+            checkboxes.forEach(cb => cb.checked = !allChecked);
+        }
+
+        async function saveStaffPermissions() {
+            if (!selectedStaffForPerm) return;
+            const checkedPerms = Array.from(document.querySelectorAll(".perm-checkbox:checked")).map(cb => cb.value);
+
+            try {
+                const res = await fetch(`${API_BASE}/api/admin/nhan-vien/${selectedStaffForPerm.maNV}/phan-quyen`, {
+                    method: "PUT",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ quyenTruyCap: checkedPerms })
+                });
+                const data = await res.json();
+                if (res.ok) {
+                    showToast(data.message, "success");
+                    closeModal("modal-permissions");
+                    await loadStaffData();
+                } else {
+                    showToast(data.detail || "Cập nhật quyền thất bại!", "error");
+                }
+            } catch(e) {
+                showToast("Lỗi kết nối máy chủ!", "error");
+            }
+        }
+
+
+        // ==============================================================
+        // 2. NGHIỆP VỤ KHO & BẢNG GIÁ DỊCH VỤ
+        // ==============================================================
+
+        async function loadStockData() {
+            try {
+                const res = await fetch(`${API_BASE}/api/admin/kho/kiem-ke`);
+                if (res.ok) {
+                    const data = await res.json();
+                    currentStockList = data.danhSachLinhKien;
+                    
+                    document.getElementById("inv-stat-items").textContent = `${data.tongSoMatHang} món`;
+                    document.getElementById("inv-stat-warning").textContent = `${data.soLuongCanhBao} mặt hàng`;
+                    document.getElementById("inv-stat-value").textContent = `${data.giaTriKhoUocTinh.toLocaleString('vi-VN')} đ`;
+
+                    renderStockTable();
+                }
+            } catch(e) {
+                console.error("Lỗi kiểm kê kho:", e);
+            }
+        }
+
+        function matchesCategory(lk, cat) {
+            if (!cat || cat === "ALL") return true;
+            const ma = (lk.maLK || "").toUpperCase();
+            const ten = (lk.tenLK || "").toLowerCase();
+            if (cat === "MH") return ma.includes("MH") || ten.includes("màn hình") || (ten.includes("kính") && !ten.includes("lưng") && !ten.includes("cường lực"));
+            if (cat === "PIN") return ma.includes("PIN") || ten.includes("pin");
+            if (cat === "CAM") return ma.includes("CAM") || ten.includes("camera");
+            if (cat === "SAC") return ma.includes("SAC") || ma.includes("CS") || ten.includes("sạc") || ten.includes("chân sạc") || ten.includes("usb-c") || ten.includes("lightning");
+            if (cat === "LOA") return ma.includes("LOA") || ma.includes("MIC") || ten.includes("loa") || ten.includes("micro") || ten.includes("chuông");
+            if (cat === "CAP") return ma.includes("CAP") || ma.includes("PWR") || ma.includes("ACT") || ten.includes("cáp") || ten.includes("nút") || ten.includes("taptic") || ten.includes("rung");
+            if (cat === "KL") return ma.includes("KL") || ma.includes("VO") || ten.includes("kính lưng") || ten.includes("khung") || ten.includes("khay sim") || ten.includes("vỏ");
+            if (cat === "PK") return ma.startsWith("PK") || ten.includes("phụ kiện") || ten.includes("cường lực") || ten.includes("ốp") || ten.includes("earpods") || ten.includes("ví da") || ten.includes("giá đỡ");
+            if (cat === "VT") return ma.startsWith("VT") || ma.startsWith("DC") || ten.includes("keo") || ten.includes("tua vít") || ten.includes("ron") || ten.includes("cồn") || ten.includes("nhíp") || ten.includes("nạy") || ten.includes("dụng cụ");
+            return true;
+        }
+
+        function renderStockTable() {
+            const tbody = document.getElementById("stock-table-body");
+            const filterStatus = document.getElementById("filter-stock-status") ? document.getElementById("filter-stock-status").value : "ALL";
+            const filterCat = document.getElementById("filter-stock-category") ? document.getElementById("filter-stock-category").value : "ALL";
+            const q = document.getElementById("stock-search-input").value.trim().toLowerCase();
+
+            const filtered = currentStockList.filter(lk => {
+                const matchQ = lk.maLK.toLowerCase().includes(q) || lk.tenLK.toLowerCase().includes(q);
+                if (!matchQ) return false;
+                if (!matchesCategory(lk, filterCat)) return false;
+                if (filterStatus === "WARNING") return lk.trangThai !== "AN_TOAN";
+                if (filterStatus === "SAFE") return lk.trangThai === "AN_TOAN";
+                return true;
+            });
+
+            if (filtered.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="8" class="text-center py-8 text-slate-500 italic">Không có linh kiện nào theo bộ lọc</td></tr>`;
+                return;
+            }
+
+            tbody.innerHTML = filtered.map(lk => {
+                let badge = `<span class="px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-950 text-emerald-300 border border-emerald-800">✅ An toàn</span>`;
+                if (lk.trangThai === "CANH_BAO_HET") {
+                    badge = `<span class="px-2 py-0.5 rounded text-[10px] font-bold bg-rose-950 text-rose-300 border border-rose-800 animate-pulse">❌ Hết hàng (0)</span>`;
+                } else if (lk.trangThai === "SAP_HET") {
+                    badge = `<span class="px-2 py-0.5 rounded text-[10px] font-bold bg-amber-950 text-amber-300 border border-amber-800">⚠️ Sắp hết (≤ ${lk.tonToiThieu})</span>`;
+                }
+
+                // Thoát ký tự HTML cho modal
+                const escapedName = (lk.tenLK || '').replace(/'/g, "&#39;").replace(/"/g, "&quot;");
+
+                return `
+                    <tr class="hover:bg-slate-900/60 transition">
+                        <td class="py-3 px-4 font-mono font-bold text-emerald-300">${lk.maLK}</td>
+                        <td class="py-3 px-4 font-bold text-white">${lk.tenLK}</td>
+                        <td class="py-3 px-4 text-center font-mono font-black ${lk.soLuongTon <= 0 ? 'text-rose-400' : 'text-emerald-400'}">${lk.soLuongTon}</td>
+                        <td class="py-3 px-4 text-center text-slate-400 font-mono">${lk.tonToiThieu}</td>
+                        <td class="py-3 px-4 text-right font-mono text-slate-300">${lk.giaNhap.toLocaleString('vi-VN')} đ</td>
+                        <td class="py-3 px-4 text-right font-mono font-bold text-emerald-300">${lk.giaBan.toLocaleString('vi-VN')} đ</td>
+                        <td class="py-3 px-4 text-center">${badge}</td>
+                        <td class="py-3 px-4 text-center">
+                            <div class="inline-flex items-center gap-1.5">
+                                <button onclick="promptQuickAdjustStock('${lk.maLK}', ${lk.soLuongTon})" title="Cân đối tồn kho nhanh" class="p-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-amber-400 transition">
+                                    <i class="fa-solid fa-scale-balanced"></i>
+                                </button>
+                                <button onclick="openModalEditPart('${lk.maLK}', '${escapedName}', ${lk.giaBan}, ${lk.giaNhap}, ${lk.soLuongTon}, ${lk.tonToiThieu})" title="Chỉnh sửa thông tin & bảng giá" class="p-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-emerald-400 transition">
+                                    <i class="fa-solid fa-pen-to-square"></i>
+                                </button>
+                                <button onclick="confirmDeletePart('${lk.maLK}', '${escapedName}')" title="Xóa linh kiện an toàn" class="p-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-rose-400 hover:text-rose-300 transition">
+                                    <i class="fa-solid fa-trash-can"></i>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+            }).join("");
+        }
+
+        // --- CÁC HÀM QUẢN LÝ LINH KIỆN MỚI ---
+        function openModalCreatePart() {
+            document.getElementById("part-create-malk").value = "";
+            document.getElementById("part-create-tenlk").value = "";
+            document.getElementById("part-create-gianhap").value = "0";
+            document.getElementById("part-create-giaban").value = "0";
+            document.getElementById("part-create-ton").value = "5";
+            document.getElementById("part-create-min").value = "3";
+            openModal("modal-create-part");
+        }
+
+        async function handleCreatePartSubmit() {
+            const maLK = document.getElementById("part-create-malk").value.trim();
+            const tenLK = document.getElementById("part-create-tenlk").value.trim();
+            const giaNhap = parseFloat(document.getElementById("part-create-gianhap").value) || 0;
+            const giaBan = parseFloat(document.getElementById("part-create-giaban").value) || 0;
+            const soLuongTon = parseInt(document.getElementById("part-create-ton").value, 10) || 0;
+            const tonToiThieu = parseInt(document.getElementById("part-create-min").value, 10) || 5;
+
+            if (!maLK || !tenLK) {
+                showToast("Vui lòng điền đầy đủ Mã LK và Tên linh kiện!", "warning");
+                return;
+            }
+
+            try {
+                const res = await fetch(`${API_BASE}/api/admin/kho/linh-kien`, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ maLK, tenLK, giaNhap, giaBan, soLuongTon, tonToiThieu })
+                });
+                const data = await res.json();
+                if (res.ok) {
+                    showToast(data.message, "success");
+                    closeModal("modal-create-part");
+                    await loadStockData();
+                } else {
+                    showToast(data.detail || "Thêm linh kiện thất bại!", "error");
+                }
+            } catch(e) {
+                showToast("Lỗi kết nối máy chủ!", "error");
+            }
+        }
+
+        function openModalEditPart(maLK, tenLK, giaBan, giaNhap, soLuongTon, tonToiThieu) {
+            document.getElementById("part-edit-malk").value = maLK;
+            document.getElementById("part-edit-tenlk").value = tenLK;
+            document.getElementById("part-edit-gianhap").value = Math.round(giaNhap);
+            document.getElementById("part-edit-giaban").value = Math.round(giaBan);
+            document.getElementById("part-edit-ton").value = soLuongTon;
+            document.getElementById("part-edit-min").value = tonToiThieu;
+            openModal("modal-edit-part");
+        }
+
+        async function handleEditPartSubmit() {
+            const maLK = document.getElementById("part-edit-malk").value;
+            const tenLK = document.getElementById("part-edit-tenlk").value.trim();
+            const giaNhap = parseFloat(document.getElementById("part-edit-gianhap").value);
+            const giaBan = parseFloat(document.getElementById("part-edit-giaban").value);
+            const soLuongTon = parseInt(document.getElementById("part-edit-ton").value, 10);
+            const tonToiThieu = parseInt(document.getElementById("part-edit-min").value, 10);
+
+            try {
+                const res = await fetch(`${API_BASE}/api/admin/kho/linh-kien/${encodeURIComponent(maLK)}`, {
+                    method: "PUT",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ tenLK, giaNhap, giaBan, soLuongTon, tonToiThieu })
+                });
+                const data = await res.json();
+                if (res.ok) {
+                    showToast(data.message, "success");
+                    closeModal("modal-edit-part");
+                    await loadStockData();
+                } else {
+                    showToast(data.detail || "Cập nhật linh kiện thất bại!", "error");
+                }
+            } catch(e) {
+                showToast("Lỗi kết nối máy chủ!", "error");
+            }
+        }
+
+        async function confirmDeletePart(maLK, tenLK) {
+            if (!confirm(`Bạn có chắc chắn muốn XÓA linh kiện sau khỏi kho?\n\n• Mã: ${maLK}\n• Tên: ${tenLK}\n\nHệ thống sẽ kiểm tra ràng buộc giao dịch an toàn trước khi xóa.`)) {
+                return;
+            }
+
+            try {
+                const res = await fetch(`${API_BASE}/api/admin/kho/linh-kien/${encodeURIComponent(maLK)}`, {
+                    method: "DELETE"
+                });
+                const data = await res.json();
+                if (res.ok) {
+                    showToast(data.message, "success");
+                    await loadStockData();
+                } else {
+                    showToast(data.detail || "Không thể xóa linh kiện này!", "error");
+                }
+            } catch(e) {
+                showToast("Lỗi kết nối máy chủ!", "error");
+            }
+        }
+
+        async function promptQuickAdjustStock(maLK, tonCu) {
+            const input = prompt(`Nhập số lượng tồn kho thực tế sau khi kiểm kê cho [${maLK}] (Hiện tại: ${tonCu}):`, tonCu);
+            if (input === null) return;
+            const soLuongMoi = parseInt(input, 10);
+            if (isNaN(soLuongMoi) || soLuongMoi < 0) {
+                alert("Số lượng tồn kho không hợp lệ!");
+                return;
+            }
+
+            try {
+                const res = await fetch(`${API_BASE}/api/admin/kho/kiem-ke-can-doi`, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ maLK, soLuongThucTe: soLuongMoi, lyDo: "Kiểm kê định kỳ Admin" })
+                });
+                const data = await res.json();
+                if (res.ok) {
+                    showToast(data.message, "success");
+                    await loadStockData();
+                } else {
+                    showToast(data.detail || "Cân đối thất bại!", "error");
+                }
+            } catch(e) {
+                showToast("Lỗi kết nối máy chủ!", "error");
+            }
+        }
+
+        async function promptEditPartPrice(maLK, giaBanCu, giaNhapCu, tonToiThieuCu) {
+            const gb = prompt(`Nhập GIÁ BÁN mới cho linh kiện [${maLK}] (VNĐ):`, giaBanCu);
+            if (gb === null) return;
+            const giaBan = parseFloat(gb);
+            if (isNaN(giaBan) || giaBan < 0) {
+                alert("Giá bán không hợp lệ!");
+                return;
+            }
+
+            try {
+                const res = await fetch(`${API_BASE}/api/admin/kho/linh-kien/${maLK}/gia`, {
+                    method: "PUT",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ giaBan, giaNhap: giaNhapCu, tonToiThieu: tonToiThieuCu })
+                });
+                const data = await res.json();
+                if (res.ok) {
+                    showToast(data.message, "success");
+                    await loadStockData();
+                } else {
+                    showToast(data.detail || "Cập nhật giá thất bại!", "error");
+                }
+            } catch(e) {
+                showToast("Lỗi kết nối máy chủ!", "error");
+            }
+        }
+
+        // --- NHẬP KHO LINH KIỆN ---
+        function openModalNhapKho() {
+            const select = document.getElementById("nhapkho-malk");
+            select.innerHTML = currentStockList.map(lk => `
+                <option value="${lk.maLK}" data-price="${lk.giaNhap || (lk.giaBan * 0.7)}">${lk.tenLK} (${lk.maLK}) - Hiện tồn: ${lk.soLuongTon}</option>
+            `).join("");
+
+            autoFillNhapKhoPrice();
+            calcNhapKhoTotal();
+            openModal("modal-nhap-kho");
+        }
+
+        function autoFillNhapKhoPrice() {
+            const select = document.getElementById("nhapkho-malk");
+            const opt = select.options[select.selectedIndex];
+            const price = opt ? opt.getAttribute("data-price") : 0;
+            document.getElementById("nhapkho-gianhap").value = Math.round(price);
+            calcNhapKhoTotal();
+        }
+
+        function calcNhapKhoTotal() {
+            const qty = parseInt(document.getElementById("nhapkho-soluong").value || 0, 10);
+            const price = parseFloat(document.getElementById("nhapkho-gianhap").value || 0);
+            const total = qty * price;
+            document.getElementById("nhapkho-tongtien").textContent = `${total.toLocaleString('vi-VN')} đ`;
+        }
+
+        async function handleNhapKhoSubmit() {
+            const payload = {
+                maLK: document.getElementById("nhapkho-malk").value,
+                soLuongNhap: parseInt(document.getElementById("nhapkho-soluong").value, 10),
+                giaNhap: parseFloat(document.getElementById("nhapkho-gianhap").value),
+                nhaCungCap: document.getElementById("nhapkho-ncc").value.trim(),
+                ghiChu: document.getElementById("nhapkho-ghichu").value.trim()
+            };
+
+            try {
+                const res = await fetch(`${API_BASE}/api/admin/kho/nhap-kho`, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(payload)
+                });
+                const data = await res.json();
+                if (res.ok) {
+                    showToast(data.message, "success");
+                    closeModal("modal-nhap-kho");
+                    await loadStockData();
+                } else {
+                    showToast(data.detail || "Nhập kho thất bại!", "error");
+                }
+            } catch(e) {
+                showToast("Lỗi kết nối máy chủ!", "error");
+            }
+        }
+
+        async function loadNhapKhoHistory() {
+            try {
+                const res = await fetch(`${API_BASE}/api/admin/kho/lich-su-nhap`);
+                if (res.ok) {
+                    const list = await res.json();
+                    const tbody = document.getElementById("nhap-kho-table-body");
+                    if (list.length === 0) {
+                        tbody.innerHTML = `<tr><td colspan="8" class="text-center py-6 text-slate-500 italic">Chưa có lịch sử nhập kho</td></tr>`;
+                        return;
+                    }
+                    tbody.innerHTML = list.map(p => `
+                        <tr class="hover:bg-slate-900/60 transition">
+                            <td class="py-3 px-4 font-mono font-bold text-emerald-300">${p.maNhap}</td>
+                            <td class="py-3 px-4 text-slate-400">${p.ngayNhap}</td>
+                            <td class="py-3 px-4 font-bold text-white">${p.tenLK}</td>
+                            <td class="py-3 px-4 text-center font-mono font-black text-emerald-400">+${p.soLuong}</td>
+                            <td class="py-3 px-4 text-right font-mono text-slate-300">${p.giaNhap.toLocaleString('vi-VN')} đ</td>
+                            <td class="py-3 px-4 text-right font-mono font-bold text-emerald-300">${p.tongTien.toLocaleString('vi-VN')} đ</td>
+                            <td class="py-3 px-4 text-slate-300">${p.nhaCungCap}</td>
+                            <td class="py-3 px-4 text-slate-400">${p.nguoiNhap}</td>
+                        </tr>
+                    `).join("");
+                }
+            } catch(e) {}
+        }
+
+        // --- DANH MỤC DỊCH VỤ SỬA CHỮA ---
+        async function loadServicesData() {
+            try {
+                const res = await fetch(`${API_BASE}/api/admin/dich-vu`);
+                if (res.ok) {
+                    currentServicesList = await res.json();
+                    document.getElementById("inv-stat-services").textContent = `${currentServicesList.length} loại`;
+                    renderServicesTable();
+                }
+            } catch(e) {}
+        }
+
+        function renderServicesTable() {
+            const tbody = document.getElementById("services-table-body");
+            if (currentServicesList.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="7" class="text-center py-6 text-slate-500 italic">Chưa có dịch vụ sửa chữa</td></tr>`;
+                return;
+            }
+
+            tbody.innerHTML = currentServicesList.map(dv => `
+                <tr class="hover:bg-slate-900/60 transition">
+                    <td class="py-3 px-4 font-mono font-bold text-purple-300">${dv.maDV}</td>
+                    <td class="py-3 px-4 font-bold text-white">${dv.tenDV}</td>
+                    <td class="py-3 px-4 text-slate-300">${dv.loaiMay}</td>
+                    <td class="py-3 px-4 text-right font-mono font-black text-emerald-300">${dv.tienCong.toLocaleString('vi-VN')} đ</td>
+                    <td class="py-3 px-4 text-center"><span class="px-2 py-0.5 rounded text-[10px] bg-sky-950 text-sky-300 border border-sky-800">${dv.thoiGianBaoHanh}</span></td>
+                    <td class="py-3 px-4 text-slate-400 max-w-xs truncate">${dv.moTa || '-'}</td>
+                    <td class="py-3 px-4 text-center">
+                        <div class="inline-flex gap-1.5">
+                            <button onclick="openModalEditService('${dv.maDV}')" title="Sửa dịch vụ" class="p-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200">
+                                <i class="fa-solid fa-pen"></i>
+                            </button>
+                            <button onclick="deleteService('${dv.maDV}')" title="Xóa dịch vụ" class="p-1.5 rounded-lg bg-slate-800 hover:bg-rose-900/60 text-rose-400">
+                                <i class="fa-solid fa-trash"></i>
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+            `).join("");
+        }
+
+        function openModalCreateService() {
+            document.getElementById("modal-service-title").innerHTML = `<i class="fa-solid fa-plus-circle text-emerald-400"></i> Thêm Loại Dịch Vụ Mới`;
+            document.getElementById("form-dv-madv").value = `DV0${currentServicesList.length + 1}`;
+            document.getElementById("form-dv-madv").readOnly = false;
+            document.getElementById("form-dv-tendv").value = "";
+            document.getElementById("form-dv-loaimay").value = "Tất cả";
+            document.getElementById("form-dv-tiencong").value = "150000";
+            document.getElementById("form-dv-baohanh").value = "12 Tháng";
+            document.getElementById("form-dv-mota").value = "";
+            openModal("modal-service");
+        }
+
+        function openModalEditService(maDV) {
+            const dv = currentServicesList.find(x => x.maDV === maDV);
+            if (!dv) return;
+
+            document.getElementById("modal-service-title").innerHTML = `<i class="fa-solid fa-pen text-emerald-400"></i> Sửa Dịch Vụ #${dv.maDV}`;
+            document.getElementById("form-dv-madv").value = dv.maDV;
+            document.getElementById("form-dv-madv").readOnly = true;
+            document.getElementById("form-dv-tendv").value = dv.tenDV;
+            document.getElementById("form-dv-loaimay").value = dv.loaiMay;
+            document.getElementById("form-dv-tiencong").value = dv.tienCong;
+            document.getElementById("form-dv-baohanh").value = dv.thoiGianBaoHanh;
+            document.getElementById("form-dv-mota").value = dv.moTa || "";
+            openModal("modal-service");
+        }
+
+        async function handleServiceFormSubmit() {
+            const maDV = document.getElementById("form-dv-madv").value.trim();
+            const isEdit = document.getElementById("form-dv-madv").readOnly;
+
+            const payload = {
+                tenDV: document.getElementById("form-dv-tendv").value.trim(),
+                loaiMay: document.getElementById("form-dv-loaimay").value.trim(),
+                tienCong: parseFloat(document.getElementById("form-dv-tiencong").value),
+                thoiGianBaoHanh: document.getElementById("form-dv-baohanh").value.trim(),
+                moTa: document.getElementById("form-dv-mota").value.trim()
+            };
+
+            try {
+                let res;
+                if (isEdit) {
+                    res = await fetch(`${API_BASE}/api/admin/dich-vu/${maDV}`, {
+                        method: "PUT",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify(payload)
+                    });
+                } else {
+                    payload.maDV = maDV;
+                    res = await fetch(`${API_BASE}/api/admin/dich-vu`, {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify(payload)
+                    });
+                }
+
+                const data = await res.json();
+                if (res.ok) {
+                    showToast(data.message, "success");
+                    closeModal("modal-service");
+                    await loadServicesData();
+                } else {
+                    showToast(data.detail || "Lưu dịch vụ thất bại!", "error");
+                }
+            } catch(e) {
+                showToast("Lỗi kết nối máy chủ!", "error");
+            }
+        }
+
+        async function deleteService(maDV) {
+            if (!confirm(`Xác nhận xóa dịch vụ [${maDV}]?`)) return;
+            try {
+                const res = await fetch(`${API_BASE}/api/admin/dich-vu/${maDV}`, { method: "DELETE" });
+                const data = await res.json();
+                if (res.ok) {
+                    showToast(data.message, "success");
+                    await loadServicesData();
+                } else {
+                    showToast(data.detail || "Không thể xóa dịch vụ!", "error");
+                }
+            } catch(e) {
+                showToast("Lỗi kết nối máy chủ!", "error");
+            }
+        }
+
+
+        // ==============================================================
+        // 3. NGHIỆP VỤ BÁO CÁO, VOUCHER & AI
+        // ==============================================================
+
+        async function loadRevenueReport() {
+            const period = document.getElementById("select-revenue-period").value;
+            try {
+                const res = await fetch(`${API_BASE}/api/admin/bao-cao/doanh-thu?khoangThoiGian=${period}`);
+                if (res.ok) {
+                    const data = await res.json();
+                    document.getElementById("rev-total").textContent = `${data.tongDoanhThu.toLocaleString('vi-VN')} đ`;
+                    document.getElementById("rev-invoices-count").textContent = `${data.tongSoHoaDon} hóa đơn thanh toán`;
+                    document.getElementById("rev-parts").textContent = `${data.tienLinhKien.toLocaleString('vi-VN')} đ`;
+                    document.getElementById("rev-labor").textContent = `${data.tienCong.toLocaleString('vi-VN')} đ`;
+                    document.getElementById("rev-profit").textContent = `${data.loiNhuanUocTinh.toLocaleString('vi-VN')} đ`;
+
+                    renderRevenueCharts(data);
+                }
+            } catch(e) {}
+        }
+
+        function renderRevenueCharts(data) {
+            // Biểu đồ 1: Cơ cấu linh kiện vs tiền công
+            const ctx1 = document.getElementById("chart-rev-breakdown").getContext("2d");
+            if (chartRevenueBreakdown) chartRevenueBreakdown.destroy();
+            chartRevenueBreakdown = new Chart(ctx1, {
+                type: "doughnut",
+                data: {
+                    labels: ["Tiền Linh Kiện Thay Thế", "Tiền Công Sửa Chữa"],
+                    datasets: [{
+                        data: [data.tienLinhKien || 1, data.tienCong || 1],
+                        backgroundColor: ["#0284c7", "#8b5cf6"],
+                        borderWidth: 0
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { position: "bottom", labels: { color: "#94a3b8", font: { size: 11, weight: "bold" } } }
+                    }
+                }
+            });
+
+            // Biểu đồ 2: Phương thức thanh toán
+            const ctx2 = document.getElementById("chart-payment-method").getContext("2d");
+            if (chartPaymentMethod) chartPaymentMethod.destroy();
+            chartPaymentMethod = new Chart(ctx2, {
+                type: "pie",
+                data: {
+                    labels: ["Tiền Mặt", "Chuyển Khoản QR"],
+                    datasets: [{
+                        data: [data.tongTienMat || 1, data.tongChuyenKhoan || 1],
+                        backgroundColor: ["#10b981", "#3b82f6"],
+                        borderWidth: 0
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { position: "bottom", labels: { color: "#94a3b8", font: { size: 11, weight: "bold" } } }
+                    }
+                }
+            });
+        }
+
+        async function loadKtvReport() {
+            try {
+                const res = await fetch(`${API_BASE}/api/admin/bao-cao/hieu-suat-ktv`);
+                if (res.ok) {
+                    const list = await res.json();
+                    const tbody = document.getElementById("ktv-table-body");
+                    if (list.length === 0) {
+                        tbody.innerHTML = `<tr><td colspan="8" class="text-center py-6 text-slate-500 italic">Chưa có dữ liệu KTV</td></tr>`;
+                        return;
+                    }
+
+                    tbody.innerHTML = list.map((k, idx) => {
+                        let trophy = "";
+                        if (idx === 0) trophy = "🥇 ";
+                        else if (idx === 1) trophy = "🥈 ";
+                        else if (idx === 2) trophy = "🥉 ";
+
+                        let rankBadge = `<span class="px-2 py-0.5 rounded text-[10px] bg-slate-800 text-slate-300 font-bold">${k.xepLoai}</span>`;
+                        if (k.xepLoai === "Xuất sắc") {
+                            rankBadge = `<span class="px-2.5 py-0.5 rounded-full text-[10px] bg-amber-500/20 text-amber-300 border border-amber-500/30 font-black">⭐ Xuất Sắc</span>`;
+                        } else if (k.xepLoai === "Tốt") {
+                            rankBadge = `<span class="px-2.5 py-0.5 rounded-full text-[10px] bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 font-black">Tốt</span>`;
+                        }
+
+                        return `
+                            <tr class="hover:bg-slate-900/60 transition">
+                                <td class="py-3 px-4 font-bold text-white flex items-center gap-1.5">
+                                    <span>${trophy}</span>
+                                    <span>${k.hoTen}</span>
+                                    <span class="text-[10px] font-mono text-slate-400">(${k.maKTV})</span>
+                                </td>
+                                <td class="py-3 px-4 text-center font-mono font-bold text-slate-300">${k.tongNhan}</td>
+                                <td class="py-3 px-4 text-center font-mono font-black text-emerald-400">${k.daSuaXong}</td>
+                                <td class="py-3 px-4 text-center font-mono font-bold text-amber-400">${k.dangXuLy}</td>
+                                <td class="py-3 px-4 text-center font-mono text-slate-400">${k.choXuLy}</td>
+                                <td class="py-3 px-4 text-center">
+                                    <div class="inline-flex items-center gap-1.5">
+                                        <div class="w-16 bg-slate-800 h-2 rounded-full overflow-hidden">
+                                            <div class="bg-emerald-500 h-full rounded-full" style="width: ${Math.min(100, k.tyLeHoanThanh)}%"></div>
+                                        </div>
+                                        <span class="font-mono font-bold text-[11px] text-slate-300">${k.tyLeHoanThanh}%</span>
+                                    </div>
+                                </td>
+                                <td class="py-3 px-4 text-right font-mono font-bold text-purple-300">${k.doanhSoTienCong.toLocaleString('vi-VN')} đ</td>
+                                <td class="py-3 px-4 text-center">${rankBadge}</td>
+                            </tr>
+                        `;
+                    }).join("");
+                }
+            } catch(e) {}
+        }
+
+        // --- QUẢN LÝ VOUCHER ---
+        async function loadVouchersData() {
+            try {
+                const res = await fetch(`${API_BASE}/api/admin/voucher`);
+                if (res.ok) {
+                    currentVoucherList = await res.json();
+                    renderVoucherTable();
+                }
+            } catch(e) {}
+        }
+
+        function renderVoucherTable() {
+            const tbody = document.getElementById("voucher-table-body");
+            if (currentVoucherList.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="7" class="text-center py-6 text-slate-500 italic">Chưa có voucher nào</td></tr>`;
+                return;
+            }
+
+            tbody.innerHTML = currentVoucherList.map(v => {
+                const discountText = v.loaiGiam === "PHAN_TRAM" ? `Giảm ${v.giaTriGiam}%` : `Giảm ${v.giaTriGiam.toLocaleString('vi-VN')} đ`;
+                const isActive = v.trangThai === "HOAT_DONG";
+
+                return `
+                    <tr class="hover:bg-slate-900/60 transition">
+                        <td class="py-3 px-4 font-mono font-black text-pink-400 tracking-wider">#${v.maVoucher}</td>
+                        <td class="py-3 px-4 font-bold text-white">${v.tenVoucher}</td>
+                        <td class="py-3 px-4 font-black text-emerald-400">${discountText}</td>
+                        <td class="py-3 px-4 text-slate-400 font-mono">≥ ${v.donToiThieu.toLocaleString('vi-VN')} đ</td>
+                        <td class="py-3 px-4 text-center font-mono text-slate-300">${v.daDung} / ${v.soLuong}</td>
+                        <td class="py-3 px-4 text-center">
+                            <span class="px-2 py-0.5 rounded text-[10px] font-bold ${isActive ? 'bg-emerald-950 text-emerald-300 border border-emerald-800' : 'bg-slate-800 text-slate-400'}">
+                                ${isActive ? 'ĐANG KÍCH HOẠT' : 'TẠM DỪNG'}
+                            </span>
+                        </td>
+                        <td class="py-3 px-4 text-center">
+                            <div class="inline-flex gap-1.5">
+                                <button onclick="toggleVoucherStatus('${v.maVoucher}', '${v.trangThai}')" title="${isActive ? 'Tạm ngưng' : 'Kích hoạt'}" class="p-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300">
+                                    <i class="fa-solid ${isActive ? 'fa-pause' : 'fa-play'}"></i>
+                                </button>
+                                <button onclick="deleteVoucher('${v.maVoucher}')" title="Xóa voucher" class="p-1.5 rounded-lg bg-slate-800 hover:bg-rose-900/60 text-rose-400">
+                                    <i class="fa-solid fa-trash"></i>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+            }).join("");
+        }
+
+        function openModalCreateVoucher() {
+            document.getElementById("form-vc-code").value = "";
+            document.getElementById("form-vc-name").value = "";
+            document.getElementById("form-vc-value").value = "10";
+            document.getElementById("form-vc-min").value = "200000";
+            document.getElementById("form-vc-qty").value = "100";
+            openModal("modal-voucher");
+        }
+
+        async function handleVoucherSubmit() {
+            const payload = {
+                maVoucher: document.getElementById("form-vc-code").value.trim().toUpperCase(),
+                tenVoucher: document.getElementById("form-vc-name").value.trim(),
+                loaiGiam: document.getElementById("form-vc-type").value,
+                giaTriGiam: parseFloat(document.getElementById("form-vc-value").value),
+                donToiThieu: parseFloat(document.getElementById("form-vc-min").value),
+                soLuong: parseInt(document.getElementById("form-vc-qty").value, 10)
+            };
+
+            try {
+                const res = await fetch(`${API_BASE}/api/admin/voucher`, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(payload)
+                });
+                const data = await res.json();
+                if (res.ok) {
+                    showToast(data.message, "success");
+                    closeModal("modal-voucher");
+                    await loadVouchersData();
+                } else {
+                    showToast(data.detail || "Tạo voucher thất bại!", "error");
+                }
+            } catch(e) {
+                showToast("Lỗi kết nối máy chủ!", "error");
+            }
+        }
+
+        async function toggleVoucherStatus(code, currentStatus) {
+            const newStatus = currentStatus === "HOAT_DONG" ? "TAM_DUNG" : "HOAT_DONG";
+            try {
+                const res = await fetch(`${API_BASE}/api/admin/voucher/${code}`, {
+                    method: "PUT",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ trangThai: newStatus })
+                });
+                const data = await res.json();
+                if (res.ok) {
+                    showToast(data.message, "success");
+                    await loadVouchersData();
+                }
+            } catch(e) {}
+        }
+
+        async function deleteVoucher(code) {
+            if (!confirm(`Xác nhận xóa voucher [${code}]?`)) return;
+            try {
+                const res = await fetch(`${API_BASE}/api/admin/voucher/${code}`, { method: "DELETE" });
+                const data = await res.json();
+                if (res.ok) {
+                    showToast(data.message, "success");
+                    await loadVouchersData();
+                }
+            } catch(e) {}
+        }
+
+        // --- CẤU HÌNH THAM SỐ AI ---
+        async function loadAiConfig() {
+            try {
+                const res = await fetch(`${API_BASE}/api/admin/cai-dat/ai`);
+                if (res.ok) {
+                    const cfg = await res.json();
+                    document.getElementById("cfg-ai-provider").value = cfg.provider || "Gemini";
+                    document.getElementById("cfg-ai-model").value = cfg.modelName || "gemini-1.5-flash";
+                    document.getElementById("cfg-ai-temp").value = cfg.temperature || 0.3;
+                    document.getElementById("cfg-ai-prompt").value = cfg.systemPrompt || "";
+                    document.getElementById("cfg-labor-fee").value = cfg.laborFeeDefault || 150000;
+
+                    const ind = document.getElementById("ai-status-indicator");
+                    if (cfg.hasApiKey) {
+                        ind.className = "px-3 py-1 rounded-full text-[11px] font-black uppercase bg-emerald-500/20 text-emerald-400 border border-emerald-500/30";
+                        ind.textContent = "ONLINE (API Sẵn sàng)";
+                    } else {
+                        ind.className = "px-3 py-1 rounded-full text-[11px] font-black uppercase bg-amber-500/20 text-amber-400 border border-amber-500/30";
+                        ind.textContent = "OFFLINE (Dùng Fallback)";
+                    }
+                }
+            } catch(e) {}
+        }
+
+        async function handleSaveAiConfig() {
+            const payload = {
+                provider: document.getElementById("cfg-ai-provider").value,
+                modelName: document.getElementById("cfg-ai-model").value.trim(),
+                apiKey: document.getElementById("cfg-ai-key").value.trim() || null,
+                temperature: parseFloat(document.getElementById("cfg-ai-temp").value),
+                systemPrompt: document.getElementById("cfg-ai-prompt").value.trim(),
+                laborFeeDefault: parseFloat(document.getElementById("cfg-labor-fee").value)
+            };
+
+            try {
+                const res = await fetch(`${API_BASE}/api/admin/cai-dat/ai`, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(payload)
+                });
+                const data = await res.json();
+                if (res.ok) {
+                    showToast(data.message, "success");
+                    await loadAiConfig();
+                } else {
+                    showToast(data.detail || "Lưu cấu hình thất bại!", "error");
+                }
+            } catch(e) {
+                showToast("Lỗi kết nối máy chủ!", "error");
+            }
+        }
+
+        async function handleTestAiConnection() {
+            showToast("Đang gửi yêu cầu test AI...", "info");
+            try {
+                const res = await fetch(`${API_BASE}/api/admin/cai-dat/ai/test`, { method: "POST" });
+                const data = await res.json();
+                if (data.success) {
+                    alert(`✅ KẾT NỐI AI THÀNH CÔNG!\n\nTriệu chứng test: Màn hình sọc xanh, liệt cảm ứng góc dưới (iPhone 13 Pro)\n\nKết quả chẩn đoán: ${data.testResult.chan_doan}\nPhương án xử lý: ${data.testResult.phuong_an_xu_ly}\nKhoảng giá: ${data.testResult.khoang_gia}`);
+                } else {
+                    alert(`❌ KIỂM TRA THẤT BẠI:\n${data.message}`);
+                }
+            } catch(e) {
+                showToast("Lỗi kết nối kiểm tra AI!", "error");
+            }
+        }
+
+
+        // --- TIỆN ÍCH MODAL & TOAST ---
+        function openModal(id) {
+            const m = document.getElementById(id);
+            if (m) m.classList.remove("hidden");
+        }
+
+        function closeModal(id) {
+            const m = document.getElementById(id);
+            if (m) m.classList.add("hidden");
+        }
+
+        function showToast(message, type = "info") {
+            const container = document.getElementById("toast-container");
+            const toast = document.createElement("div");
+
+            const colors = {
+                "success": "bg-emerald-900/90 text-emerald-100 border-emerald-500",
+                "error": "bg-rose-900/90 text-rose-100 border-rose-500",
+                "warning": "bg-amber-900/90 text-amber-100 border-amber-500",
+                "info": "bg-purple-900/90 text-purple-100 border-purple-500"
+            }[type] || "bg-slate-900 text-white border-slate-700";
+
+            toast.className = `p-3.5 rounded-2xl border shadow-xl flex items-center gap-2.5 text-xs font-bold transition transform duration-300 translate-y-2 pointer-events-auto ${colors}`;
+            toast.innerHTML = `<span>${message}</span>`;
+
+            container.appendChild(toast);
+            requestAnimationFrame(() => toast.classList.remove("translate-y-2"));
+
+            setTimeout(() => {
+                toast.classList.add("opacity-0", "translate-y-2");
+                setTimeout(() => toast.remove(), 300);
+            }, 3500);
+        }
+
+        function handleLogout() {
+            if (confirm("Bạn có chắc chắn muốn đăng xuất khỏi Admin Portal?")) {
+                localStorage.removeItem("phonecare_user");
+                window.location.href = "/";
+            }
+        }
+    </script>
+</body>
+</html>

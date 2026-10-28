@@ -1,0 +1,31 @@
+{
+  "thanh_toan": [
+    {
+      "maGiaoDich": "GD-1790264258810",
+      "maPhieu": "PS01",
+      "maKH": "KH001",
+      "phuongThuc": "TienMat",
+      "tienLinhKien": 2800000.0,
+      "tienCong": 150000.0,
+      "tongTien": 2950000.0,
+      "maThuNgan": "NV04",
+      "tenThuNgan": "Phạm Thị Dung",
+      "ghiChu": "",
+      "ngayThanhToan": "2026-09-24 22:37:38"
+    },
+    {
+      "maGiaoDich": "GD-1790268172299",
+      "maPhieu": "PS003",
+      "maKH": "Ánh Ngọc",
+      "phuongThuc": "ChuyenKhoan",
+      "tienLinhKien": 0.0,
+      "tienCong": 150000.0,
+      "tongTien": 150000.0,
+      "maThuNgan": "NV04",
+      "tenThuNgan": "Phạm Thị Dung",
+      "ghiChu": "",
+      "ngayThanhToan": "2026-09-24 23:42:52"
+    }
+  ],
+  "chot_ca": []
+}

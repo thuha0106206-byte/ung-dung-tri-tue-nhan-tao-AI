@@ -1,0 +1,2360 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+    <title>Phân Hệ Lễ Tân & Tiếp Nhận - FrogHippo Phone</title>
+    <meta name="description"
+        content="Bàn Lễ Tân FrogHippo Phone: Tiếp nhận máy, thu cọc 30%, quyết toán 70%, AI soạn tin nhắn đa kênh, chatbot tư vấn linh kiện thực tế.">
+    <link rel="icon" type="image/png" href="/froghippo_logo.png">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap"
+        rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['Inter', 'sans-serif'] },
+                    colors: { brand: { 50: '#eef2ff', 100: '#e0e7ff', 200: '#c7d2fe', 300: '#a5b4fc', 400: '#818cf8', 500: '#6366f1', 600: '#4f46e5', 700: '#4338ca', 800: '#3730a3', 900: '#312e81' } }
+                }
+            }
+        }
+    </script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #f1f5f9;
+        }
+
+        .glass {
+            background: rgba(255, 255, 255, 0.97);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(226, 232, 240, 0.8);
+        }
+
+        .btn-primary {
+            @apply bg-gradient-to-r from-brand-600 to-indigo-600 hover:from-brand-500 hover:to-indigo-500 text-white font-black rounded-xl shadow-lg transition active:scale-95 cursor-pointer;
+        }
+
+        .input-base {
+            @apply w-full bg-slate-50 border border-slate-200 px-3 py-2.5 rounded-xl font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-brand-500 text-sm;
+        }
+
+        /* Chat widget */
+        #chatbot-widget {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            z-index: 999;
+        }
+
+        #chatbot-bubble {
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #6366f1, #8b5cf6);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 22px;
+            cursor: pointer;
+            box-shadow: 0 8px 24px rgba(99, 102, 241, 0.4);
+            transition: transform 0.2s;
+        }
+
+        #chatbot-bubble:hover {
+            transform: scale(1.08);
+        }
+
+        #chatbot-panel {
+            display: none;
+            position: absolute;
+            bottom: 68px;
+            right: 0;
+            width: 380px;
+            max-width: calc(100vw - 32px);
+            height: 520px;
+            max-height: calc(100vh - 110px);
+            border-radius: 24px;
+            overflow: hidden;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.22);
+            background: white;
+            border: 1px solid #cbd5e1;
+        }
+
+        #chatbot-panel.open {
+            display: flex;
+            flex-direction: column;
+        }
+
+        #chat-messages {
+            flex: 1;
+            overflow-y: auto;
+            padding: 12px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            background: #f8fafc;
+        }
+
+        .msg-user {
+            align-self: flex-end;
+            background: linear-gradient(135deg, #6366f1, #8b5cf6);
+            color: white;
+            padding: 8px 12px;
+            border-radius: 16px 16px 4px 16px;
+            max-width: 82%;
+            font-size: 12px;
+            line-height: 1.5;
+            box-shadow: 0 2px 6px rgba(99, 102, 241, 0.25);
+        }
+
+        .msg-bot {
+            align-self: flex-start;
+            background: white;
+            border: 1px solid #e2e8f0;
+            color: #334155;
+            padding: 10px 12px;
+            border-radius: 16px 16px 16px 4px;
+            max-width: 88%;
+            font-size: 12px;
+            line-height: 1.6;
+            white-space: pre-wrap;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+        }
+
+        .msg-typing {
+            align-self: flex-start;
+            background: white;
+            border: 1px solid #e2e8f0;
+            padding: 8px 14px;
+            border-radius: 14px;
+            font-size: 18px;
+            color: #6366f1;
+        }
+
+        @keyframes voice-pulse {
+            0% {
+                transform: scale(0.95);
+                box-shadow: 0 0 0 0 rgba(244, 63, 94, 0.7);
+            }
+
+            70% {
+                transform: scale(1.05);
+                box-shadow: 0 0 0 8px rgba(244, 63, 94, 0);
+            }
+
+            100% {
+                transform: scale(0.95);
+                box-shadow: 0 0 0 0 rgba(244, 63, 94, 0);
+            }
+        }
+
+        .recording-active {
+            animation: voice-pulse 1.4s infinite !important;
+            background-color: #f43f5e !important;
+            color: white !important;
+        }
+
+        /* Modal overlay */
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(15, 23, 42, 0.6);
+            backdrop-filter: blur(4px);
+            z-index: 50;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 16px;
+        }
+
+        @media print {
+            body * {
+                visibility: hidden;
+            }
+
+            #print-area,
+            #print-area * {
+                visibility: visible;
+            }
+
+            #print-area {
+                position: absolute;
+                left: 0;
+                top: 0;
+                width: 100%;
+                background: white;
+            }
+
+            .no-print {
+                display: none !important;
+            }
+        }
+    </style>
+</head>
+
+<body class="min-h-screen text-slate-800 flex flex-col">
+
+    <!-- HEADER -->
+    <header class="bg-white border-b border-slate-200 sticky top-0 z-40 shadow-sm no-print">
+        <div class="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <img src="/froghippo_logo.png" alt="Logo" class="h-10 w-auto rounded-xl" onerror="this.src='/logo.png'">
+                <div>
+                    <div class="flex items-center gap-2">
+                        <span class="font-black text-slate-900 text-base">FrogHippo Phone</span>
+                        <span
+                            class="px-2.5 py-0.5 rounded-full text-xs font-black bg-pink-100 text-pink-700 border border-pink-200">💁
+                            Bàn Lễ Tân</span>
+                    </div>
+                    <p class="text-[11px] text-slate-500">Tiếp nhận · Thu cọc 30% · Quyết toán 70% · AI Thông báo đa
+                        kênh</p>
+                </div>
+            </div>
+            <div class="flex items-center gap-2">
+                <div
+                    class="hidden sm:flex items-center gap-2 bg-slate-100 py-1.5 px-3 rounded-xl text-xs font-semibold text-slate-700">
+                    <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                    <span>Ca Trực: <strong id="current-user-name">Trần Thị Bình</strong></span>
+                </div>
+                <a href="/thu-ngan" target="_blank"
+                    class="px-3 py-1.5 rounded-xl border border-emerald-200 bg-emerald-50 hover:bg-emerald-100 text-xs font-bold text-emerald-800 transition flex items-center gap-1.5">
+                    <i class="fa-solid fa-cash-register"></i> Thu Ngân
+                </a>
+                <a href="/"
+                    class="px-3 py-1.5 rounded-xl border border-slate-200 hover:bg-slate-100 text-xs font-bold text-slate-600 transition flex items-center gap-1.5">
+                    <i class="fa-solid fa-house"></i> Trang Chủ
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <!-- ALERT: Máy đã sửa xong cần thông báo -->
+    <div id="ai-repaired-alert"
+        class="hidden no-print bg-emerald-600 text-white text-xs font-bold px-4 py-2.5 flex items-center gap-2 justify-between">
+        <span id="ai-repaired-alert-text">🔔 Có máy đã sửa xong - cần gửi tin nhắn báo khách!</span>
+        <button onclick="selectFirstRepairedTicket()"
+            class="px-3 py-1 bg-white text-emerald-700 rounded-lg text-xs font-black hover:bg-emerald-50 transition">Xem
+            ngay</button>
+    </div>
+
+    <!-- THỐNG KÊ NHANH -->
+    <div class="max-w-7xl mx-auto w-full px-4 pt-5 no-print">
+        <div class="grid grid-cols-2 lg:grid-cols-5 gap-3">
+            <div class="glass p-4 rounded-2xl shadow-sm flex items-center gap-3">
+                <div class="w-10 h-10 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center text-lg">
+                    📋</div>
+                <div>
+                    <div class="text-xs text-slate-500">Tổng Phiếu</div>
+                    <div class="text-xl font-black text-slate-900" id="stat-total">0</div>
+                </div>
+            </div>
+            <div class="glass p-4 rounded-2xl shadow-sm flex items-center gap-3">
+                <div class="w-10 h-10 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center text-lg">⏳
+                </div>
+                <div>
+                    <div class="text-xs text-slate-500">Đang Xử Lý</div>
+                    <div class="text-xl font-black text-slate-900" id="stat-pending">0</div>
+                </div>
+            </div>
+            <div class="glass p-4 rounded-2xl shadow-sm flex items-center gap-3">
+                <div
+                    class="w-10 h-10 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center text-lg">
+                    ✅</div>
+                <div>
+                    <div class="text-xs text-slate-500">Sửa Xong</div>
+                    <div class="text-xl font-black text-emerald-600 animate-pulse" id="stat-repaired">0</div>
+                </div>
+            </div>
+            <div class="glass p-4 rounded-2xl shadow-sm flex items-center gap-3">
+                <div class="w-10 h-10 rounded-xl bg-sky-50 text-sky-600 flex items-center justify-center text-lg">🪙
+                </div>
+                <div>
+                    <div class="text-xs text-slate-500">Đã Thu Cọc</div>
+                    <div class="text-xl font-black text-sky-600" id="stat-coc">0</div>
+                </div>
+            </div>
+            <div class="glass p-4 rounded-2xl shadow-sm flex items-center gap-3">
+                <div class="w-10 h-10 rounded-xl bg-purple-50 text-purple-600 flex items-center justify-center text-lg">
+                    💬</div>
+                <div>
+                    <div class="text-xs text-slate-500">Tin Đã Gửi</div>
+                    <div class="text-xl font-black text-slate-900" id="stat-notif">0</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MAIN CONTENT -->
+    <main class="flex-1 max-w-7xl w-full mx-auto px-4 py-5 space-y-5">
+
+        <!-- ROW 1: Tiếp Nhận + AI Soạn Tin -->
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-5 no-print">
+
+            <!-- FORM TIẾP NHẬN MÁY -->
+            <div class="lg:col-span-5 bg-white rounded-2xl p-5 shadow-sm border border-slate-200">
+                <div class="flex items-center justify-between pb-3.5 mb-3.5 border-b border-slate-100">
+                    <div class="flex items-center gap-3">
+                        <div
+                            class="w-10 h-10 rounded-xl bg-gradient-to-tr from-brand-600 to-indigo-600 text-white flex items-center justify-center text-lg font-black shadow-sm">
+                            <i class="fa-solid fa-mobile-screen-button text-base"></i>
+                        </div>
+                        <div>
+                            <h2 class="font-bold text-slate-900 text-sm tracking-tight flex items-center gap-1.5">
+                                Tiếp Nhận Thiết Bị
+                                <span
+                                    class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-brand-50 text-brand-700 border border-brand-200">Lễ
+                                    Tân</span>
+                            </h2>
+                            <p class="text-[11px] text-slate-500 font-medium">Lập phiếu mới cho khách & thu thập thông
+                                tin nhận máy</p>
+                        </div>
+                    </div>
+                </div>
+                <form id="reception-form" onsubmit="handleCreateTicket(event)" class="space-y-3">
+                    <div class="grid grid-cols-2 gap-3">
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 mb-1">Mã Phiếu <span
+                                    class="text-rose-500">*</span></label>
+                            <div class="relative flex items-center">
+                                <input id="recept-maphieu" type="text" required
+                                    class="w-full bg-slate-50 border border-slate-200 pl-3 pr-8 py-2 rounded-xl text-xs font-bold text-slate-900 placeholder:text-slate-400 focus:bg-white focus:outline-none focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 transition shadow-2xs"
+                                    placeholder="PSxxxxxx">
+                                <button type="button" onclick="autoGenTicketCode()"
+                                    class="absolute right-1 w-6 h-6 flex items-center justify-center text-slate-400 hover:text-brand-600 hover:bg-brand-50 rounded-lg text-xs transition cursor-pointer"
+                                    title="Tự sinh mã ngẫu nhiên">
+                                    <i class="fa-solid fa-rotate text-xs"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 mb-1">Mã / ID Khách <span
+                                    class="text-rose-500">*</span></label>
+                            <input id="recept-makh" type="text" required
+                                class="w-full bg-slate-50 border border-slate-200 px-3 py-2 rounded-xl text-xs font-bold text-slate-900 placeholder:text-slate-400 focus:bg-white focus:outline-none focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 transition shadow-2xs"
+                                placeholder="KH001">
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-2 gap-3">
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 mb-1">Họ Tên Khách</label>
+                            <input id="recept-hoten" type="text"
+                                class="w-full bg-slate-50 border border-slate-200 px-3 py-2 rounded-xl text-xs font-semibold text-slate-900 placeholder:text-slate-400 focus:bg-white focus:outline-none focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 transition shadow-2xs"
+                                placeholder="VD: Anh Tuấn">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 mb-1">SĐT Khách</label>
+                            <input id="recept-sdt" type="tel"
+                                class="w-full bg-slate-50 border border-slate-200 px-3 py-2 rounded-xl text-xs font-semibold text-slate-900 placeholder:text-slate-400 focus:bg-white focus:outline-none focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 transition shadow-2xs"
+                                placeholder="0912 345 678">
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 mb-1 flex items-center justify-between">
+                            <span><i class="fa-solid fa-envelope text-brand-600 mr-1"></i> Email Khách Hàng <span
+                                    class="text-rose-500">*</span></span>
+                            <div class="flex items-center gap-1.5">
+                                <button type="button" onclick="fillTestAccount()"
+                                    class="text-[10px] font-bold text-brand-600 bg-brand-50 hover:bg-brand-100 px-2 py-0.5 rounded-full border border-brand-200 transition cursor-pointer"
+                                    title="Điền tự động thuha0106206@gmail.com">⚡ Điền thuha0106206@gmail.com</button>
+                                <span
+                                    class="text-[10px] font-bold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200">Gửi
+                                    mail & SMS</span>
+                            </div>
+                        </label>
+                        <input id="recept-email" type="email" required
+                            class="w-full bg-slate-50 border border-slate-200 px-3 py-2 rounded-xl text-xs font-bold text-slate-900 placeholder:text-slate-400 placeholder:font-normal focus:bg-white focus:outline-none focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 transition shadow-2xs"
+                            placeholder="VD: thuha0106206@gmail.com">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 mb-1">Phân Công KTV</label>
+                        <select id="recept-maktv"
+                            class="w-full bg-slate-50 border border-slate-200 px-3 py-2 rounded-xl text-xs font-semibold text-slate-900 focus:bg-white focus:outline-none focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 transition shadow-2xs cursor-pointer">
+                            <option value="">-- Chưa chỉ định (KTV nhận sau) --</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 mb-1">Mô Tả Lỗi & Ngoại Quan <span
+                                class="text-rose-500">*</span></label>
+                        <textarea id="recept-mota" required rows="3"
+                            class="w-full bg-slate-50 border border-slate-200 p-3 rounded-xl text-xs font-medium text-slate-900 resize-none focus:bg-white focus:outline-none focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 transition shadow-2xs"
+                            placeholder="VD: iPhone 13 Pro vỡ màn, sọc dọc, pin 78%..."></textarea>
+                    </div>
+                    <button type="submit" id="btn-submit-ticket"
+                        class="w-full py-2.5 bg-brand-600 hover:bg-brand-700 text-white font-bold rounded-xl shadow-sm hover:shadow text-xs flex items-center justify-center gap-2 transition active:scale-[0.99] cursor-pointer">
+                        <i class="fa-solid fa-circle-check text-emerald-300"></i> Lưu & Tạo Phiếu Tiếp Nhận
+                    </button>
+                </form>
+            </div>
+
+            <!-- PHẦN AI SOẠN TIN NHẮN -->
+            <div
+                class="lg:col-span-7 bg-gradient-to-br from-purple-950 via-indigo-950 to-slate-900 rounded-2xl p-5 text-white shadow-lg border border-purple-800/30">
+                <div class="flex items-center justify-between gap-3 border-b border-white/10 pb-3 mb-4">
+                    <div class="flex items-center gap-3">
+                        <span
+                            class="w-9 h-9 bg-purple-500/20 text-purple-300 rounded-2xl flex items-center justify-center text-lg border border-purple-400/30">🤖</span>
+                        <div>
+                            <h3 class="text-sm font-black text-white">AI Soạn Tin Nhắn Báo Khách</h3>
+                            <p class="text-[11px] text-purple-200/80">3 mẫu tự động: Tiếp nhận · Báo giá cọc 30% · Hoàn
+                                thành</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-2 gap-3 mb-3">
+                    <div>
+                        <label class="block text-[11px] font-bold text-purple-200 mb-1.5">1. Chọn Phiếu:</label>
+                        <select id="ai-msg-select-ticket" onchange="handleTicketSelectForNotification()"
+                            class="w-full bg-slate-900/90 border border-purple-400/30 rounded-xl px-3 py-2 text-xs font-bold text-white focus:outline-none focus:ring-2 focus:ring-purple-400">
+                            <option value="">-- Chọn phiếu sửa chữa --</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-[11px] font-bold text-purple-200 mb-1.5">2. Loại Tin Nhắn:</label>
+                        <select id="ai-msg-type"
+                            class="w-full bg-slate-900/90 border border-purple-400/30 rounded-xl px-3 py-2 text-xs font-bold text-white focus:outline-none focus:ring-2 focus:ring-purple-400">
+                            <option value="tiep_nhan">📲 Tiếp Nhận Máy</option>
+                            <option value="dat_coc">💰 Báo Giá & Yêu Cầu Đặt Cọc 30%</option>
+                            <option value="hoan_thanh">🎉 Máy Xong - Mời Lấy & Thu 70%</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <label class="block text-[11px] font-bold text-purple-200 mb-1.5 flex items-center justify-between">
+                        <span>3. Kênh Gửi Tin Nhắn:</span>
+                        <span class="text-[10px] text-purple-300 font-normal">Hỗ trợ gửi đồng thời Gmail & SMS</span>
+                    </label>
+                    <div class="grid grid-cols-2 gap-2 text-xs">
+                        <label id="lbl-channel-gmail" onclick="selectChannel('Gmail')"
+                            class="flex items-center justify-center gap-2 p-2.5 rounded-xl bg-purple-600 border-2 border-purple-300 font-bold text-white text-xs shadow transition cursor-pointer">
+                            <input type="radio" name="ai-channel" id="channel-gmail" value="Gmail" checked
+                                class="hidden">
+                            <i class="fa-solid fa-envelope text-sm"></i> Gmail (Email)
+                        </label>
+                        <label id="lbl-channel-sms" onclick="selectChannel('SMS')"
+                            class="flex items-center justify-center gap-2 p-2.5 rounded-xl bg-slate-900/80 border border-purple-400/30 font-bold text-purple-200 hover:text-white text-xs transition cursor-pointer">
+                            <input type="radio" name="ai-channel" id="channel-sms" value="SMS" class="hidden">
+                            <i class="fa-solid fa-comment-sms text-sm text-emerald-400"></i> Tin Nhắn SMS
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Hiển thị thông tin tài chính phiếu được chọn -->
+                <div id="ai-ticket-finance"
+                    class="hidden mb-3 p-3 bg-white/10 rounded-2xl border border-white/15 text-xs grid grid-cols-3 gap-2">
+                    <div class="text-center">
+                        <div class="text-purple-300 text-[10px]">Tổng HĐ</div>
+                        <div class="font-black text-white" id="ai-tong-hd">-</div>
+                    </div>
+                    <div class="text-center border-x border-white/10">
+                        <div class="text-amber-300 text-[10px]">Cọc 30%</div>
+                        <div class="font-black text-amber-300" id="ai-tien-coc">-</div>
+                    </div>
+                    <div class="text-center">
+                        <div class="text-emerald-300 text-[10px]">Còn Lại 70%</div>
+                        <div class="font-black text-emerald-300" id="ai-con-lai">-</div>
+                    </div>
+                </div>
+
+                <button onclick="handleGenerateAIMessage()" id="btn-gen-ai"
+                    class="w-full py-2.5 bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-400 hover:to-pink-400 text-white rounded-xl text-xs font-black shadow transition active:scale-95 cursor-pointer flex items-center justify-center gap-2 mb-3">
+                    <i class="fa-solid fa-wand-magic-sparkles"></i> ✨ AI Soạn Tin Nhắn Tự Động
+                </button>
+
+                <div class="space-y-2">
+                    <div class="flex justify-between items-center">
+                        <span class="text-[11px] font-bold text-purple-200 flex items-center gap-1"><i
+                                class="fa-solid fa-envelope-open-text text-purple-300"></i> Nội Dung Tin:</span>
+                        <span id="ai-channel-badge"
+                            class="px-2 py-0.5 rounded-full text-[10px] font-black bg-purple-500 text-white">Gmail</span>
+                    </div>
+                    <textarea id="ai-msg-editor" rows="4" placeholder="Nội dung tin nhắn sẽ hiện ở đây..."
+                        class="w-full bg-slate-900/90 border border-purple-400/40 rounded-xl p-3 text-xs text-white leading-relaxed focus:outline-none focus:ring-2 focus:ring-purple-400 font-medium"></textarea>
+
+                    <!-- KHÁCH HÀNG NHẬN TIN (ĐẦY ĐỦ GMAIL & SMS) -->
+                    <div id="ai-recipient-box"
+                        class="p-3 rounded-2xl bg-purple-950/90 border border-purple-400/40 text-xs text-purple-100 shadow-inner space-y-2.5">
+                        <div class="flex items-center justify-between gap-2 border-b border-purple-800/50 pb-2">
+                            <div class="flex items-center gap-2">
+                                <span
+                                    class="w-6 h-6 rounded-lg bg-emerald-500/20 text-emerald-300 flex items-center justify-center text-xs"><i
+                                        class="fa-solid fa-user-check"></i></span>
+                                <div>
+                                    <span class="text-[10px] text-purple-300 font-bold uppercase tracking-wider">Người
+                                        Nhận Tin:</span>
+                                    <strong id="ai-recipient-name"
+                                        class="text-white text-xs ml-1 font-black">---</strong>
+                                </div>
+                            </div>
+                            <button type="button" onclick="setQuickTestEmail('thuha0106206@gmail.com')"
+                                class="text-[10px] font-bold text-amber-200 bg-amber-950/80 hover:bg-amber-900 px-2 py-1 rounded-lg border border-amber-500/40 transition cursor-pointer flex items-center gap-1">
+                                <i class="fa-solid fa-bolt text-amber-400"></i> Dùng thuha0106206@gmail.com
+                            </button>
+                        </div>
+
+                        <div class="grid grid-cols-2 gap-2">
+                            <div>
+                                <label class="block text-[10px] font-bold text-purple-300 mb-1 flex items-center gap-1">
+                                    <i class="fa-solid fa-envelope text-purple-400"></i> Email Khách (Gmail):
+                                </label>
+                                <input id="ai-recipient-email-input" type="email"
+                                    placeholder="VD: thuha0106206@gmail.com"
+                                    class="w-full bg-slate-900 border border-purple-400/40 rounded-xl px-2.5 py-1.5 text-xs text-white font-mono placeholder:text-slate-500 focus:outline-none focus:ring-1 focus:ring-purple-400 font-bold">
+                            </div>
+                            <div>
+                                <label
+                                    class="block text-[10px] font-bold text-emerald-300 mb-1 flex items-center gap-1">
+                                    <i class="fa-solid fa-phone text-emerald-400"></i> SĐT Khách (SMS):
+                                </label>
+                                <input id="ai-recipient-phone-input" type="tel" placeholder="VD: 0912 345 678"
+                                    class="w-full bg-slate-900 border border-emerald-500/40 rounded-xl px-2.5 py-1.5 text-xs text-emerald-300 font-mono placeholder:text-slate-500 focus:outline-none focus:ring-1 focus:ring-emerald-400 font-bold">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="p-2 rounded-xl bg-purple-900/60 border border-purple-400/30 flex items-center gap-2">
+                        <input type="checkbox" id="ai-confirm-check" checked class="w-4 h-4 rounded cursor-pointer">
+                        <label for="ai-confirm-check" id="ai-confirm-label"
+                            class="text-xs text-purple-100 font-semibold cursor-pointer">Xác nhận gửi email thông báo
+                            trực tiếp qua Gmail cho khách hàng</label>
+                    </div>
+
+                    <div class="flex flex-wrap gap-2 justify-end pt-1">
+                        <button type="button" onclick="openDirectChannel()" id="btn-open-direct"
+                            class="px-3 py-1.5 bg-rose-600/80 hover:bg-rose-500 text-white rounded-xl text-xs font-bold transition flex items-center gap-1.5 cursor-pointer"
+                            title="Mở ứng dụng gửi trực tiếp">
+                            <i id="btn-open-icon" class="fa-solid fa-envelope"></i> <span id="btn-open-text">Mở Mail
+                                Trực Tiếp</span>
+                        </button>
+                        <button type="button" onclick="copyAIMessage()"
+                            class="px-3 py-1.5 bg-white/10 hover:bg-white/20 text-purple-100 rounded-xl text-xs font-bold transition cursor-pointer">
+                            <i class="fa-regular fa-copy"></i> Sao Chép
+                        </button>
+                        <button type="button" onclick="handleSendNotification()" id="btn-send-notif"
+                            class="px-4 py-1.5 bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400 text-white rounded-xl text-xs font-black shadow transition active:scale-95 cursor-pointer flex items-center gap-1.5">
+                            <i id="btn-send-icon" class="fa-solid fa-paper-plane"></i> <span id="btn-send-text">Gửi
+                                Gmail Cho Khách</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        </div>
+
+        <!-- ROW 2: BẢNG PHIẾU + TABS -->
+        <div class="glass rounded-3xl overflow-hidden shadow-sm no-print">
+            <div class="p-4 bg-slate-50 border-b border-slate-200 flex flex-wrap items-center justify-between gap-3">
+                <div class="flex items-center gap-2">
+                    <button onclick="switchTab('tickets')" id="tab-tickets"
+                        class="px-4 py-2 rounded-xl text-xs font-black bg-white text-brand-600 shadow-sm border border-slate-200 transition">
+                        📋 Phiếu Tiếp Nhận (<span id="ticket-count-badge">0</span>)
+                    </button>
+                    <button onclick="switchTab('deposit')" id="tab-deposit"
+                        class="px-4 py-2 rounded-xl text-xs font-bold text-slate-600 hover:bg-white/80 transition">
+                        🪙 Thu Cọc / Quyết Toán
+                    </button>
+                    <button onclick="switchTab('history')" id="tab-history"
+                        class="px-4 py-2 rounded-xl text-xs font-bold text-slate-600 hover:bg-white/80 transition">
+                        💬 Lịch Sử Thông Báo
+                    </button>
+                </div>
+                <div id="filter-area" class="flex items-center gap-2">
+                    <div class="relative">
+                        <i class="fa-solid fa-magnifying-glass absolute left-3 top-2.5 text-slate-400 text-xs"></i>
+                        <input id="search-input" oninput="renderTickets()" type="text"
+                            placeholder="Tìm mã phiếu, khách..."
+                            class="bg-white border border-slate-200 rounded-xl pl-8 pr-3 py-1.5 text-xs text-slate-800 focus:outline-none focus:ring-2 focus:ring-brand-500">
+                    </div>
+                    <select id="filter-status" onchange="renderTickets()"
+                        class="bg-white border border-slate-200 rounded-xl px-3 py-1.5 text-xs font-bold text-slate-700 focus:outline-none focus:ring-2 focus:ring-brand-500">
+                        <option value="">Tất cả trạng thái</option>
+                        <option value="KhoiTao">Mới Khởi Tạo</option>
+                        <option value="DangKiemTra">Đang Kiểm Tra</option>
+                        <option value="ChoLinhKien">Chờ Linh Kiện</option>
+                        <option value="DangSua">Đang Sửa</option>
+                        <option value="DaSuaXong">Đã Sửa Xong</option>
+                        <option value="DaThanhToan">Đã Thanh Toán</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Tab: Phiếu tiếp nhận -->
+            <div id="view-tickets" class="overflow-x-auto">
+                <table class="w-full text-left text-xs">
+                    <thead>
+                        <tr class="bg-slate-50 text-slate-500 font-bold border-b border-slate-200">
+                            <th class="py-3 px-4">Mã Phiếu</th>
+                            <th class="py-3 px-4">Khách Hàng</th>
+                            <th class="py-3 px-4">Mô Tả Lỗi</th>
+                            <th class="py-3 px-4">KTV Phụ Trách</th>
+                            <th class="py-3 px-4">Trạng Thái</th>
+                            <th class="py-3 px-4">Cọc 30%</th>
+                            <th class="py-3 px-4 text-center">Thao Tác</th>
+                        </tr>
+                    </thead>
+                    <tbody id="ticket-list" class="divide-y divide-slate-100"></tbody>
+                </table>
+            </div>
+
+            <!-- Tab: Thu cọc / Quyết toán -->
+            <div id="view-deposit" class="hidden overflow-x-auto">
+                <table class="w-full text-left text-xs">
+                    <thead>
+                        <tr class="bg-slate-50 text-slate-500 font-bold border-b border-slate-200">
+                            <th class="py-3 px-4">Mã Phiếu</th>
+                            <th class="py-3 px-4">Khách Hàng</th>
+                            <th class="py-3 px-4">Tổng HĐ</th>
+                            <th class="py-3 px-4">Cọc 30%</th>
+                            <th class="py-3 px-4">Còn Lại 70%</th>
+                            <th class="py-3 px-4">Trạng Thái Cọc</th>
+                            <th class="py-3 px-4 text-center">Thao Tác</th>
+                        </tr>
+                    </thead>
+                    <tbody id="deposit-list" class="divide-y divide-slate-100"></tbody>
+                </table>
+            </div>
+
+            <!-- Tab: Lịch sử thông báo -->
+            <div id="view-history" class="hidden overflow-x-auto">
+                <table class="w-full text-left text-xs">
+                    <thead>
+                        <tr class="bg-slate-50 text-slate-500 font-bold border-b border-slate-200">
+                            <th class="py-3 px-4">Thời Gian</th>
+                            <th class="py-3 px-4">Mã Phiếu</th>
+                            <th class="py-3 px-4">Khách Hàng</th>
+                            <th class="py-3 px-4">Kênh</th>
+                            <th class="py-3 px-4">Người Gửi</th>
+                            <th class="py-3 px-4">Nội Dung</th>
+                        </tr>
+                    </thead>
+                    <tbody id="history-list" class="divide-y divide-slate-100"></tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+
+    <!-- MODAL: In Biên Nhận Tiếp Nhận -->
+    <div id="modal-receipt" class="modal-overlay hidden no-print">
+        <div id="print-area" class="bg-white rounded-3xl max-w-lg w-full p-6 shadow-2xl border border-slate-200">
+            <div class="text-center border-b pb-4 space-y-1">
+                <h3 class="text-lg font-black text-slate-900">TRUNG TÂM SỬA CHỮA FROGHIPPO PHONE</h3>
+                <p class="text-xs text-slate-500">123 Đường Công Nghệ, TP. Hà Nội | Hotline: 1900 6868</p>
+                <span id="receipt-type-badge"
+                    class="inline-block px-3 py-1 bg-brand-50 text-brand-700 rounded-full font-black text-xs border border-brand-200">BIÊN
+                    NHẬN TIẾP NHẬN THIẾT BỊ</span>
+            </div>
+            <div id="receipt-content" class="space-y-2 my-4 text-xs"></div>
+            <div class="grid grid-cols-2 text-center text-xs pt-4 border-t border-slate-100 font-bold">
+                <div>
+                    <p class="text-slate-500">Khách Hàng</p>
+                    <p class="text-[10px] text-slate-400 italic font-normal">(Ký và ghi rõ họ tên)</p>
+                    <div class="h-14"></div>
+                </div>
+                <div>
+                    <p class="text-slate-500">Lễ Tân Tiếp Nhận</p>
+                    <p class="text-[10px] text-slate-400 italic font-normal">(Ký và xác nhận)</p>
+                    <div class="h-14"></div>
+                </div>
+            </div>
+            <div class="flex justify-end gap-2 pt-2 border-t no-print">
+                <button onclick="closeModal('modal-receipt')"
+                    class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs font-bold transition cursor-pointer">Đóng</button>
+                <button onclick="window.print()" class="px-4 py-2 btn-primary py-2 text-xs flex items-center gap-1.5"><i
+                        class="fa-solid fa-print"></i> In Biên Nhận</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL: Thu Cọc 30% -->
+    <div id="modal-thu-coc" class="modal-overlay hidden no-print">
+        <div class="bg-white rounded-3xl max-w-lg w-full p-6 shadow-2xl border border-slate-200 space-y-4">
+            <div class="flex items-center justify-between">
+                <div>
+                    <h3 class="text-base font-black text-slate-900">💰 Thu Tiền Đặt Cọc 30%</h3>
+                    <p class="text-xs text-slate-500">Phiếu: <span id="coc-phieu-id"
+                            class="font-bold text-brand-600"></span></p>
+                </div>
+                <button onclick="closeModal('modal-thu-coc')"
+                    class="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 flex items-center justify-center text-slate-500 cursor-pointer">×</button>
+            </div>
+            <!-- Bảng kê báo giá -->
+            <div class="bg-slate-50 rounded-2xl p-4 space-y-2 border border-slate-200 text-xs">
+                <div class="font-bold text-slate-700 text-xs border-b border-slate-200 pb-2 mb-2">📋 BÁO GIÁ DỰ KIẾN TỪ
+                    KTV:</div>
+                <div id="coc-parts-list" class="space-y-1"></div>
+                <div class="border-t border-slate-200 pt-2 space-y-1">
+                    <div class="flex justify-between"><span class="text-slate-600">Tiền linh kiện:</span><span
+                            class="font-bold" id="coc-tien-lk">-</span></div>
+                    <div class="flex justify-between"><span class="text-slate-600">Tiền công thợ:</span><span
+                            class="font-bold">150.000 đ</span></div>
+                    <div class="flex justify-between text-base font-black text-slate-900"><span>Tổng hóa đơn dự
+                            kiến:</span><span id="coc-tong-hd" class="text-brand-600">-</span></div>
+                </div>
+            </div>
+            <!-- Số tiền cọc -->
+            <div class="bg-amber-50 border border-amber-200 rounded-2xl p-4 grid grid-cols-2 gap-4 text-xs">
+                <div class="text-center">
+                    <div class="text-amber-600 font-bold text-[11px] mb-1">🔥 TIỀN CỌC CẦN THU (30%)</div>
+                    <div class="text-2xl font-black text-amber-700" id="coc-tien-coc">-</div>
+                </div>
+                <div class="text-center border-l border-amber-200">
+                    <div class="text-slate-600 font-bold text-[11px] mb-1">⏳ CÒN LẠI KHI LẤY MÁY (70%)</div>
+                    <div class="text-xl font-black text-slate-700" id="coc-con-lai">-</div>
+                </div>
+            </div>
+            <!-- Form thu tiền -->
+            <div class="space-y-3">
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 mb-1">Phương Thức Thu Cọc:</label>
+                    <div class="grid grid-cols-2 gap-2">
+                        <label
+                            class="flex items-center gap-2 p-2.5 border rounded-xl cursor-pointer has-[:checked]:border-brand-500 has-[:checked]:bg-brand-50 text-sm font-semibold text-slate-700">
+                            <input type="radio" name="coc-phuong-thuc" value="TienMat" checked class="text-brand-600">
+                            <i class="fa-solid fa-money-bill-wave text-emerald-600"></i> Tiền Mặt
+                        </label>
+                        <label
+                            class="flex items-center gap-2 p-2.5 border rounded-xl cursor-pointer has-[:checked]:border-brand-500 has-[:checked]:bg-brand-50 text-sm font-semibold text-slate-700">
+                            <input type="radio" name="coc-phuong-thuc" value="ChuyenKhoan" class="text-brand-600"> <i
+                                class="fa-solid fa-qrcode text-brand-600"></i> Chuyển Khoản
+                        </label>
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 mb-1">Tiền Khách Đưa:</label>
+                    <input id="coc-tien-khach-dua" type="number" class="input-base"
+                        placeholder="Nhập số tiền khách đưa">
+                </div>
+                <div
+                    class="text-xs text-slate-600 bg-sky-50 p-2.5 rounded-xl border border-sky-200 flex items-center gap-2">
+                    <i class="fa-solid fa-circle-info text-sky-500"></i> Tiền trả lại: <strong id="coc-tien-tra-lai"
+                        class="text-sky-700 ml-1">0 đ</strong>
+                </div>
+            </div>
+            <div class="flex gap-2">
+                <button onclick="closeModal('modal-thu-coc')"
+                    class="px-4 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs font-bold transition cursor-pointer flex-1">Hủy</button>
+                <button onclick="confirmThuCoc()" id="btn-confirm-thu-coc"
+                    class="flex-1 py-2.5 btn-primary text-xs flex items-center justify-center gap-2">
+                    <i class="fa-solid fa-check"></i> Xác Nhận Thu Cọc & In Biên Nhận
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL: Quyết Toán 70% -->
+    <div id="modal-quyet-toan" class="modal-overlay hidden no-print">
+        <div class="bg-white rounded-3xl max-w-lg w-full p-6 shadow-2xl border border-slate-200 space-y-4">
+            <div class="flex items-center justify-between">
+                <div>
+                    <h3 class="text-base font-black text-slate-900">✅ Quyết Toán & Bàn Giao Thiết Bị</h3>
+                    <p class="text-xs text-slate-500">Phiếu: <span id="qt-phieu-id"
+                            class="font-bold text-brand-600"></span></p>
+                </div>
+                <button onclick="closeModal('modal-quyet-toan')"
+                    class="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 flex items-center justify-center text-slate-500 cursor-pointer">×</button>
+            </div>
+            <div class="bg-emerald-50 border border-emerald-200 rounded-2xl p-4 text-xs space-y-2">
+                <div class="font-bold text-emerald-700 border-b border-emerald-200 pb-2">💵 BẢNG KÊ QUYẾT TOÁN:</div>
+                <div class="flex justify-between"><span>Tổng giá trị hóa đơn:</span><span class="font-bold"
+                        id="qt-tong-hd">-</span></div>
+                <div class="flex justify-between text-emerald-600"><span>Đã thu cọc 30%:</span><span class="font-bold"
+                        id="qt-da-coc">- (ĐÃ THU)</span></div>
+                <div class="flex justify-between text-lg font-black text-slate-900 pt-1 border-t border-emerald-200">
+                    <span>Thu thêm (70% còn lại):</span><span id="qt-con-lai" class="text-emerald-700">-</span>
+                </div>
+            </div>
+            <div class="space-y-3">
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 mb-1">Hình Thức Thu:</label>
+                    <div class="grid grid-cols-2 gap-2">
+                        <label
+                            class="flex items-center gap-2 p-2.5 border rounded-xl cursor-pointer has-[:checked]:border-emerald-500 has-[:checked]:bg-emerald-50 text-sm font-semibold text-slate-700">
+                            <input type="radio" name="qt-phuong-thuc" value="TienMat" checked class="text-emerald-600">
+                            <i class="fa-solid fa-money-bill-wave text-emerald-600"></i> Tiền Mặt
+                        </label>
+                        <label
+                            class="flex items-center gap-2 p-2.5 border rounded-xl cursor-pointer has-[:checked]:border-emerald-500 has-[:checked]:bg-emerald-50 text-sm font-semibold text-slate-700">
+                            <input type="radio" name="qt-phuong-thuc" value="ChuyenKhoan" class="text-emerald-600"> <i
+                                class="fa-solid fa-qrcode text-brand-600"></i> Chuyển Khoản
+                        </label>
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 mb-1">Tiền Khách Đưa:</label>
+                    <input id="qt-tien-khach" type="number" class="input-base" placeholder="Nhập số tiền khách đưa">
+                </div>
+                <div
+                    class="text-xs text-slate-600 bg-sky-50 p-2.5 rounded-xl border border-sky-200 flex items-center gap-2">
+                    <i class="fa-solid fa-circle-info text-sky-500"></i> Tiền trả lại: <strong id="qt-tien-tra"
+                        class="text-sky-700 ml-1">0 đ</strong>
+                </div>
+            </div>
+            <div class="flex gap-2">
+                <button onclick="closeModal('modal-quyet-toan')"
+                    class="px-4 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs font-bold transition cursor-pointer flex-1">Hủy</button>
+                <button onclick="confirmQuyetToan()" id="btn-confirm-qt"
+                    class="flex-1 py-2.5 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white rounded-xl text-xs font-black shadow-lg transition active:scale-95 cursor-pointer flex items-center justify-center gap-2">
+                    <i class="fa-solid fa-check-double"></i> Xác Nhận Đã Thu & Trả Máy
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL: HỘP THOẠI TIN NHẮN SMS & QR CODE GỬI THỰC TẾ -->
+    <div id="modal-sms-preview" class="modal-overlay hidden no-print">
+        <div class="bg-white rounded-3xl max-w-2xl w-full p-6 shadow-2xl border border-slate-200 space-y-4">
+            <div class="flex items-center justify-between border-b pb-3">
+                <div class="flex items-center gap-2">
+                    <span
+                        class="w-8 h-8 rounded-xl bg-emerald-500/20 text-emerald-600 flex items-center justify-center text-sm font-black"><i
+                            class="fa-solid fa-comment-sms"></i></span>
+                    <div>
+                        <h3 class="text-base font-black text-slate-900">📱 Hộp Thoại Tin Nhắn SMS Khách Hàng</h3>
+                        <p class="text-[11px] text-slate-500">Mô phỏng tin nhắn & Quét mã QR gửi trực tiếp qua SIM điện
+                            thoại</p>
+                    </div>
+                </div>
+                <button onclick="closeModal('modal-sms-preview')"
+                    class="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 flex items-center justify-center text-slate-500 cursor-pointer font-bold">×</button>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 items-start">
+                <!-- MÔ PHỎNG MÀN HÌNH ĐIỆN THOẠI (SMARTPHONE MOCKUP) -->
+                <div class="bg-slate-900 rounded-3xl p-4 text-white shadow-xl border-4 border-slate-800 space-y-3">
+                    <div
+                        class="flex justify-between items-center text-[11px] text-slate-400 border-b border-slate-800 pb-2">
+                        <span class="font-bold flex items-center gap-1"><i
+                                class="fa-solid fa-signal text-emerald-400"></i> Viettel 5G</span>
+                        <span id="sms-modal-clock" class="font-mono">15:00</span>
+                        <span class="flex items-center gap-1">100% <i
+                                class="fa-solid fa-battery-full text-emerald-400"></i></span>
+                    </div>
+                    <div class="text-center pt-1">
+                        <div
+                            class="w-10 h-10 mx-auto rounded-full bg-slate-800 border border-slate-700 flex items-center justify-center text-emerald-400 text-lg mb-1">
+                            🐸
+                        </div>
+                        <div class="text-xs font-black text-white">FrogHippo Phone</div>
+                        <div id="sms-modal-to-phone" class="text-[11px] text-emerald-400 font-mono font-bold">0987 654
+                            321</div>
+                    </div>
+
+                    <!-- BONG BÓNG TIN NHẮN SMS -->
+                    <div
+                        class="bg-slate-800/90 rounded-2xl p-3 border border-slate-700 text-xs leading-relaxed space-y-2">
+                        <p id="sms-modal-body" class="text-slate-100 whitespace-pre-line font-medium"></p>
+                        <div class="text-[10px] text-slate-400 text-right flex items-center justify-end gap-1">
+                            <span>Đã gửi qua SMS Gateway</span>
+                            <i class="fa-solid fa-check-double text-sky-400"></i>
+                        </div>
+                    </div>
+
+                    <div
+                        class="p-2 rounded-xl bg-emerald-950/80 border border-emerald-500/30 text-[11px] text-emerald-300 flex items-center gap-2">
+                        <i class="fa-solid fa-circle-check text-emerald-400"></i>
+                        <span>Trạng thái Gateway: <strong>DELIVERED 200 OK</strong></span>
+                    </div>
+                </div>
+
+                <!-- PHẦN HÀNH ĐỘNG & QUÉT QR BẰNG ĐIỆN THOẠI THẬT -->
+                <div class="space-y-3 bg-slate-50 p-4 rounded-3xl border border-slate-200">
+                    <div class="text-center space-y-1">
+                        <h4 class="text-xs font-black text-slate-800 flex items-center justify-center gap-1.5">
+                            <i class="fa-solid fa-qrcode text-brand-600"></i> Quét Mã Bằng Điện Thoại Thật:
+                        </h4>
+                        <p class="text-[11px] text-slate-500">Dùng camera iPhone/Android quét mã để gửi tin nhắn SMS
+                            thật từ SIM của bạn chỉ với 1 chạm:</p>
+                    </div>
+
+                    <!-- KHUNG CHỨA QR CODE -->
+                    <div class="flex justify-center my-2">
+                        <div class="p-2 bg-white rounded-2xl shadow-sm border border-slate-200">
+                            <img id="sms-modal-qr-img" src="" alt="Mã QR Gửi SMS"
+                                class="w-36 h-36 object-contain rounded-xl">
+                        </div>
+                    </div>
+
+                    <!-- CÁC NÚT BẤM TIỆN ÍCH -->
+                    <div class="space-y-2 pt-1">
+                        <button type="button" onclick="openSmsFromModal()"
+                            class="w-full py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold transition flex items-center justify-center gap-2 shadow-sm cursor-pointer">
+                            <i class="fa-solid fa-paper-plane"></i> Mở App SMS Trên Thiết Bị Này
+                        </button>
+                        <button type="button" onclick="copySmsTextFromModal()"
+                            class="w-full py-2 bg-white hover:bg-slate-100 text-slate-700 rounded-xl text-xs font-bold transition border border-slate-200 flex items-center justify-center gap-2 cursor-pointer">
+                            <i class="fa-regular fa-copy"></i> Sao Chép Nội Dung SMS
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="flex justify-end pt-2 border-t">
+                <button onclick="closeModal('modal-sms-preview')"
+                    class="px-5 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs font-bold transition cursor-pointer">Đóng</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- CHATBOT WIDGET TƯ VẤN LINH KIỆN (TÍCH HỢP ĐÍNH KÈM FILE/ẢNH & GIỌNG NÓI VOICE) -->
+    <div id="chatbot-widget">
+        <div id="chatbot-panel">
+            <!-- Panel Header -->
+            <div
+                style="background: linear-gradient(135deg, #4f46e5, #7c3aed); color: white; padding: 12px 14px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid rgba(255,255,255,0.15);">
+                <div style="display: flex; align-items: center; gap: 8px;">
+                    <div
+                        style="width: 32px; height: 32px; border-radius: 10px; background: rgba(255,255,255,0.2); display: flex; align-items: center; justify-content: center; font-size: 16px;">
+                        🤖
+                    </div>
+                    <div>
+                        <div
+                            style="font-size: 13px; font-weight: 800; line-height: 1.2;">
+                            Tư Vấn Giá Linh Kiện
+                        </div>
+                        <div
+                            style="font-size: 10px; opacity: 0.85; display: flex; align-items: center; gap: 4px; margin-top: 1px;">
+                            <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+                            AI Vision & Voice
+                        </div>
+                    </div>
+                </div>
+                <div style="display: flex; align-items: center; gap: 4px;">
+                    <button type="button" onclick="clearChatHistory()" title="Xóa lịch sử chat"
+                        style="background: rgba(255,255,255,0.15); border: none; color: white; width: 26px; height: 26px; border-radius: 8px; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 11px; transition: background 0.2s;"
+                        onmouseover="this.style.background='rgba(255,255,255,0.25)'"
+                        onmouseout="this.style.background='rgba(255,255,255,0.15)'">
+                        <i class="fa-solid fa-rotate-right"></i>
+                    </button>
+                    <button type="button" onclick="closeChatbot()" title="Đóng"
+                        style="background: rgba(255,255,255,0.15); border: none; color: white; width: 26px; height: 26px; border-radius: 8px; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 15px; font-weight: bold; transition: background 0.2s;"
+                        onmouseover="this.style.background='rgba(255,255,255,0.25)'"
+                        onmouseout="this.style.background='rgba(255,255,255,0.15)'">
+                        ×
+                    </button>
+                </div>
+            </div>
+
+            <!-- Chat Messages Area -->
+            <div id="chat-messages">
+                <!-- Initial Bot Welcome Message -->
+                <div class="msg-bot">
+                    <div
+                        style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 4px; padding-bottom: 4px; border-bottom: 1px solid #f1f5f9; font-size: 11px; color: #64748b; font-weight: 700;">
+                        <span style="color: #4f46e5; display: flex; align-items: center; gap: 4px;"><i
+                                class="fa-solid fa-robot"></i> Trợ Lý FrogHippo</span>
+                        <button type="button"
+                            onclick="speakText(this, 'Xin chào! Tôi là trợ lý tư vấn linh kiện FrogHippo Phone. Bạn có thể hỏi giá, nhấn nút kẹp giấy để gửi ảnh thiết bị hỏng, hoặc bấm micro để nói trực tiếp!')"
+                            style="background: none; border: none; color: #94a3b8; cursor: pointer; padding: 2px;"
+                            title="Nghe đọc tiếng Việt">
+                            <i class="fa-solid fa-volume-high text-xs"></i>
+                        </button>
+                    </div>
+                    <div>
+                        Xin chào! Tôi là trợ lý tư vấn giá linh kiện <strong>FrogHippo Phone</strong> 🛠️<br>
+                        • Hỏi tôi về giá thay linh kiện bất kỳ (100% CSDL kho thật).<br>
+                        • Bấm 📎 <strong>đính kèm ảnh</strong> nứt vỡ/hư hỏng để AI kiểm tra.<br>
+                        • Bấm 🎙️ <strong>nói tiếng Việt</strong> để tìm kiếm tức thì!
+                    </div>
+                </div>
+            </div>
+
+            <!-- File Attachment Preview Bar (shown when file is selected) -->
+            <div id="chat-file-preview-bar"
+                style="display: none; padding: 6px 10px; background: #eef2ff; border-top: 1px solid #e0e7ff; align-items: center; justify-content: space-between;">
+                <div id="chat-file-preview-info"
+                    style="display: flex; align-items: center; gap: 8px; overflow: hidden; flex: 1;">
+                    <!-- dynamic file preview content -->
+                </div>
+                <button type="button" onclick="removeAttachedFile()" title="Hủy tệp này"
+                    style="width: 22px; height: 22px; border-radius: 50%; border: none; background: #fee2e2; color: #ef4444; font-weight: bold; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 13px; margin-left: 6px;">
+                    ×
+                </button>
+            </div>
+
+            <!-- Voice Wave Recording Bar (shown when microphone is actively listening) -->
+            <div id="chat-voice-wave-bar"
+                style="display: none; padding: 6px 12px; background: #fff1f2; border-top: 1px solid #fecdd3; align-items: center; justify-content: space-between; font-size: 11px; color: #e11d48; font-weight: 700;">
+                <div style="display: flex; align-items: center; gap: 6px;">
+                    <span
+                        style="width: 8px; height: 8px; border-radius: 50%; background: #e11d48; animation: ping 1s cubic-bezier(0, 0, 0.2, 1) infinite;"></span>
+                    <span>🎙️ Đang nghe giọng nói tiếng Việt... Hãy nói câu hỏi!</span>
+                </div>
+                <button type="button" onclick="stopVoiceInput()"
+                    style="background: #fecdd3; border: none; color: #9f1239; padding: 2px 8px; border-radius: 6px; font-size: 10px; font-weight: 800; cursor: pointer;">
+                    Dừng
+                </button>
+            </div>
+
+            <!-- Chat Input Bar -->
+            <div
+                style="padding: 8px 10px; border-top: 1px solid #e2e8f0; display: flex; align-items: center; gap: 6px; background: white;">
+                <!-- File upload button -->
+                <label for="chat-file-input" title="Đính kèm ảnh hỏng hóc hoặc file (ảnh, pdf, văn bản)"
+                    style="width: 34px; height: 34px; border-radius: 10px; border: 1px solid #e2e8f0; display: flex; align-items: center; justify-content: center; color: #64748b; cursor: pointer; flex-shrink: 0; transition: all 0.2s; background: #f8fafc;"
+                    onmouseover="this.style.borderColor='#6366f1';this.style.color='#6366f1';this.style.background='#eef2ff'"
+                    onmouseout="this.style.borderColor='#e2e8f0';this.style.color='#64748b';this.style.background='#f8fafc'">
+                    <i class="fa-solid fa-paperclip" style="font-size: 14px;"></i>
+                </label>
+                <input type="file" id="chat-file-input" class="hidden" accept="image/*,.pdf,.txt"
+                    onchange="handleChatFileSelect(event)">
+
+                <!-- Voice recognition button -->
+                <button type="button" id="chat-voice-btn" onclick="toggleVoiceInput()"
+                    title="Nói để đặt câu hỏi (Nhận diện giọng nói tiếng Việt)"
+                    style="width: 34px; height: 34px; border-radius: 10px; border: 1px solid #e2e8f0; display: flex; align-items: center; justify-content: center; color: #64748b; cursor: pointer; flex-shrink: 0; transition: all 0.2s; background: #f8fafc;"
+                    onmouseover="if(!isRecordingVoice){this.style.borderColor='#f43f5e';this.style.color='#f43f5e';this.style.background='#fff1f2'}"
+                    onmouseout="if(!isRecordingVoice){this.style.borderColor='#e2e8f0';this.style.color='#64748b';this.style.background='#f8fafc'}">
+                    <i id="chat-voice-icon" class="fa-solid fa-microphone" style="font-size: 14px;"></i>
+                </button>
+
+                <!-- Text input -->
+                <input id="chat-input" type="text" placeholder="Hỏi giá, bấm mic nói hoặc gửi ảnh..."
+                    style="flex: 1; border: 1px solid #e2e8f0; border-radius: 10px; padding: 8px 10px; font-size: 12px; outline: none; font-family: Inter, sans-serif; background: #f8fafc; transition: border-color 0.2s;"
+                    onfocus="this.style.borderColor='#6366f1';this.style.background='#ffffff'"
+                    onblur="this.style.borderColor='#e2e8f0';this.style.background='#f8fafc'"
+                    onkeydown="if(event.key==='Enter')sendChatMessage()">
+
+                <!-- Send button -->
+                <button id="chat-send-btn" onclick="sendChatMessage()" title="Gửi tin nhắn"
+                    style="background: linear-gradient(135deg, #4f46e5, #7c3aed); color: white; border: none; border-radius: 10px; width: 34px; height: 34px; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 13px; flex-shrink: 0; box-shadow: 0 4px 10px rgba(99,102,241,0.3); transition: transform 0.1s;"
+                    onmousedown="this.style.transform='scale(0.95)'" onmouseup="this.style.transform='scale(1)'">
+                    <i class="fa-solid fa-paper-plane"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- Bubble Button -->
+        <div id="chatbot-bubble" onclick="toggleChatbot()" title="Chatbot tư vấn giá linh kiện & kỹ thuật">
+            💬
+        </div>
+    </div>
+
+    <!-- MODAL ZOOM XEM ẢNH CHAT -->
+    <div id="modal-chat-image-zoom" class="modal-overlay hidden" onclick="closeChatImageZoom()">
+        <div class="relative max-w-2xl w-full mx-4 bg-slate-900/90 backdrop-blur-md rounded-2xl p-3 border border-slate-700 shadow-2xl flex flex-col items-center"
+            onclick="event.stopPropagation()">
+            <div
+                class="w-full flex justify-between items-center pb-2 border-b border-slate-800 text-white text-xs font-bold">
+                <span id="chat-zoom-filename" class="truncate max-w-md">Ảnh đính kèm</span>
+                <button onclick="closeChatImageZoom()"
+                    class="text-slate-400 hover:text-white text-lg font-bold">×</button>
+            </div>
+            <div class="py-3 max-h-[75vh] overflow-auto flex items-center justify-center">
+                <img id="chat-zoom-img" src="" alt="Zoom"
+                    class="max-h-[70vh] max-w-full rounded-xl object-contain shadow-lg">
+            </div>
+        </div>
+    </div>
+
+    <!-- TOAST -->
+    <div id="toast-container" class="fixed bottom-4 left-4 z-50 space-y-2 no-print"></div>
+
+    <script>
+        // ========== STATE ==========
+        let allTickets = [];
+        let allTechnicians = [];
+        let activeTab = 'tickets';
+        let currentCocData = null;
+        let currentQTData = null;
+        let chatbotReady = false;
+
+        const STATUS_CFG = {
+            'KhoiTao': { label: 'Mới Khởi Tạo', cls: 'bg-slate-100 text-slate-700 border-slate-200' },
+            'DangKiemTra': { label: 'Đang Kiểm Tra', cls: 'bg-amber-100 text-amber-800 border-amber-200' },
+            'ChoLinhKien': { label: 'Chờ Linh Kiện', cls: 'bg-orange-100 text-orange-800 border-orange-200' },
+            'DangSua': { label: 'Đang Sửa', cls: 'bg-sky-100 text-sky-800 border-sky-200' },
+            'DaSuaXong': { label: 'Đã Sửa Xong 🔔', cls: 'bg-emerald-100 text-emerald-800 border-emerald-300 font-black animate-pulse' },
+            'DaThanhToan': { label: 'Đã Hoàn Tất', cls: 'bg-purple-100 text-purple-800 border-purple-200' }
+        };
+
+        window.addEventListener('DOMContentLoaded', async () => {
+            autoGenTicketCode();
+            await loadTechnicians();
+            await Promise.all([loadTickets(), loadNotificationHistory()]);
+            // Gắn event input cho tiền khách đưa
+            document.getElementById('coc-tien-khach-dua').addEventListener('input', calcCocChange);
+            document.getElementById('qt-tien-khach').addEventListener('input', calcQTChange);
+            // Chatbot intro
+            setTimeout(() => appendBotMsg('Xin chào! Tôi là trợ lý tư vấn giá linh kiện FrogHippo Phone 🛠️\nHỏi tôi về giá thay linh kiện bất kỳ nhé! Dữ liệu 100% từ kho thực tế của cửa hàng.'), 500);
+        });
+
+        function autoGenTicketCode() {
+            const d = new Date();
+            const ds = d.getFullYear().toString().slice(2) + String(d.getMonth() + 1).padStart(2, '0') + String(d.getDate()).padStart(2, '0');
+            document.getElementById('recept-maphieu').value = `PS${ds}-${Math.floor(100 + Math.random() * 900)}`;
+        }
+
+        async function loadTechnicians() {
+            try {
+                const res = await fetch('/nhan-vien/danh-sach-ktv');
+                if (res.ok) {
+                    allTechnicians = await res.json();
+                    const sel = document.getElementById('recept-maktv');
+                    sel.innerHTML = '<option value="">-- Chưa chỉ định --</option>';
+                    allTechnicians.forEach(k => {
+                        const o = document.createElement('option');
+                        o.value = k.maNV;
+                        o.textContent = `${k.hoTen} (${k.maNV})`;
+                        sel.appendChild(o);
+                    });
+                }
+            } catch (e) { console.error(e); }
+        }
+
+        async function loadTickets() {
+            try {
+                const res = await fetch('/phieu-sua/');
+                if (res.ok) {
+                    allTickets = await res.json();
+                    updateStats();
+                    renderTickets();
+                    renderDepositTab();
+                    populateAIDropdown();
+                }
+            } catch (e) {
+                showToast('Không thể kết nối server!', 'error');
+            }
+        }
+
+        function updateStats() {
+            document.getElementById('stat-total').textContent = allTickets.length;
+            const pending = allTickets.filter(t => ['KhoiTao', 'DangKiemTra', 'ChoLinhKien', 'DangSua'].includes(t.trangThai)).length;
+            document.getElementById('stat-pending').textContent = pending;
+            const repaired = allTickets.filter(t => t.trangThai === 'DaSuaXong');
+            document.getElementById('stat-repaired').textContent = repaired.length;
+            const coc = allTickets.filter(t => t.daDatCoc).length;
+            document.getElementById('stat-coc').textContent = coc;
+            document.getElementById('ticket-count-badge').textContent = allTickets.length;
+
+            const alertBox = document.getElementById('ai-repaired-alert');
+            const alertText = document.getElementById('ai-repaired-alert-text');
+            if (repaired.length > 0) {
+                alertBox.classList.remove('hidden');
+                alertText.textContent = `🔔 Có ${repaired.length} thiết bị đã sửa xong (${repaired.map(t => '#' + t.maPhieu).join(', ')}) - Hãy gửi tin báo khách đến lấy máy!`;
+            } else {
+                alertBox.classList.add('hidden');
+            }
+        }
+
+        function renderTickets() {
+            const tbody = document.getElementById('ticket-list');
+            const kw = (document.getElementById('search-input').value || '').toLowerCase();
+            const st = document.getElementById('filter-status').value;
+            const filtered = allTickets.filter(t => {
+                const matchKW = !kw || (t.maPhieu || '').toLowerCase().includes(kw) || (t.maKH || '').toLowerCase().includes(kw) || (t.moTaLoi || '').toLowerCase().includes(kw);
+                const matchSt = !st || t.trangThai === st;
+                return matchKW && matchSt;
+            });
+
+            if (!filtered.length) {
+                tbody.innerHTML = `<tr><td colspan="7" class="py-8 text-center text-slate-400 text-sm">Không tìm thấy phiếu nào</td></tr>`;
+                return;
+            }
+
+            tbody.innerHTML = filtered.map(t => {
+                const sc = STATUS_CFG[t.trangThai] || { label: t.trangThai, cls: 'bg-slate-100 text-slate-700' };
+                const ktv = allTechnicians.find(k => k.maNV === t.maKTV);
+                const ktvName = ktv ? ktv.hoTen : (t.maKTV || '<span class="text-slate-400 italic">Chưa phân công</span>');
+                const cocBadge = t.daDatCoc
+                    ? `<span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-700 border border-emerald-200">✅ Đã Thu</span>`
+                    : (t.trangThai !== 'KhoiTao' && t.trangThai !== 'DaThanhToan'
+                        ? `<span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-100 text-amber-700 border border-amber-200">⚠️ Chưa Thu</span>`
+                        : `<span class="text-slate-400 text-[10px]">-</span>`);
+                return `
+            <tr class="hover:bg-slate-50/80 transition">
+                <td class="py-2.5 px-4 font-black text-brand-600 text-xs">#${noHash(t.maPhieu)}</td>
+                <td class="py-2.5 px-4 font-bold text-slate-800 text-xs">${t.maKH}</td>
+                <td class="py-2.5 px-4 text-slate-600 max-w-xs truncate text-xs" title="${t.moTaLoi || ''}">${t.moTaLoi || '-'}</td>
+                <td class="py-2.5 px-4 text-slate-700 text-xs">${ktvName}</td>
+                <td class="py-2.5 px-4"><span class="px-2.5 py-1 rounded-full text-[10px] font-bold border ${sc.cls}">${sc.label}</span></td>
+                <td class="py-2.5 px-4">${cocBadge}</td>
+                <td class="py-2.5 px-4 text-center">
+                    <div class="flex items-center justify-center gap-1">
+                        <button onclick="quickSelectAI('${t.maPhieu}')" title="AI soạn tin nhắn" class="p-1.5 rounded-lg bg-purple-50 hover:bg-purple-100 text-purple-600 transition text-xs"><i class="fa-solid fa-comment-dots"></i></button>
+                        ${!t.daDatCoc && t.trangThai !== 'DaThanhToan' && t.trangThai !== 'KhoiTao'
+                        ? `<button onclick="openThuCoc('${t.maPhieu}')" title="Thu cọc 30%" class="p-1.5 rounded-lg bg-amber-50 hover:bg-amber-100 text-amber-600 transition text-xs"><i class="fa-solid fa-piggy-bank"></i></button>` : ''}
+                        ${t.trangThai === 'DaSuaXong'
+                        ? `<button onclick="openQuyetToan('${t.maPhieu}')" title="Quyết toán thu 70%" class="p-1.5 rounded-lg bg-emerald-50 hover:bg-emerald-100 text-emerald-600 transition text-xs"><i class="fa-solid fa-hand-holding-dollar"></i></button>` : ''}
+                        <button onclick="openReceiptModal('${t.maPhieu}', 'tiep_nhan')" title="In biên nhận" class="p-1.5 rounded-lg bg-indigo-50 hover:bg-indigo-100 text-indigo-600 transition text-xs"><i class="fa-solid fa-print"></i></button>
+                    </div>
+                </td>
+            </tr>
+        `;
+            }).join('');
+        }
+
+        function renderDepositTab() {
+            const tbody = document.getElementById('deposit-list');
+            const eligible = allTickets.filter(t => !['KhoiTao', 'DaThanhToan'].includes(t.trangThai) || t.daDatCoc);
+            if (!eligible.length) {
+                tbody.innerHTML = `<tr><td colspan="7" class="py-8 text-center text-slate-400">Chưa có phiếu cần xử lý thu cọc/quyết toán</td></tr>`;
+                return;
+            }
+            tbody.innerHTML = eligible.map(t => {
+                const sc = STATUS_CFG[t.trangThai] || { label: t.trangThai, cls: 'bg-slate-100 text-slate-700' };
+                return `
+            <tr class="hover:bg-slate-50/80 transition">
+                <td class="py-2.5 px-4 font-black text-brand-600 text-xs">#${noHash(t.maPhieu)}</td>
+                <td class="py-2.5 px-4 font-bold text-slate-800 text-xs">${t.maKH}</td>
+                <td class="py-2.5 px-4 font-bold text-slate-900 text-xs" id="tong-hd-${t.maPhieu}">Đang tải...</td>
+                <td class="py-2.5 px-4 font-bold text-amber-600 text-xs" id="tien-coc-${t.maPhieu}">-</td>
+                <td class="py-2.5 px-4 font-bold text-emerald-600 text-xs" id="con-lai-${t.maPhieu}">-</td>
+                <td class="py-2.5 px-4">
+                    ${t.daDatCoc
+                        ? `<span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-700 border border-emerald-200">✅ Đã Thu Cọc</span>`
+                        : `<span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-100 text-amber-700 border border-amber-200">⚠️ Chưa Thu</span>`
+                    }
+                </td>
+                <td class="py-2.5 px-4 text-center">
+                    <div class="flex items-center justify-center gap-1">
+                        ${!t.daDatCoc
+                        ? `<button onclick="openThuCoc('${t.maPhieu}')" class="px-2 py-1 bg-amber-500 hover:bg-amber-600 text-white rounded-lg text-[10px] font-black transition cursor-pointer"><i class="fa-solid fa-piggy-bank"></i> Thu Cọc</button>` : ''}
+                        ${t.trangThai === 'DaSuaXong'
+                        ? `<button onclick="openQuyetToan('${t.maPhieu}')" class="px-2 py-1 bg-emerald-500 hover:bg-emerald-600 text-white rounded-lg text-[10px] font-black transition cursor-pointer"><i class="fa-solid fa-check"></i> Quyết Toán</button>` : ''}
+                    </div>
+                </td>
+            </tr>
+        `;
+            }).join('');
+
+            // Load báo giá cho từng phiếu
+            eligible.forEach(t => loadBaoGiaForDeposit(t.maPhieu));
+        }
+
+        async function loadBaoGiaForDeposit(maPhieu) {
+            try {
+                const res = await fetch(`/api/le-tan/bao-gia/${pid(maPhieu)}`);
+                if (res.ok) {
+                    const d = await res.json();
+                    const tongEl = document.getElementById(`tong-hd-${maPhieu}`);
+                    const cocEl = document.getElementById(`tien-coc-${maPhieu}`);
+                    const clEl = document.getElementById(`con-lai-${maPhieu}`);
+                    if (tongEl) tongEl.textContent = formatVND(d.tongHoaDon);
+                    if (cocEl) cocEl.textContent = formatVND(d.tienDatCoc30);
+                    if (clEl) clEl.textContent = formatVND(d.tienConLai70);
+                }
+            } catch (e) { }
+        }
+
+        async function loadNotificationHistory() {
+            try {
+                const res = await fetch('/api/thong-bao-lich-su');
+                if (res.ok) {
+                    const list = await res.json();
+                    document.getElementById('stat-notif').textContent = list.length;
+                    const tbody = document.getElementById('history-list');
+                    if (!list.length) {
+                        tbody.innerHTML = `<tr><td colspan="6" class="py-8 text-center text-slate-400">Chưa có thông báo nào</td></tr>`;
+                        return;
+                    }
+                    tbody.innerHTML = list.map(item => `
+                <tr class="hover:bg-slate-50 transition">
+                    <td class="py-2.5 px-4 text-slate-500 font-mono text-[11px]">${item.thoiGian || '-'}</td>
+                    <td class="py-2.5 px-4 font-black text-brand-600 text-xs">#${noHash(item.maPhieu)}</td>
+                    <td class="py-2.5 px-4 font-bold text-slate-800 text-xs">${item.tenKH || item.maKH || '-'}</td>
+                    <td class="py-2.5 px-4">${(item.kenh || '').toUpperCase().includes('SMS') ? '<span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-700 border border-emerald-200"><i class="fa-solid fa-comment-sms mr-1"></i>SMS</span>' : '<span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-purple-100 text-purple-700 border border-purple-200"><i class="fa-solid fa-envelope mr-1"></i>Gmail</span>'}</td>
+                    <td class="py-2.5 px-4 text-slate-600 text-xs">${item.nguoiGui || 'Lễ tân'}</td>
+                    <td class="py-2.5 px-4 text-slate-700 max-w-sm truncate text-xs" title="${item.noiDung || ''}">${item.noiDung || '-'}</td>
+                </tr>
+            `).join('');
+                }
+            } catch (e) { }
+        }
+
+        function populateAIDropdown() {
+            const sel = document.getElementById('ai-msg-select-ticket');
+            sel.innerHTML = '<option value="">-- Chọn phiếu sửa chữa --</option>';
+            const sorted = [...allTickets].sort((a, b) => {
+                if (a.trangThai === 'DaSuaXong' && b.trangThai !== 'DaSuaXong') return -1;
+                if (a.trangThai !== 'DaSuaXong' && b.trangThai === 'DaSuaXong') return 1;
+                return 0;
+            });
+            sorted.forEach(t => {
+                const o = document.createElement('option');
+                o.value = t.maPhieu;
+                const isRepaired = t.trangThai === 'DaSuaXong' ? '🔔 [SỬA XONG] ' : '';
+                o.textContent = `${isRepaired}#${noHash(t.maPhieu)} - ${t.maKH} (${t.trangThai})`;
+                sel.appendChild(o);
+            });
+        }
+
+        // ========== FORM TẠO PHIẾU ==========
+        async function handleCreateTicket(e) {
+            e.preventDefault();
+            const maPhieu = document.getElementById('recept-maphieu').value.trim();
+            const maKH = document.getElementById('recept-makh').value.trim();
+            const hoTen = document.getElementById('recept-hoten').value.trim();
+            const sdt = document.getElementById('recept-sdt').value.trim();
+            const email = document.getElementById('recept-email') ? document.getElementById('recept-email').value.trim() : '';
+            const maKTV = document.getElementById('recept-maktv').value;
+            const moTaLoi = document.getElementById('recept-mota').value.trim();
+
+            if (!email) {
+                showToast('Vui lòng nhập Email để nhận thông báo khi sửa xong!', 'warning');
+                return;
+            }
+
+            const btn = document.getElementById('btn-submit-ticket');
+            btn.disabled = true; btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Đang lưu...';
+
+            try {
+                const res = await fetch('/phieu-sua/', {
+                    method: 'POST', headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ maPhieu, maKH, hoTenKH: hoTen, sdtKH: sdt, emailKH: email, maKTV: maKTV || null, moTaLoi })
+                });
+                const data = await res.json();
+                if (!res.ok) throw new Error(errText(data.detail, 'Lập phiếu thất bại'));
+
+                showToast(`Đã tạo phiếu tiếp nhận #${noHash(maPhieu)} thành công!`, 'success');
+                autoGenTicketCode();
+                await loadTickets();
+
+                // Tự động gán phiếu mới tạo vào hộp AI Soạn Tin Nhắn để gửi ngay cho khách
+                const aiTicketSel = document.getElementById('ai-msg-select-ticket');
+                if (aiTicketSel) {
+                    aiTicketSel.value = maPhieu;
+                    handleTicketSelectForNotification();
+                }
+                const aiEmailInp = document.getElementById('ai-recipient-email-input');
+                if (aiEmailInp && email) aiEmailInp.value = email;
+                const aiPhoneInp = document.getElementById('ai-recipient-phone-input');
+                if (aiPhoneInp && sdt) aiPhoneInp.value = sdt;
+
+                document.getElementById('recept-makh').value = '';
+                document.getElementById('recept-hoten').value = '';
+                document.getElementById('recept-sdt').value = '';
+                if (document.getElementById('recept-email')) document.getElementById('recept-email').value = '';
+                document.getElementById('recept-mota').value = '';
+
+                if (confirm(`Đã lập phiếu #${noHash(maPhieu)}. Bạn có muốn in biên nhận bàn giao cho khách không?`)) {
+                    openReceiptModal(maPhieu, 'tiep_nhan');
+                }
+            } catch (err) {
+                showToast(err.message, 'error');
+            } finally {
+                btn.disabled = false; btn.innerHTML = '<i class="fa-solid fa-circle-check"></i> Lưu & Tạo Phiếu Tiếp Nhận';
+            }
+        }
+
+        // ========== THU CỌC 30% ==========
+        async function openThuCoc(maPhieu) {
+            try {
+                const res = await fetch(`/api/le-tan/bao-gia/${pid(maPhieu)}`);
+                if (!res.ok) { showToast('Không lấy được báo giá!', 'error'); return; }
+                const d = await res.json();
+                currentCocData = d;
+
+                document.getElementById('coc-phieu-id').textContent = '#' + maPhieu;
+                document.getElementById('coc-tien-lk').textContent = formatVND(d.tienLinhKien);
+                document.getElementById('coc-tong-hd').textContent = formatVND(d.tongHoaDon);
+                document.getElementById('coc-tien-coc').textContent = formatVND(d.tienDatCoc30);
+                document.getElementById('coc-con-lai').textContent = formatVND(d.tienConLai70);
+                document.getElementById('coc-tien-khach-dua').value = d.tienDatCoc30;
+                document.getElementById('coc-tien-tra-lai').textContent = '0 đ';
+
+                const partsList = document.getElementById('coc-parts-list');
+                if (d.parts && d.parts.length > 0) {
+                    partsList.innerHTML = d.parts.map(p => `
+                <div class="flex justify-between text-slate-700">
+                    <span>${p.tenLK} (x${p.soLuong}) <span class="text-slate-400 text-[10px]">BH: ${p.thoiGianBaoHanh}</span></span>
+                    <span class="font-bold">${formatVND(p.thanhTien)}</span>
+                </div>
+            `).join('') + `<div class="flex justify-between text-slate-700"><span>Tiền công thợ</span><span class="font-bold">150.000 đ</span></div>`;
+                } else {
+                    partsList.innerHTML = `<div class="text-slate-400 italic text-center py-2">KTV chưa cập nhật linh kiện. Hãy chờ KTV nhập báo giá!</div>`;
+                }
+
+                document.getElementById('modal-thu-coc').classList.remove('hidden');
+            } catch (e) { showToast(e.message, 'error'); }
+        }
+
+        function calcCocChange() {
+            if (!currentCocData) return;
+            const dua = parseFloat(document.getElementById('coc-tien-khach-dua').value) || 0;
+            const tra = Math.max(0, dua - currentCocData.tienDatCoc30);
+            document.getElementById('coc-tien-tra-lai').textContent = formatVND(tra);
+        }
+
+        async function confirmThuCoc() {
+            if (!currentCocData) return;
+            const maPhieu = document.getElementById('coc-phieu-id').textContent.replace('#', '');
+            const phuongThuc = document.querySelector('input[name="coc-phuong-thuc"]:checked').value;
+            const tienKhach = parseFloat(document.getElementById('coc-tien-khach-dua').value) || 0;
+
+            if (tienKhach < currentCocData.tienDatCoc30) {
+                showToast(`Tiền khách đưa phải >= ${formatVND(currentCocData.tienDatCoc30)}!`, 'warning');
+                return;
+            }
+
+            const btn = document.getElementById('btn-confirm-thu-coc');
+            btn.disabled = true; btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Đang xử lý...';
+
+            try {
+                const res = await fetch(`/api/le-tan/thu-coc/${pid(maPhieu)}`, {
+                    method: 'POST', headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ phuongThuc, tienKhachDua: tienKhach, nguoiThu: 'Lễ tân' })
+                });
+                const data = await res.json();
+                if (!res.ok) throw new Error(errText(data.detail, 'Thu cọc thất bại'));
+
+                showToast(`Thu cọc thành công ${formatVND(data.tienDatCoc)}!`, 'success');
+                closeModal('modal-thu-coc');
+                await loadTickets();
+
+                // Hỏi in biên nhận cọc
+                if (confirm(`Thu cọc 30% = ${formatVND(data.tienDatCoc)} thành công!\nBạn có muốn in biên nhận đặt cọc không?`)) {
+                    openReceiptCoc(maPhieu, data);
+                }
+
+                // Hỏi gửi tin nhắn báo cọc
+                if (confirm('Gửi email thông báo báo giá & đặt cọc qua Gmail cho khách không?')) {
+                    await autoSendMessage(maPhieu, 'dat_coc', 'Gmail');
+                }
+            } catch (err) {
+                showToast(err.message, 'error');
+            } finally {
+                btn.disabled = false; btn.innerHTML = '<i class="fa-solid fa-check"></i> Xác Nhận Thu Cọc & In Biên Nhận';
+            }
+        }
+
+        // ========== QUYẾT TOÁN 70% ==========
+        async function openQuyetToan(maPhieu) {
+            try {
+                const res = await fetch(`/api/le-tan/bao-gia/${pid(maPhieu)}`);
+                if (!res.ok) { showToast('Không lấy được thông tin!', 'error'); return; }
+                const d = await res.json();
+                currentQTData = d;
+
+                document.getElementById('qt-phieu-id').textContent = '#' + maPhieu;
+                document.getElementById('qt-tong-hd').textContent = formatVND(d.tongHoaDon);
+                document.getElementById('qt-da-coc').textContent = `- ${formatVND(d.tienDatCocDaThu || d.tienDatCoc30)} (ĐÃ THU)`;
+                const conLai = d.tongHoaDon - (d.tienDatCocDaThu || d.tienDatCoc30);
+                document.getElementById('qt-con-lai').textContent = formatVND(conLai);
+                document.getElementById('qt-tien-khach').value = conLai;
+                document.getElementById('qt-tien-tra').textContent = '0 đ';
+
+                document.getElementById('modal-quyet-toan').classList.remove('hidden');
+            } catch (e) { showToast(e.message, 'error'); }
+        }
+
+        function calcQTChange() {
+            if (!currentQTData) return;
+            const conLai = currentQTData.tongHoaDon - (currentQTData.tienDatCocDaThu || currentQTData.tienDatCoc30);
+            const dua = parseFloat(document.getElementById('qt-tien-khach').value) || 0;
+            const tra = Math.max(0, dua - conLai);
+            document.getElementById('qt-tien-tra').textContent = formatVND(tra);
+        }
+
+        async function confirmQuyetToan() {
+            if (!currentQTData) return;
+            const maPhieu = document.getElementById('qt-phieu-id').textContent.replace('#', '');
+            const phuongThuc = document.querySelector('input[name="qt-phuong-thuc"]:checked').value;
+            const tienKhach = parseFloat(document.getElementById('qt-tien-khach').value) || 0;
+            const conLai = currentQTData.tongHoaDon - (currentQTData.tienDatCocDaThu || currentQTData.tienDatCoc30);
+
+            if (tienKhach < conLai) {
+                showToast(`Tiền khách đưa phải >= ${formatVND(conLai)}!`, 'warning');
+                return;
+            }
+
+            const btn = document.getElementById('btn-confirm-qt');
+            btn.disabled = true; btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Đang xử lý...';
+
+            try {
+                const res = await fetch(`/api/le-tan/quyet-toan/${pid(maPhieu)}`, {
+                    method: 'POST', headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ phuongThuc, tienKhachDua: tienKhach, maThuNgan: 'NV04' })
+                });
+                const data = await res.json();
+                if (!res.ok) throw new Error(errText(data.detail, 'Quyết toán thất bại'));
+
+                showToast(`Quyết toán hoàn tất! Thu ${formatVND(data.tienConLaiDaThu)}. Mã HĐ: ${data.maHD}`, 'success');
+                closeModal('modal-quyet-toan');
+                await loadTickets();
+
+                if (confirm(`Quyết toán thành công!\nMã HĐ: ${data.maHD}\nBạn có muốn in hóa đơn quyết toán không?`)) {
+                    openReceiptModal(maPhieu, 'quyet_toan');
+                }
+            } catch (err) {
+                showToast(err.message, 'error');
+            } finally {
+                btn.disabled = false; btn.innerHTML = '<i class="fa-solid fa-check-double"></i> Xác Nhận Đã Thu & Trả Máy';
+            }
+        }
+
+        // ========== CÁC HÀM TIỆN ÍCH TÀI KHOẢN MẪU & KÊNH GMAIL / SMS ==========
+        function fillTestAccount() {
+            document.getElementById('recept-email').value = 'thuha0106206@gmail.com';
+            if (!document.getElementById('recept-hoten').value) {
+                document.getElementById('recept-hoten').value = 'Chị Thu Hà';
+            }
+            if (!document.getElementById('recept-sdt').value) {
+                document.getElementById('recept-sdt').value = '0987654321';
+            }
+            if (!document.getElementById('recept-mota').value) {
+                document.getElementById('recept-mota').value = 'iPhone 13 Pro vỡ màn hình, sọc hiển thị, pin chai 76%';
+            }
+            showToast('Đã điền email và thông tin mẫu: thuha0106206@gmail.com', 'info');
+        }
+
+        function setQuickTestEmail(email = 'thuha0106206@gmail.com') {
+            const emailInput = document.getElementById('ai-recipient-email-input');
+            if (emailInput) {
+                emailInput.value = email;
+                showToast(`Đã gán Email nhận tin: ${email}`, 'success');
+            }
+        }
+
+        function selectChannel(channel) {
+            const isSMS = channel === 'SMS';
+            const radGmail = document.getElementById('channel-gmail');
+            const radSMS = document.getElementById('channel-sms');
+            const lblGmail = document.getElementById('lbl-channel-gmail');
+            const lblSMS = document.getElementById('lbl-channel-sms');
+            const badge = document.getElementById('ai-channel-badge');
+            const confirmLbl = document.getElementById('ai-confirm-label');
+            const btnOpenText = document.getElementById('btn-open-text');
+            const btnOpenIcon = document.getElementById('btn-open-icon');
+            const btnSendText = document.getElementById('btn-send-text');
+
+            if (isSMS) {
+                if (radSMS) radSMS.checked = true;
+                if (lblSMS) lblSMS.className = "flex items-center justify-center gap-2 p-2.5 rounded-xl bg-emerald-600 border-2 border-emerald-300 font-bold text-white text-xs shadow transition cursor-pointer";
+                if (lblGmail) lblGmail.className = "flex items-center justify-center gap-2 p-2.5 rounded-xl bg-slate-900/80 border border-purple-400/30 font-bold text-purple-200 hover:text-white text-xs transition cursor-pointer";
+                if (badge) { badge.textContent = "Kênh: SMS"; badge.className = "px-2 py-0.5 rounded-full text-[10px] font-black bg-emerald-600 text-white"; }
+                if (confirmLbl) confirmLbl.textContent = "Xác nhận gửi tin nhắn SMS trực tiếp đến số điện thoại khách hàng";
+                if (btnOpenText) btnOpenText.textContent = "Mở Ứng Dụng SMS";
+                if (btnOpenIcon) btnOpenIcon.className = "fa-solid fa-comment-sms";
+                if (btnSendText) btnSendText.textContent = "Gửi SMS Cho Khách";
+            } else {
+                if (radGmail) radGmail.checked = true;
+                if (lblGmail) lblGmail.className = "flex items-center justify-center gap-2 p-2.5 rounded-xl bg-purple-600 border-2 border-purple-300 font-bold text-white text-xs shadow transition cursor-pointer";
+                if (lblSMS) lblSMS.className = "flex items-center justify-center gap-2 p-2.5 rounded-xl bg-slate-900/80 border border-purple-400/30 font-bold text-purple-200 hover:text-white text-xs transition cursor-pointer";
+                if (badge) { badge.textContent = "Kênh: Gmail"; badge.className = "px-2 py-0.5 rounded-full text-[10px] font-black bg-purple-500 text-white"; }
+                if (confirmLbl) confirmLbl.textContent = "Xác nhận gửi email thông báo trực tiếp qua Gmail cho khách hàng";
+                if (btnOpenText) btnOpenText.textContent = "Mở Mail Trực Tiếp";
+                if (btnOpenIcon) btnOpenIcon.className = "fa-solid fa-envelope";
+                if (btnSendText) btnSendText.textContent = "Gửi Gmail Cho Khách";
+            }
+
+            // Nếu đã chọn phiếu, tự động soạn lại tin nhắn cho đúng kênh
+            const maPhieu = document.getElementById('ai-msg-select-ticket').value;
+            if (maPhieu) {
+                handleGenerateAIMessage();
+            }
+        }
+
+        function openDirectChannel() {
+            const channel = document.querySelector('input[name="ai-channel"]:checked')?.value || 'Gmail';
+            if (channel === 'SMS') {
+                openNativeSMS();
+            } else {
+                openNativeMail();
+            }
+        }
+
+        let currentSmsModalData = { phone: '', text: '', uri: '' };
+
+        function openSmsModal(phone, text, uri) {
+            currentSmsModalData = { phone, text, uri };
+            const phoneEl = document.getElementById('sms-modal-to-phone');
+            const bodyEl = document.getElementById('sms-modal-body');
+            const qrImg = document.getElementById('sms-modal-qr-img');
+            const clockEl = document.getElementById('sms-modal-clock');
+
+            if (phoneEl) phoneEl.textContent = phone || '0987 654 321';
+            if (bodyEl) bodyEl.textContent = text || '';
+            if (clockEl) {
+                const d = new Date();
+                clockEl.textContent = `${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`;
+            }
+
+            const smsCleanPhone = (phone || '').replace(/[^\d+]/g, '');
+            const smsLink = uri || `sms:${smsCleanPhone}?body=${encodeURIComponent(text || '')}`;
+            if (qrImg) {
+                qrImg.src = `https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=${encodeURIComponent(smsLink)}`;
+            }
+
+            const modal = document.getElementById('modal-sms-preview');
+            if (modal) modal.classList.remove('hidden');
+        }
+
+        function openSmsFromModal() {
+            if (currentSmsModalData.uri) {
+                window.open(currentSmsModalData.uri, '_blank');
+                showToast('📱 Đang kích hoạt ứng dụng tin nhắn SMS...', 'info');
+            }
+        }
+
+        function copySmsTextFromModal() {
+            if (currentSmsModalData.text) {
+                navigator.clipboard.writeText(currentSmsModalData.text);
+                showToast('Đã sao chép nội dung tin nhắn SMS!', 'success');
+            }
+        }
+
+        function openNativeSMS() {
+            const phone = (document.getElementById('ai-recipient-phone-input')?.value || '').trim();
+            const text = (document.getElementById('ai-msg-editor')?.value || '').trim();
+            if (!phone) {
+                showToast('Chưa có số điện thoại khách hàng để mở SMS!', 'warning');
+                return;
+            }
+            const cleanPhone = phone.replace(/[^\d+]/g, '');
+            const smsUri = `sms:${cleanPhone}?body=${encodeURIComponent(text)}`;
+            openSmsModal(phone, text, smsUri);
+        }
+
+        // ========== AI TIN NHẮN KẾT NỐI SĐT & GMAIL THỰC ==========
+        function handleTicketSelectForNotification() {
+            const maPhieu = document.getElementById('ai-msg-select-ticket').value;
+            if (!maPhieu) return;
+
+            // Tìm thông tin khách hàng từ danh sách phiếu đã tải
+            const ticket = allTickets.find(t => t.maPhieu === maPhieu || noHash(t.maPhieu) === noHash(maPhieu));
+            const recipientName = ticket ? (ticket.tenKH || ticket.maKH) : 'Khách hàng';
+            const recipientPhone = ticket ? (ticket.sdtKH || ticket.sdt || '0987654321') : '0987654321';
+            const recipientEmail = (ticket && (ticket.emailKH || ticket.email)) ? (ticket.emailKH || ticket.email) : 'thuha0106206@gmail.com';
+
+            const nameEl = document.getElementById('ai-recipient-name');
+            const emailInp = document.getElementById('ai-recipient-email-input');
+            const phoneInp = document.getElementById('ai-recipient-phone-input');
+            if (nameEl) nameEl.textContent = recipientName;
+            if (emailInp) emailInp.value = recipientEmail;
+            if (phoneInp) phoneInp.value = recipientPhone;
+
+            // Nếu phiếu đã sửa xong, tự động chọn loại tin nhắn Hoàn thành và chuẩn bị gửi
+            if (ticket && ticket.trangThai === 'DaSuaXong') {
+                const typeEl = document.getElementById('ai-msg-type');
+                if (typeEl) typeEl.value = 'hoan_thanh';
+            }
+
+            document.getElementById('ai-ticket-finance').classList.add('hidden');
+            fetchBaoGiaForAI(maPhieu);
+            const channel = document.querySelector('input[name="ai-channel"]:checked')?.value || 'Gmail';
+            const badge = document.getElementById('ai-channel-badge');
+            if (badge) badge.textContent = `Kênh: ${channel}`;
+
+            // Tự động soạn tin AI ngay
+            setTimeout(() => handleGenerateAIMessage(), 300);
+        }
+
+        function getSelectedCustomerEmail() {
+            const inputVal = (document.getElementById('ai-recipient-email-input')?.value || '').trim();
+            if (inputVal) return inputVal;
+            const maPhieu = document.getElementById('ai-msg-select-ticket').value;
+            const ticket = allTickets.find(t => t.maPhieu === maPhieu || noHash(t.maPhieu) === noHash(maPhieu));
+            return (ticket && (ticket.email || ticket.emailKH)) ? (ticket.email || ticket.emailKH) : 'thuha0106206@gmail.com';
+        }
+
+        function openNativeMail() {
+            let email = getSelectedCustomerEmail();
+            const maPhieu = document.getElementById('ai-msg-select-ticket').value;
+            const text = (document.getElementById('ai-msg-editor').value || '').trim();
+            const subject = `[FrogHippo Phone] Thông báo dịch vụ sửa chữa #${(maPhieu || '').replace(/^#+/, '')}`;
+            const targetUrl = `https://mail.google.com/mail/?view=cm&fs=1&to=${encodeURIComponent(email || '')}&su=${encodeURIComponent(subject)}&body=${encodeURIComponent(text)}`;
+            window.open(targetUrl, '_blank');
+            showToast(`Đang mở tab Gmail gửi trực tiếp tới ${email || 'khách hàng'}!`, 'info');
+        }
+
+        async function fetchBaoGiaForAI(maPhieu) {
+            try {
+                const res = await fetch(`/api/le-tan/bao-gia/${pid(maPhieu)}`);
+                if (res.ok) {
+                    const d = await res.json();
+                    document.getElementById('ai-tong-hd').textContent = formatVND(d.tongHoaDon);
+                    document.getElementById('ai-tien-coc').textContent = formatVND(d.tienDatCoc30);
+                    document.getElementById('ai-con-lai').textContent = formatVND(d.tienConLai70);
+                    document.getElementById('ai-ticket-finance').classList.remove('hidden');
+
+                    const phoneInp = document.getElementById('ai-recipient-phone-input');
+                    const emailInp = document.getElementById('ai-recipient-email-input');
+                    const nameEl = document.getElementById('ai-recipient-name');
+
+                    if (d.sdtKH && phoneInp && !phoneInp.value) {
+                        phoneInp.value = d.sdtKH;
+                    }
+                    if (d.emailKH && emailInp && !emailInp.value) {
+                        emailInp.value = d.emailKH;
+                    }
+                    if (d.tenKH && nameEl) {
+                        nameEl.textContent = d.tenKH;
+                    }
+                }
+            } catch (e) { }
+        }
+
+        async function handleGenerateAIMessage() {
+            const maPhieu = document.getElementById('ai-msg-select-ticket').value;
+            if (!maPhieu) { showToast('Vui lòng chọn phiếu sửa chữa!', 'warning'); return; }
+
+            const loai = document.getElementById('ai-msg-type').value;
+            const channel = document.querySelector('input[name="ai-channel"]:checked')?.value || 'Gmail';
+            const isSMS = channel === 'SMS';
+            const btn = document.getElementById('btn-gen-ai');
+            btn.disabled = true;
+            btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> AI đang soạn tin nhắn ${isSMS ? 'SMS' : 'Gmail'}...`;
+
+            try {
+                const res = await fetch('/api/le-tan/ai-mau-tin-nhan', {
+                    method: 'POST', headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ maPhieu, loai, channel })
+                });
+                const data = await res.json();
+                if (!res.ok) throw new Error(errText(data.detail, 'Lỗi AI'));
+                document.getElementById('ai-msg-editor').value = data.tinNhan;
+                const badge = document.getElementById('ai-channel-badge');
+                if (badge) badge.textContent = `Kênh: ${channel}`;
+                showToast(`AI đã soạn tin ${isSMS ? 'SMS' : 'Gmail'} xong!`, 'success');
+            } catch (e) {
+                showToast(e.message, 'error');
+            } finally {
+                btn.disabled = false; btn.innerHTML = '<i class="fa-solid fa-wand-magic-sparkles"></i> ✨ AI Soạn Tin Nhắn Tự Động';
+            }
+        }
+
+        async function handleSendNotification() {
+            const maPhieu = document.getElementById('ai-msg-select-ticket').value;
+            const noiDung = document.getElementById('ai-msg-editor').value.trim();
+            const channel = document.querySelector('input[name="ai-channel"]:checked')?.value || 'Gmail';
+            const isChecked = document.getElementById('ai-confirm-check').checked;
+            const emailKhach = (document.getElementById('ai-recipient-email-input')?.value || 'thuha0106206@gmail.com').trim();
+            const sdtKhach = (document.getElementById('ai-recipient-phone-input')?.value || '0987654321').trim();
+
+            if (!maPhieu) { showToast('Chọn phiếu trước!', 'warning'); return; }
+            if (!noiDung) { showToast('Nội dung tin nhắn trống!', 'warning'); return; }
+            if (!isChecked) { showToast('Tích xác nhận trước khi gửi!', 'warning'); return; }
+
+            const isSMS = channel === 'SMS';
+            const btn = document.getElementById('btn-send-notif');
+            btn.disabled = true;
+            btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Đang gửi ${isSMS ? 'SMS' : 'Gmail'}...`;
+
+            try {
+                let res = await fetch('/api/le-tan/gui-tin-nhan', {
+                    method: 'POST', headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ maPhieu, channel, noiDung, emailKhach, sdtKhach, nguoiGui: 'Lễ tân' })
+                });
+                if (!res.ok) {
+                    res = await fetch(`/phieu-sua/${pid(maPhieu)}/gui-tin-nhan`, {
+                        method: 'POST', headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ channel, noiDung, emailKhach, sdtKhach, nguoiGui: 'Lễ tân' })
+                    });
+                }
+                let data = {};
+                try {
+                    data = await res.json();
+                } catch (jsonErr) {
+                    throw new Error(`Máy chủ không phản hồi JSON (${res.status})`);
+                }
+                if (!res.ok) throw new Error(errText(data.detail, 'Gửi tin nhắn thất bại'));
+
+                if (isSMS) {
+                    const targetPhone = data.sdtThuc || sdtKhach;
+                    showToast(`✅ Đã gửi tin nhắn SMS thành công tới số ${targetPhone}!`, 'success');
+                    // Mở hộp thoại điện thoại mô phỏng & mã QR quét bằng điện thoại thật
+                    openSmsModal(targetPhone, noiDung, data.smsUri);
+                } else {
+                    const targetEmail = data.emailKhach || emailKhach || 'khách hàng';
+                    showToast(`✅ Đã gửi thông báo email thành công tới ${targetEmail} qua Gmail!`, 'success');
+
+                    // Mở sẵn tab Gmail web nếu đang chạy chế độ mô phỏng Gateway
+                    if (data.gmailWebUrl && (!data.emailResult || data.emailResult.mode !== 'LIVE_SMTP')) {
+                        window.open(data.gmailWebUrl, '_blank');
+                    }
+                }
+
+                await loadNotificationHistory();
+            } catch (e) {
+                showToast(e.message, 'error');
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = `<i id="btn-send-icon" class="fa-solid fa-paper-plane"></i> <span id="btn-send-text">Gửi ${isSMS ? 'SMS' : 'Gmail'} Cho Khách</span>`;
+            }
+        }
+
+        async function autoSendMessage(maPhieu, loai, channel) {
+            try {
+                const r1 = await fetch('/api/le-tan/ai-mau-tin-nhan', {
+                    method: 'POST', headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ maPhieu, loai, channel })
+                });
+                if (!r1.ok) return;
+                const d1 = await r1.json();
+
+                await fetch(`/phieu-sua/${pid(maPhieu)}/gui-tin-nhan`, {
+                    method: 'POST', headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ channel, noiDung: d1.tinNhan, nguoiGui: 'Lễ tân' })
+                });
+                showToast('Đã tự động gửi tin nhắn AI cho khách!', 'success');
+                await loadNotificationHistory();
+            } catch (e) { }
+        }
+
+        function copyAIMessage() {
+            const text = document.getElementById('ai-msg-editor').value;
+            if (!text) return;
+            navigator.clipboard.writeText(text);
+            showToast('Đã sao chép nội dung!', 'info');
+        }
+
+        function quickSelectAI(maPhieu) {
+            document.getElementById('ai-msg-select-ticket').value = maPhieu;
+            handleTicketSelectForNotification();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function selectFirstRepairedTicket() {
+            const t = allTickets.find(t => t.trangThai === 'DaSuaXong');
+            if (t) {
+                quickSelectAI(t.maPhieu);
+                document.getElementById('ai-msg-type').value = 'hoan_thanh';
+                handleGenerateAIMessage();
+            }
+        }
+
+        // ========== IN BIÊN NHẬN ==========
+        function openReceiptModal(maPhieu, loai = 'tiep_nhan') {
+            const ticket = allTickets.find(t => t.maPhieu === maPhieu);
+            if (!ticket) return;
+            const ktv = allTechnicians.find(k => k.maNV === ticket.maKTV);
+            const ktvName = ktv ? ktv.hoTen : 'KTV Trực Ca';
+            const now = new Date().toLocaleString('vi-VN');
+
+            const badge = document.getElementById('receipt-type-badge');
+            badge.textContent = loai === 'quyet_toan' ? 'HÓA ĐƠN QUYẾT TOÁN & BÀN GIAO' : 'BIÊN NHẬN TIẾP NHẬN THIẾT BỊ';
+            badge.className = `inline-block px-3 py-1 rounded-full font-black text-xs border ${loai === 'quyet_toan' ? 'bg-emerald-50 text-emerald-700 border-emerald-200' : 'bg-brand-50 text-brand-700 border-brand-200'}`;
+
+            document.getElementById('receipt-content').innerHTML = `
+        <div class="grid grid-cols-2 gap-2 bg-slate-50 p-3 rounded-xl border border-slate-200">
+            <div><span class="text-slate-500">Mã Phiếu:</span> <strong class="text-brand-600">#${noHash(ticket.maPhieu)}</strong></div>
+            <div><span class="text-slate-500">Thời gian:</span> <strong>${now}</strong></div>
+            <div><span class="text-slate-500">Khách hàng:</span> <strong>${ticket.maKH}</strong></div>
+            <div><span class="text-slate-500">KTV phụ trách:</span> <strong>${ktvName}</strong></div>
+        </div>
+        <div class="p-3 bg-slate-50 rounded-xl border border-slate-200">
+            <p class="text-slate-500 font-semibold mb-1">Tình trạng & Mô tả lỗi:</p>
+            <p class="font-medium text-slate-800">${ticket.moTaLoi || 'Chưa có ghi chú'}</p>
+        </div>
+        <div class="text-[11px] text-slate-500 italic p-2 bg-amber-50 rounded-xl border border-amber-200">
+            * Vui lòng mang theo biên nhận này khi đến nhận máy. Trung tâm không chịu trách nhiệm với dữ liệu cá nhân chưa sao lưu.
+        </div>
+    `;
+            document.getElementById('modal-receipt').classList.remove('hidden');
+        }
+
+        function openReceiptCoc(maPhieu, cocData) {
+            const ticket = allTickets.find(t => t.maPhieu === maPhieu);
+            if (!ticket) return;
+            const badge = document.getElementById('receipt-type-badge');
+            badge.textContent = 'BIÊN NHẬN ĐẶT CỌC 30%';
+            badge.className = 'inline-block px-3 py-1 rounded-full font-black text-xs border bg-amber-50 text-amber-700 border-amber-200';
+
+            document.getElementById('receipt-content').innerHTML = `
+        <div class="grid grid-cols-2 gap-2 bg-slate-50 p-3 rounded-xl border border-slate-200 text-xs">
+            <div><span class="text-slate-500">Mã Phiếu:</span> <strong class="text-brand-600">#${noHash(maPhieu)}</strong></div>
+            <div><span class="text-slate-500">Ngày thu cọc:</span> <strong>${new Date().toLocaleString('vi-VN')}</strong></div>
+            <div><span class="text-slate-500">Khách hàng:</span> <strong>${ticket.maKH}</strong></div>
+            <div><span class="text-slate-500">Mô tả:</span> <strong>${(ticket.moTaLoi || '').slice(0, 40)}</strong></div>
+        </div>
+        <div class="bg-amber-50 border border-amber-200 rounded-xl p-3 text-xs space-y-2">
+            <div class="flex justify-between"><span>Tổng HĐ dự kiến:</span><strong>${formatVND(cocData.tongHoaDon)}</strong></div>
+            <div class="flex justify-between text-amber-700 text-base font-black"><span>ĐÃ THU CỌC 30%:</span><strong>${formatVND(cocData.tienDatCoc)}</strong></div>
+            <div class="flex justify-between text-slate-700"><span>CÒN PHẢI THANH TOÁN KHI NHẬN MÁY (70%):</span><strong>${formatVND(cocData.tienConLai70)}</strong></div>
+        </div>
+        <div class="text-[11px] text-slate-500 italic p-2 bg-amber-50 rounded-xl border border-amber-200">
+            * Số tiền đặt cọc sẽ được trừ vào hóa đơn cuối khi khách đến nhận máy. Vui lòng giữ biên nhận này.
+        </div>
+    `;
+            document.getElementById('modal-receipt').classList.remove('hidden');
+        }
+
+        // ========== TABS ==========
+        function switchTab(tab) {
+            activeTab = tab;
+            const tabs = ['tickets', 'deposit', 'history'];
+            tabs.forEach(t => {
+                const btn = document.getElementById(`tab-${t}`);
+                const view = document.getElementById(`view-${t}`);
+                const isActive = t === tab;
+                btn.className = `px-4 py-2 rounded-xl text-xs transition ${isActive ? 'font-black bg-white text-brand-600 shadow-sm border border-slate-200' : 'font-bold text-slate-600 hover:bg-white/80'}`;
+                view.classList.toggle('hidden', !isActive);
+            });
+            const filterArea = document.getElementById('filter-area');
+            filterArea.classList.toggle('hidden', tab !== 'tickets');
+        }
+
+        // ========== CHATBOT WIDGET: FILE ATTACHMENT & VOICE RECOGNITION (STT / TTS) ==========
+        let currentAttachedFile = null; // { data: base64, name: string, type: string, size: number, isImage: boolean }
+        let speechRecognitionInstance = null;
+        let isRecordingVoice = false;
+
+        function toggleChatbot() {
+            const panel = document.getElementById('chatbot-panel');
+            panel.classList.toggle('open');
+            if (panel.classList.contains('open')) {
+                document.getElementById('chat-input').focus();
+            } else {
+                closeChatbot();
+            }
+        }
+
+        function closeChatbot() {
+            const panel = document.getElementById('chatbot-panel');
+            if (panel) panel.classList.remove('open');
+            if (isRecordingVoice) stopVoiceInput();
+            removeAttachedFile();
+            if (window.speechSynthesis && window.speechSynthesis.speaking) {
+                window.speechSynthesis.cancel();
+            }
+        }
+
+        function clearChatHistory() {
+            if (window.speechSynthesis && window.speechSynthesis.speaking) {
+                window.speechSynthesis.cancel();
+            }
+            const container = document.getElementById('chat-messages');
+            container.innerHTML = `
+        <div class="msg-bot">
+            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 4px; padding-bottom: 4px; border-bottom: 1px solid #f1f5f9; font-size: 11px; color: #64748b; font-weight: 700;">
+                <span style="color: #4f46e5; display: flex; align-items: center; gap: 4px;"><i class="fa-solid fa-robot"></i> Trợ Lý FrogHippo</span>
+                <button type="button" onclick="speakText(this, 'Cuộc trò chuyện đã được làm mới. Bạn có thể hỏi giá, gửi ảnh hoặc bấm micro để nói tiếng Việt!')" style="background: none; border: none; color: #94a3b8; cursor: pointer; padding: 2px;" title="Nghe đọc tiếng Việt">
+                    <i class="fa-solid fa-volume-high text-xs"></i>
+                </button>
+            </div>
+            <div>
+                Cuộc trò chuyện đã được làm mới 🐸<br>
+                • Bạn có thể hỏi giá thay thế bất kỳ linh kiện nào.<br>
+                • Bấm 📎 để <strong>gửi ảnh hỏng hóc</strong> hoặc tệp kiểm tra.<br>
+                • Bấm 🎙️ để <strong>nói tiếng Việt</strong> trực tiếp!
+            </div>
+        </div>
+    `;
+            removeAttachedFile();
+            document.getElementById('chat-input').value = '';
+        }
+
+        // --- FILE UPLOAD HANDLING ---
+        function handleChatFileSelect(event) {
+            const file = event.target.files && event.target.files[0];
+            if (!file) return;
+
+            if (file.size > 5 * 1024 * 1024) {
+                showToast('Dung lượng tệp tối đa là 5MB. Vui lòng chọn tệp nhỏ hơn!', 'warning');
+                event.target.value = '';
+                return;
+            }
+
+            const reader = new FileReader();
+            reader.onload = function (e) {
+                const base64Data = e.target.result;
+                currentAttachedFile = {
+                    data: base64Data,
+                    name: file.name,
+                    type: file.type || 'application/octet-stream',
+                    size: file.size,
+                    isImage: (file.type && file.type.startsWith('image/')) || /\.(jpg|jpeg|png|webp|gif|bmp)$/i.test(file.name)
+                };
+                renderFilePreviewBar();
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function renderFilePreviewBar() {
+            const bar = document.getElementById('chat-file-preview-bar');
+            const info = document.getElementById('chat-file-preview-info');
+            if (!bar || !info) return;
+
+            if (!currentAttachedFile) {
+                bar.style.display = 'none';
+                info.innerHTML = '';
+                return;
+            }
+
+            bar.style.display = 'flex';
+            let thumbHtml = '';
+            if (currentAttachedFile.isImage) {
+                thumbHtml = `<img src="${currentAttachedFile.data}" class="w-8 h-8 rounded-lg object-cover border border-indigo-200 cursor-pointer" onclick="zoomChatImage('${currentAttachedFile.data}', '${currentAttachedFile.name}')" title="Bấm xem lớn">`;
+            } else {
+                thumbHtml = `<div class="w-8 h-8 rounded-lg bg-indigo-100 text-indigo-600 flex items-center justify-center font-bold text-xs"><i class="fa-solid fa-file"></i></div>`;
+            }
+
+            const sizeKb = Math.round(currentAttachedFile.size / 1024);
+            info.innerHTML = `
+        ${thumbHtml}
+        <div class="overflow-hidden leading-tight">
+            <div class="text-[11px] font-bold text-slate-800 truncate" title="${currentAttachedFile.name}">${currentAttachedFile.name}</div>
+            <div class="text-[10px] text-indigo-600 font-semibold">${sizeKb} KB · ${currentAttachedFile.isImage ? 'Ảnh kiểm tra' : 'Tệp'}</div>
+        </div>
+    `;
+        }
+
+        function removeAttachedFile() {
+            currentAttachedFile = null;
+            const fileInput = document.getElementById('chat-file-input');
+            if (fileInput) fileInput.value = '';
+            renderFilePreviewBar();
+        }
+
+        function zoomChatImage(src, name) {
+            const modal = document.getElementById('modal-chat-image-zoom');
+            const img = document.getElementById('chat-zoom-img');
+            const title = document.getElementById('chat-zoom-filename');
+            if (!modal || !img) return;
+
+            img.src = src;
+            if (title) title.textContent = name || 'Ảnh đính kèm';
+            modal.classList.remove('hidden');
+        }
+
+        function closeChatImageZoom() {
+            const modal = document.getElementById('modal-chat-image-zoom');
+            if (modal) modal.classList.add('hidden');
+        }
+
+        // --- VOICE RECOGNITION (STT - SPEECH TO TEXT) ---
+        function initSpeechRecognition() {
+            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+            if (!SpeechRecognition) return null;
+
+            const recognition = new SpeechRecognition();
+            recognition.lang = 'vi-VN';
+            recognition.continuous = false;
+            recognition.interimResults = true;
+            recognition.maxAlternatives = 1;
+
+            recognition.onstart = () => {
+                isRecordingVoice = true;
+                updateVoiceUI(true);
+            };
+
+            recognition.onresult = (event) => {
+                let transcript = '';
+                for (let i = event.resultIndex; i < event.results.length; ++i) {
+                    transcript += event.results[i][0].transcript;
+                }
+                const input = document.getElementById('chat-input');
+                if (input && transcript) {
+                    input.value = transcript;
+                }
+            };
+
+            recognition.onerror = (event) => {
+                console.warn('[Voice STT] Error:', event.error);
+                stopVoiceInput();
+                if (event.error === 'not-allowed') {
+                    showToast('Vui lòng cấp quyền truy cập Micro trên trình duyệt để nói!', 'error');
+                } else if (event.error !== 'no-speech') {
+                    showToast('Lỗi micro: ' + event.error, 'warning');
+                }
+            };
+
+            recognition.onend = () => {
+                stopVoiceInput();
+                const input = document.getElementById('chat-input');
+                if (input) input.focus();
+            };
+
+            return recognition;
+        }
+
+        function toggleVoiceInput() {
+            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+            if (!SpeechRecognition) {
+                alert('Trình duyệt của bạn chưa hỗ trợ Web Speech API trực tiếp. Hãy sử dụng Google Chrome hoặc Microsoft Edge để nói tiếng Việt trực tiếp mà không cần cài đặt thêm!');
+                return;
+            }
+
+            if (isRecordingVoice) {
+                stopVoiceInput();
+            } else {
+                startVoiceInput();
+            }
+        }
+
+        function startVoiceInput() {
+            try {
+                if (!speechRecognitionInstance) {
+                    speechRecognitionInstance = initSpeechRecognition();
+                }
+                if (speechRecognitionInstance) {
+                    speechRecognitionInstance.start();
+                }
+            } catch (e) {
+                console.warn('Voice restart fallback:', e);
+                speechRecognitionInstance = initSpeechRecognition();
+                try { speechRecognitionInstance.start(); } catch (err) { stopVoiceInput(); }
+            }
+        }
+
+        function stopVoiceInput() {
+            isRecordingVoice = false;
+            if (speechRecognitionInstance) {
+                try { speechRecognitionInstance.stop(); } catch (e) { }
+            }
+            updateVoiceUI(false);
+        }
+
+        function updateVoiceUI(listening) {
+            const btn = document.getElementById('chat-voice-btn');
+            const icon = document.getElementById('chat-voice-icon');
+            const waveBar = document.getElementById('chat-voice-wave-bar');
+            const input = document.getElementById('chat-input');
+
+            if (listening) {
+                if (btn) {
+                    btn.classList.add('recording-active');
+                    btn.title = 'Đang lắng nghe... Bấm để dừng';
+                }
+                if (icon) {
+                    icon.className = 'fa-solid fa-microphone-lines animate-pulse text-white';
+                }
+                if (waveBar) waveBar.style.display = 'flex';
+                if (input) input.placeholder = '🎙️ Đang nghe giọng nói tiếng Việt của bạn...';
+            } else {
+                if (btn) {
+                    btn.classList.remove('recording-active');
+                    btn.title = 'Nói để đặt câu hỏi (Nhận diện giọng nói tiếng Việt)';
+                }
+                if (icon) {
+                    icon.className = 'fa-solid fa-microphone';
+                }
+                if (waveBar) waveBar.style.display = 'none';
+                if (input) input.placeholder = 'Hỏi giá, bấm mic nói hoặc gửi ảnh...';
+            }
+        }
+
+        // --- TEXT-TO-SPEECH (TTS - VOICE READOUT) ---
+        function speakText(btn, text) {
+            if (!('speechSynthesis' in window)) {
+                showToast('Trình duyệt không hỗ trợ phát âm thanh SpeechSynthesis!', 'warning');
+                return;
+            }
+
+            if (window.speechSynthesis.speaking) {
+                window.speechSynthesis.cancel();
+                if (btn) {
+                    btn.innerHTML = '<i class="fa-solid fa-volume-high text-xs"></i>';
+                    btn.style.color = '#94a3b8';
+                }
+                return;
+            }
+
+            // Clean text: strip markdown, URLs, excessive punctuation
+            const cleanSpeech = text
+                .replace(/[#*`_~•]/g, ' ')
+                .replace(/https?:\/\/\S+/g, '')
+                .replace(/[\u{1F600}-\u{1F64F}\u{1F300}-\u{1F5FF}\u{1F680}-\u{1F6FF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}]/gu, '')
+                .replace(/\s+/g, ' ')
+                .trim();
+
+            if (!cleanSpeech) return;
+
+            const utterance = new SpeechSynthesisUtterance(cleanSpeech);
+            utterance.lang = 'vi-VN';
+            utterance.rate = 1.0;
+            utterance.pitch = 1.0;
+
+            // Search Vietnamese voice
+            const voices = window.speechSynthesis.getVoices();
+            const viVoice = voices.find(v => v.lang.startsWith('vi') || v.name.toLowerCase().includes('vietnam'));
+            if (viVoice) {
+                utterance.voice = viVoice;
+            }
+
+            if (btn) {
+                btn.innerHTML = '<i class="fa-solid fa-circle-stop text-xs text-rose-500"></i>';
+                btn.style.color = '#ef4444';
+            }
+
+            utterance.onend = () => {
+                if (btn) {
+                    btn.innerHTML = '<i class="fa-solid fa-volume-high text-xs"></i>';
+                    btn.style.color = '#94a3b8';
+                }
+            };
+            utterance.onerror = () => {
+                if (btn) {
+                    btn.innerHTML = '<i class="fa-solid fa-volume-high text-xs"></i>';
+                    btn.style.color = '#94a3b8';
+                }
+            };
+
+            window.speechSynthesis.speak(utterance);
+        }
+
+        // --- MESSAGE RENDERING ---
+        function appendUserMsg(text, file) {
+            const container = document.getElementById('chat-messages');
+            const el = document.createElement('div');
+            el.className = 'msg-user';
+
+            let contentHtml = '';
+            if (file && file.isImage) {
+                contentHtml += `<div class="mb-1.5"><img src="${file.data}" alt="${file.name}" class="rounded-xl max-h-36 max-w-full object-cover border border-white/30 cursor-pointer shadow-sm hover:opacity-90 transition" onclick="zoomChatImage('${file.data}', '${file.name}')" title="Bấm xem phóng to"></div>`;
+            } else if (file) {
+                contentHtml += `<div class="mb-1.5 inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-white/20 text-[11px]"><i class="fa-solid fa-file"></i> <span class="font-bold truncate max-w-[180px]">${file.name}</span></div><br>`;
+            }
+
+            if (text) {
+                const textWrapper = document.createElement('div');
+                textWrapper.textContent = text;
+                contentHtml += textWrapper.innerHTML;
+            }
+
+            el.innerHTML = contentHtml;
+            container.appendChild(el);
+            container.scrollTop = container.scrollHeight;
+        }
+
+        function appendBotMsg(text) {
+            const container = document.getElementById('chat-messages');
+            const el = document.createElement('div');
+            el.className = 'msg-bot';
+
+            const header = document.createElement('div');
+            header.style.cssText = 'display: flex; align-items: center; justify-content: space-between; margin-bottom: 4px; padding-bottom: 4px; border-bottom: 1px solid #f1f5f9; font-size: 11px; color: #64748b; font-weight: 700;';
+            header.innerHTML = `
+        <span style="color: #4f46e5; display: flex; align-items: center; gap: 4px;"><i class="fa-solid fa-robot"></i> Trợ Lý FrogHippo</span>
+        <button type="button" class="tts-speak-btn" style="background: none; border: none; color: #94a3b8; cursor: pointer; padding: 2px;" title="Nghe đọc tiếng Việt">
+            <i class="fa-solid fa-volume-high text-xs"></i>
+        </button>
+    `;
+
+            const body = document.createElement('div');
+            body.textContent = text;
+
+            el.appendChild(header);
+            el.appendChild(body);
+
+            const ttsBtn = header.querySelector('.tts-speak-btn');
+            if (ttsBtn) {
+                ttsBtn.onclick = function () { speakText(this, text); };
+            }
+
+            container.appendChild(el);
+            container.scrollTop = container.scrollHeight;
+        }
+
+        function showTyping() {
+            const container = document.getElementById('chat-messages');
+            const el = document.createElement('div');
+            el.className = 'msg-typing';
+            el.id = 'typing-indicator';
+            el.innerHTML = '<span class="animate-pulse">···</span>';
+            container.appendChild(el);
+            container.scrollTop = container.scrollHeight;
+        }
+
+        function hideTyping() {
+            const el = document.getElementById('typing-indicator');
+            if (el) el.remove();
+        }
+
+        async function sendChatMessage() {
+            const input = document.getElementById('chat-input');
+            const msg = input.value.trim();
+            const attached = currentAttachedFile;
+
+            if (!msg && !attached) return;
+
+            if (isRecordingVoice) stopVoiceInput();
+
+            input.value = '';
+            removeAttachedFile();
+
+            const displayMsg = msg || (attached && attached.isImage ? 'Kiểm tra tình trạng thiết bị qua hình ảnh đính kèm' : 'Đính kèm tệp');
+            appendUserMsg(displayMsg, attached);
+            showTyping();
+
+            try {
+                const payload = {
+                    message: msg || (attached ? `Kiểm tra thiết bị qua tệp đính kèm: ${attached.name}` : ''),
+                    fileData: attached ? attached.data : null,
+                    fileName: attached ? attached.name : null,
+                    fileMimeType: attached ? attached.type : null
+                };
+
+                const res = await fetch('/api/le-tan/chatbot-linh-kien', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                hideTyping();
+                if (res.ok) {
+                    const data = await res.json();
+                    appendBotMsg(data.reply);
+                } else {
+                    appendBotMsg('Xin lỗi, tôi đang bận hoặc gặp sự cố xử lý. Vui lòng thử lại sau!');
+                }
+            } catch (e) {
+                hideTyping();
+                appendBotMsg('Lỗi kết nối máy chủ. Vui lòng kiểm tra lại đường truyền!');
+            }
+        }
+
+        // ========== UTILS ==========
+        function closeModal(id) { document.getElementById(id).classList.add('hidden'); }
+
+        function formatVND(n) {
+            if (n === undefined || n === null || isNaN(n)) return '-';
+            return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND', maximumFractionDigits: 0 }).format(n);
+        }
+
+        // Mã phiếu có tiền tố '#' -> phải encode khi đặt vào URL, nếu không trình duyệt cắt mất phần sau '#'
+        function noHash(id) { return String(id || '').replace(/^#+/, ''); }
+        function pid(id) { return encodeURIComponent(String(id || '')); }
+        // FastAPI trả lỗi validate dạng mảng [{loc, msg}] -> chuyển thành câu đọc được
+        function errText(detail, fallback = 'Đã xảy ra lỗi') {
+            if (!detail) return fallback;
+            if (typeof detail === 'string') {
+                if (detail.includes('[object Object]')) return fallback;
+                return detail;
+            }
+            if (Array.isArray(detail)) {
+                const msgs = detail.map(d => {
+                    if (!d) return '';
+                    if (typeof d === 'string') return d;
+                    return d.msg || d.message || '';
+                }).filter(Boolean);
+                return msgs.join('; ') || fallback;
+            }
+            return detail.msg || detail.message || fallback;
+        }
+
+        let _lastToast = { msg: '', at: 0 };
+        function showToast(msg, type = 'info') {
+            if (msg && typeof msg === 'object') msg = errText(msg.detail || msg.message || msg, 'Đã xảy ra lỗi');
+            msg = String(msg || '').trim();
+            if (!msg || msg.includes('[object Object]')) {
+                msg = type === 'error' ? 'Không thể thực hiện thao tác, vui lòng thử lại!' : 'Thông báo';
+            }
+            const now = Date.now();
+            if (msg === _lastToast.msg && now - _lastToast.at < 2500) return; // chống spam toast trùng
+            _lastToast = { msg, at: now };
+            const container = document.getElementById('toast-container');
+            while (container.children.length >= 3) container.removeChild(container.firstChild);
+            const toast = document.createElement('div');
+            const colors = { success: 'bg-emerald-600', error: 'bg-rose-600', warning: 'bg-amber-500', info: 'bg-slate-800' };
+            const icons = { success: 'fa-circle-check', error: 'fa-circle-xmark', warning: 'fa-triangle-exclamation', info: 'fa-circle-info' };
+            toast.className = `flex items-center gap-2.5 px-4 py-3 rounded-2xl shadow-xl text-xs font-bold text-white ${colors[type] || colors.info} transition-all duration-300 opacity-0 translate-y-2`;
+            toast.innerHTML = `<i class="fa-solid ${icons[type] || icons.info}"></i> <span>${msg}</span>`;
+            container.appendChild(toast);
+            setTimeout(() => toast.classList.remove('opacity-0', 'translate-y-2'), 10);
+            setTimeout(() => { toast.classList.add('opacity-0', 'translate-y-2'); setTimeout(() => toast.remove(), 300); }, 4500);
+        }
+    </script>
+</body>
+
+</html>
