@@ -826,20 +826,20 @@
     <div id="modal-complaint"
         class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/60 backdrop-blur-md hidden">
         <div
-            class="relative max-w-md w-full bg-white border border-rose-500/30 rounded-3xl p-6 shadow-2xl space-y-4 text-xs text-white">
+            class="relative max-w-md w-full bg-white border border-slate-200 rounded-3xl p-6 shadow-2xl space-y-4 text-xs text-slate-800">
 
-            <div class="flex justify-between items-center pb-2 border-b border-slate-200">
-                <div class="flex items-center gap-2">
+            <div class="flex justify-between items-center pb-2 border-b border-slate-100">
+                <div class="flex items-center gap-2.5">
                     <div
-                        class="w-8 h-8 rounded-xl bg-rose-500/20 text-rose-400 flex items-center justify-center font-black">
+                        class="w-8 h-8 rounded-xl bg-rose-50 text-rose-500 border border-rose-100 flex items-center justify-center font-bold">
                         <i class="fa-solid fa-headset"></i>
                     </div>
                     <div>
-                        <h3 class="text-sm font-black text-slate-900">Gửi Khiếu Nại & Phản Hồi Dịch Vụ</h3>
+                        <h3 class="text-sm font-bold text-slate-900">Gửi Khiếu Nại & Phản Hồi Dịch Vụ</h3>
                         <p class="text-[10px] text-slate-400">Trực tiếp tới Ban Giám Đốc Trung Tâm</p>
                     </div>
                 </div>
-                <button onclick="closeComplaintModal()" class="text-slate-400 hover:text-white text-lg">
+                <button onclick="closeComplaintModal()" class="w-7 h-7 rounded-full bg-slate-100 text-slate-400 hover:text-slate-700 hover:bg-slate-200 flex items-center justify-center text-xs transition cursor-pointer">
                     <i class="fa-solid fa-xmark"></i>
                 </button>
             </div>
@@ -848,7 +848,7 @@
                 <div>
                     <label class="block font-bold text-slate-700 mb-1">Loại phản hồi:</label>
                     <select id="complaint-type"
-                        class="w-full bg-slate-950 border border-slate-200 p-2.5 rounded-xl font-bold text-white outline-none">
+                        class="w-full bg-slate-50 border border-slate-300 p-2.5 rounded-xl font-bold text-slate-800 outline-none focus:border-rose-400 focus:bg-white">
                         <option value="Khiếu nại kỹ thuật">Khiếu nại về chất lượng sửa chữa</option>
                         <option value="Khiếu nại thái độ">Khiếu nại về thái độ phục vụ</option>
                         <option value="Khiếu nại thời gian">Khiếu nại về thời gian bàn giao chậm</option>
@@ -860,12 +860,12 @@
                     <div>
                         <label class="block font-bold text-slate-700 mb-1">Họ tên của Quý khách:</label>
                         <input id="complaint-name" type="text" required placeholder="Họ và tên..."
-                            class="w-full bg-slate-950 border border-slate-200 p-2.5 rounded-xl text-white font-bold outline-none">
+                            class="w-full bg-slate-50 border border-slate-300 p-2.5 rounded-xl text-slate-900 font-bold outline-none focus:border-rose-400 focus:bg-white placeholder-slate-400">
                     </div>
                     <div>
                         <label class="block font-bold text-slate-700 mb-1">Số điện thoại liên hệ:</label>
                         <input id="complaint-phone" type="tel" required placeholder="SĐT liên hệ..."
-                            class="w-full bg-slate-950 border border-slate-200 p-2.5 rounded-xl text-white font-bold outline-none">
+                            class="w-full bg-slate-50 border border-slate-300 p-2.5 rounded-xl text-slate-900 font-bold outline-none focus:border-rose-400 focus:bg-white placeholder-slate-400">
                     </div>
                 </div>
 
@@ -873,15 +873,14 @@
                     <label class="block font-bold text-slate-700 mb-1">Nội dung khiếu nại / Góp ý cụ thể:</label>
                     <textarea id="complaint-content" rows="3" required
                         placeholder="Mô tả chi tiết vấn đề Quý khách chưa hài lòng để chúng tôi xử lý ngay..."
-                        class="w-full bg-slate-950 border border-slate-200 p-2.5 rounded-xl text-white outline-none"></textarea>
+                        class="w-full bg-slate-50 border border-slate-300 p-2.5 rounded-xl text-slate-900 outline-none focus:border-rose-400 focus:bg-white placeholder-slate-400"></textarea>
                 </div>
 
                 <div class="flex justify-end gap-2 pt-1">
                     <button type="button" onclick="closeComplaintModal()"
-                        class="px-4 py-2 bg-slate-800 text-slate-300 rounded-xl font-bold hover:bg-slate-700">Đóng</button>
+                        class="px-4 py-2 border border-slate-300 bg-slate-100 text-slate-700 rounded-xl font-bold hover:bg-slate-200 transition cursor-pointer">Đóng</button>
                     <button type="submit"
-                        class="px-5 py-2 bg-rose-600 hover:bg-rose-500 text-white rounded-xl font-black shadow-lg">GỬI
-                        KHIẾU NẠI NGAY</button>
+                        class="px-5 py-2 bg-rose-600 hover:bg-rose-500 text-white rounded-xl font-bold shadow-sm transition cursor-pointer">GỬI KHIẾU NẠI NGAY</button>
                 </div>
             </form>
 
@@ -1082,8 +1081,8 @@
 
                     <div class="flex justify-between items-center pt-2">
                         <button type="button" onclick="goToStep(1)"
-                            class="px-4 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-800 font-bold transition flex items-center gap-1.5 cursor-pointer">
-                            <i class="fa-solid fa-arrow-left"></i> <span>Quay lại</span>
+                            class="px-5 py-2.5 rounded-xl border border-slate-300 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold transition flex items-center gap-1.5 cursor-pointer shadow-xs active:scale-95">
+                            <i class="fa-solid fa-arrow-left text-slate-500"></i> <span>Quay lại</span>
                         </button>
                         <button type="button" onclick="goToStep(3)"
                             class="px-6 py-2.5 rounded-xl bg-amber-400 hover:bg-amber-300 text-slate-950 font-black shadow-lg transition active:scale-95 flex items-center gap-1.5 cursor-pointer">
@@ -1161,8 +1160,8 @@
 
                     <div class="flex justify-between items-center pt-2">
                         <button type="button" onclick="goToStep(2)"
-                            class="px-4 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-800 font-bold transition flex items-center gap-1.5">
-                            <i class="fa-solid fa-arrow-left"></i> <span>Quay lại</span>
+                            class="px-5 py-2.5 rounded-xl border border-slate-300 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold transition flex items-center gap-1.5 cursor-pointer shadow-xs active:scale-95">
+                            <i class="fa-solid fa-arrow-left text-slate-500"></i> <span>Quay lại</span>
                         </button>
                         <button type="button" onclick="submitBooking()" id="btn-submit-booking"
                             class="px-6 py-2.5 rounded-xl bg-gradient-to-r from-amber-400 to-amber-500 hover:from-amber-300 hover:to-amber-400 text-slate-950 font-black shadow-xl transition active:scale-95 flex items-center gap-2">
@@ -1225,39 +1224,44 @@
     <!-- MODAL HỦY LỊCH HẸN DÀNH CHO KHÁCH HÀNG (CANCEL OWN BOOKING) -->
     <!-- ============================================================== -->
     <div id="cancel-booking-modal"
-        class="hidden fixed inset-0 z-50 bg-slate-950/85 backdrop-blur-md flex items-center justify-center p-3 sm:p-4">
+        class="hidden fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-md flex items-center justify-center p-3 sm:p-4">
         <div
-            class="glass-card-dark rounded-3xl max-w-md w-full p-6 border border-rose-500/40 shadow-2xl relative space-y-4">
-            <div class="flex justify-between items-center pb-2 border-b border-slate-200">
-                <div class="flex items-center gap-2 text-rose-400">
-                    <i class="fa-solid fa-circle-exclamation text-lg"></i>
-                    <h3 class="text-sm font-black text-slate-900">Xác Nhận Hủy Lịch Hẹn</h3>
+            class="bg-white rounded-3xl max-w-md w-full p-6 border border-slate-200 shadow-2xl relative space-y-4">
+            <div class="flex justify-between items-center pb-3 border-b border-slate-100">
+                <div class="flex items-center gap-2.5">
+                    <div class="w-8 h-8 rounded-xl bg-rose-50 text-rose-500 border border-rose-100 flex items-center justify-center text-base">
+                        <i class="fa-solid fa-circle-exclamation"></i>
+                    </div>
+                    <h3 class="text-sm font-bold text-slate-900">Xác Nhận Hủy Lịch Hẹn</h3>
                 </div>
-                <button type="button" onclick="closeCancelOwnBookingModal()" class="text-slate-400 hover:text-white"><i
-                        class="fa-solid fa-xmark"></i></button>
+                <button type="button" onclick="closeCancelOwnBookingModal()" class="w-7 h-7 rounded-full bg-slate-100 text-slate-400 hover:text-slate-700 hover:bg-slate-200 flex items-center justify-center text-xs transition cursor-pointer">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
             </div>
 
-            <p class="text-xs text-slate-300 leading-relaxed">
+            <p class="text-xs text-slate-600 leading-relaxed">
                 Quý khách đang thực hiện hủy lịch hẹn <strong id="cancel-target-code"
-                    class="text-amber-300 font-mono">---</strong>. Vui lòng cho biết lý do hủy để trung tâm cải thiện
-                dịch vụ.
+                    class="text-amber-700 font-mono font-bold bg-amber-50 px-1.5 py-0.5 rounded border border-amber-200">---</strong>. Vui lòng cho biết lý do hủy để trung tâm cải thiện dịch vụ.
             </p>
 
             <div>
-                <label class="block text-xs font-bold text-slate-300 mb-1">Lý do hủy lịch <span
+                <label class="block text-xs font-bold text-slate-700 mb-1.5">Lý do hủy lịch <span
                         class="text-rose-500">*</span>:</label>
                 <textarea id="cancel-own-reason" rows="3" required
                     placeholder="VD: Bận việc đột xuất, đã tự khắc phục được, đổi lịch sau..."
-                    class="w-full bg-slate-950 border border-slate-200 p-2.5 rounded-xl text-white text-xs outline-none focus:border-rose-400"></textarea>
+                    class="w-full bg-slate-50 border border-slate-300 p-3 rounded-xl text-slate-900 placeholder-slate-400 text-xs outline-none focus:border-rose-500 focus:bg-white focus:ring-2 focus:ring-rose-500/20 transition"></textarea>
             </div>
 
-            <div class="flex justify-end gap-2 pt-2">
+            <div class="flex justify-end items-center gap-2.5 pt-2">
                 <button type="button" onclick="closeCancelOwnBookingModal()"
-                    class="px-4 py-2 rounded-xl bg-slate-800 text-slate-800 font-bold text-xs hover:bg-slate-700">Không
-                    Hủy</button>
+                    class="px-4 py-2.5 rounded-xl border border-slate-300 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs transition cursor-pointer shadow-xs active:scale-95">
+                    Không Hủy
+                </button>
                 <button type="button" onclick="submitCancelOwnBooking()" id="btn-confirm-cancel-own"
-                    class="px-4 py-2 rounded-xl bg-rose-600 hover:bg-rose-500 text-white font-black text-xs shadow-lg">XÁC
-                    NHẬN HỦY LỊCH</button>
+                    class="px-5 py-2.5 rounded-xl bg-rose-600 hover:bg-rose-500 text-white font-bold text-xs shadow-sm transition active:scale-95 cursor-pointer flex items-center gap-1.5">
+                    <i class="fa-solid fa-ban"></i>
+                    <span>Xác Nhận Hủy Lịch</span>
+                </button>
             </div>
         </div>
     </div>

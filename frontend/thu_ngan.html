@@ -15,10 +15,10 @@
     <meta name="description" content="Hệ thống Quầy Thu Ngân & Quản Lý Ca Trực FrogHippo Phone: Thanh toán hóa đơn sửa chữa, tạo mã VietQR động, in phiếu thu và chốt ca trực đồng bộ MySQL.">
     <link rel="icon" type="image/png" href="/froghippo_logo.png">
 
-    <!-- Google Fonts Inter -->
+    <!-- Google Fonts Plus Jakarta Sans & Inter -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
 
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -27,7 +27,7 @@
             theme: {
                 extend: {
                     fontFamily: {
-                        sans: ['Inter', 'sans-serif'],
+                        sans: ['Plus Jakarta Sans', 'Inter', 'sans-serif'],
                     },
                     colors: {
                         emerald: {
@@ -53,7 +53,7 @@
 
     <style>
         body {
-            font-family: 'Inter', sans-serif;
+            font-family: 'Plus Jakarta Sans', 'Inter', sans-serif; -webkit-font-smoothing: antialiased;
             background-color: #f0fdf4;
         }
         .glass-card {
@@ -102,7 +102,7 @@
     <div id="toast-container" class="fixed top-5 right-5 z-50 flex flex-col gap-2 pointer-events-none"></div>
 
     <!-- TOP HEADER -->
-    <header class="bg-white border-b border-emerald-100 sticky top-0 z-40 shadow-sm no-print">
+    <header class="bg-white border-b border-slate-200 sticky top-0 z-40 shadow-xs no-print">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
             <!-- Brand & Phân hệ -->
             <div class="flex items-center gap-3">
@@ -110,55 +110,42 @@
                 <div>
                     <div class="flex items-center gap-2">
                         <span class="font-black text-slate-900 text-base tracking-tight">FrogHippo Phone</span>
-                        <span class="px-2.5 py-0.5 rounded-full text-xs font-black bg-emerald-100 text-emerald-800 border border-emerald-200">
+                        <span class="px-2.5 py-0.5 rounded-full text-xs font-bold bg-emerald-50 text-emerald-800 border border-emerald-200">
                             💳 Quầy Thu Ngân & Thanh Toán
                         </span>
                     </div>
-                    <p class="text-[11px] text-slate-500 font-medium">Thanh toán hóa đơn, VietQR tự động & Chốt ca CSDL MySQL</p>
+                    <p class="text-[11px] text-slate-500 font-medium">Thanh toán hóa đơn, VietQR tự động & Quản lý ca trực</p>
                 </div>
             </div>
 
-            <!-- Nhân viên & Hành động ca trực -->
+            <!-- Nhân viên & Hành động ca trực (Phong cách Kỹ Thuật Viên) -->
             <div class="flex items-center gap-3">
                 <!-- Chọn Thu ngân đang trực -->
-                <div class="flex items-center gap-2 bg-emerald-50 border border-emerald-200/80 py-1.5 px-3 rounded-xl text-xs">
-                    <span class="text-emerald-700 font-bold"><i class="fa-solid fa-user-tag mr-1"></i>Thu ngân:</span>
-                    <select id="select-active-cashier" onchange="onCashierChange()" class="bg-transparent font-black text-emerald-900 focus:outline-none cursor-pointer">
+                <div class="flex items-center gap-2 bg-slate-50 border border-slate-200 py-1.5 px-3 rounded-xl text-xs">
+                    <span class="text-slate-500 font-semibold">Đang làm việc:</span>
+                    <select id="select-active-cashier" onchange="onCashierChange()" class="bg-transparent font-bold text-emerald-800 focus:outline-none cursor-pointer">
                         <option value="NV04" selected>Phạm Thị Dung (NV04)</option>
                         <option value="NV01">Nguyễn Văn An (Admin - NV01)</option>
                     </select>
                 </div>
 
                 <!-- Trạng thái Ca làm việc -->
-                <div id="shift-status-badge" class="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold bg-amber-50 text-amber-700 border border-amber-200">
-                    <span class="w-2 h-2 rounded-full bg-amber-500 animate-pulse"></span>
+                <div id="shift-status-badge" class="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold bg-emerald-50 text-emerald-700 border border-emerald-200 shadow-2xs" title="Ca trực hiện tại">
                     <span id="shift-status-text">Đang kiểm tra ca...</span>
                 </div>
 
                 <!-- Nút Mở / Chốt ca -->
-                <button onclick="handleOpenShiftModal()" id="btn-shift-action" class="bg-emerald-600 hover:bg-emerald-700 text-white px-3.5 py-1.5 rounded-xl text-xs font-black shadow-sm transition active:scale-95 flex items-center gap-1.5">
+                <button onclick="handleOpenShiftModal()" id="btn-shift-action" class="bg-emerald-600 hover:bg-emerald-700 text-white px-3.5 py-1.5 rounded-xl text-xs font-bold shadow-xs transition active:scale-95 flex items-center gap-1.5 cursor-pointer">
                     <i class="fa-solid fa-calculator"></i>
-                    <span id="btn-shift-text">Chốt Ca Trực</span>
+                    <span id="btn-shift-text">Chốt Ca</span>
                 </button>
 
-                <!-- Lối tắt các phân hệ -->
-                <div class="flex items-center gap-1.5 border-l border-slate-200 pl-3">
-                    <a href="/admin" target="_blank" title="Trang Quản Trị Hệ Thống" class="cross-portal-link p-2 rounded-xl text-slate-600 hover:text-purple-600 hover:bg-purple-50 text-xs font-bold transition">
-                        👑 Admin
-                    </a>
-                    <a href="/le-tan" target="_blank" title="Phân Hệ Lễ Tân & Tiếp Nhận" class="cross-portal-link p-2 rounded-xl text-slate-600 hover:text-pink-600 hover:bg-pink-50 text-xs font-bold transition">
-                        💁 Lễ Tân
-                    </a>
-                    <a href="/ky-thuat-vien" target="_blank" title="Trang Kỹ Thuật Viên" class="cross-portal-link p-2 rounded-xl text-slate-600 hover:text-sky-600 hover:bg-sky-50 text-xs font-bold transition">
-                        🛠️ KTV
-                    </a>
-                    <a href="/" class="p-2 rounded-xl text-slate-600 hover:text-indigo-600 hover:bg-indigo-50 text-xs font-bold transition flex items-center gap-1" title="Trang Chủ">
-                        <i class="fa-solid fa-house"></i>
-                    </a>
-                    <button onclick="AuthGuard.handleLogout()" title="Đăng xuất tài khoản" class="px-2.5 py-1.5 rounded-xl border border-rose-200 bg-rose-50 hover:bg-rose-100 text-xs font-bold text-rose-700 transition flex items-center gap-1 cursor-pointer">
-                        <i class="fa-solid fa-arrow-right-from-bracket"></i> <span class="hidden sm:inline">Đăng Xuất</span>
-                    </button>
-                </div>
+                <button onclick="AuthGuard.handleLogout()" title="Đăng xuất tài khoản" class="px-3 py-1.5 rounded-xl border border-rose-200 bg-rose-50 hover:bg-rose-100 text-xs font-bold text-rose-700 transition flex items-center gap-1.5 cursor-pointer">
+                    <i class="fa-solid fa-arrow-right-from-bracket"></i> <span class="hidden sm:inline">Đăng Xuất</span>
+                </button>
+                <a href="/" class="px-3 py-1.5 rounded-xl border border-slate-200 hover:bg-slate-100 text-xs font-bold text-slate-600 transition flex items-center gap-1.5">
+                    <i class="fa-solid fa-house"></i> Trang Chủ
+                </a>
             </div>
         </div>
     </header>
@@ -166,59 +153,59 @@
     <!-- MAIN BODY -->
     <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
 
-        <!-- 4 THẺ KPI DOANH THU & TIẾN ĐỘ CA (LIVE MYSQL) -->
+        <!-- 4 THẺ KPI DOANH THU & TIẾN ĐỘ CA (Màu sắc tươi tắn chuẩn Kỹ Thuật Viên) -->
         <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 no-print">
-            <div class="glass-card p-4 rounded-2xl shadow-sm border border-emerald-100 flex items-center gap-3.5">
-                <div class="w-11 h-11 rounded-xl bg-emerald-100 text-emerald-700 flex items-center justify-center text-xl">
+            <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-xs flex items-center gap-3.5">
+                <div class="w-11 h-11 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center text-xl flex-shrink-0">
                     💰
                 </div>
                 <div>
                     <p class="text-xs text-slate-500 font-semibold">Doanh Thu Trong Ca</p>
-                    <p id="stat-total-revenue" class="text-xl font-black text-emerald-700">0 đ</p>
+                    <p id="stat-total-revenue" class="text-xl font-black text-emerald-600 font-mono tracking-tight mt-0.5">0 đ</p>
                 </div>
             </div>
 
-            <div class="glass-card p-4 rounded-2xl shadow-sm border border-emerald-100 flex items-center gap-3.5">
-                <div class="w-11 h-11 rounded-xl bg-amber-100 text-amber-700 flex items-center justify-center text-xl">
+            <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-xs flex items-center gap-3.5">
+                <div class="w-11 h-11 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center text-xl flex-shrink-0">
                     💵
                 </div>
                 <div>
                     <p class="text-xs text-slate-500 font-semibold">Tiền Mặt Đang Giữ</p>
-                    <p id="stat-cash-revenue" class="text-xl font-black text-amber-700">0 đ</p>
+                    <p id="stat-cash-revenue" class="text-xl font-black text-amber-600 font-mono tracking-tight mt-0.5">0 đ</p>
                 </div>
             </div>
 
-            <div class="glass-card p-4 rounded-2xl shadow-sm border border-emerald-100 flex items-center gap-3.5">
-                <div class="w-11 h-11 rounded-xl bg-sky-100 text-sky-700 flex items-center justify-center text-xl">
-                    📲
+            <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-xs flex items-center gap-3.5">
+                <div class="w-11 h-11 rounded-xl bg-sky-50 text-sky-600 flex items-center justify-center text-xl flex-shrink-0">
+                    📱
                 </div>
                 <div>
                     <p class="text-xs text-slate-500 font-semibold">Chuyển Khoản (VietQR)</p>
-                    <p id="stat-bank-revenue" class="text-xl font-black text-sky-700">0 đ</p>
+                    <p id="stat-bank-revenue" class="text-xl font-black text-sky-600 font-mono tracking-tight mt-0.5">0 đ</p>
                 </div>
             </div>
 
-            <div class="glass-card p-4 rounded-2xl shadow-sm border border-emerald-100 flex items-center gap-3.5">
-                <div class="w-11 h-11 rounded-xl bg-purple-100 text-purple-700 flex items-center justify-center text-xl">
+            <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-xs flex items-center gap-3.5">
+                <div class="w-11 h-11 rounded-xl bg-purple-50 text-purple-600 flex items-center justify-center text-xl flex-shrink-0">
                     🧾
                 </div>
                 <div>
                     <p class="text-xs text-slate-500 font-semibold">Hóa Đơn Đã Thu</p>
-                    <p id="stat-paid-count" class="text-xl font-black text-purple-700">0 đơn</p>
+                    <p id="stat-paid-count" class="text-xl font-black text-purple-600 font-mono tracking-tight mt-0.5">0 đơn</p>
                 </div>
             </div>
         </div>
 
-        <!-- TABS ĐIỀU HƯỚNG NỘI BỘ -->
-        <div class="flex border-b border-slate-200 gap-2 no-print">
-            <button onclick="switchCashierTab('pos')" id="tab-btn-pos" class="px-4 py-2.5 text-xs font-black border-b-2 border-emerald-600 text-emerald-700 flex items-center gap-2 transition">
+        <!-- TABS ĐIỀU HƯỚNG NỘI BỘ (Pill Style Kỹ Thuật Viên) -->
+        <div class="flex items-center gap-2 no-print">
+            <button onclick="switchCashierTab('pos')" id="tab-btn-pos" class="px-4 py-2 text-xs font-bold bg-emerald-600 text-white rounded-xl shadow-xs flex items-center gap-2 transition cursor-pointer">
                 <i class="fa-solid fa-cash-register"></i> Quầy Thu Ngân & Xuất Hóa Đơn
             </button>
-            <button onclick="switchCashierTab('history')" id="tab-btn-history" class="px-4 py-2.5 text-xs font-bold border-b-2 border-transparent text-slate-500 hover:text-slate-800 flex items-center gap-2 transition">
-                <i class="fa-solid fa-clock-rotate-left"></i> Lịch Sử Hóa Đơn (MySQL)
+            <button onclick="switchCashierTab('history')" id="tab-btn-history" class="px-4 py-2 text-xs font-semibold bg-white border border-slate-200 text-slate-600 hover:text-slate-900 hover:bg-slate-50 rounded-xl flex items-center gap-2 transition cursor-pointer">
+                <i class="fa-solid fa-clock-rotate-left text-slate-400"></i> Lịch Sử Hóa Đơn
             </button>
-            <button onclick="switchCashierTab('shifts')" id="tab-btn-shifts" class="px-4 py-2.5 text-xs font-bold border-b-2 border-transparent text-slate-500 hover:text-slate-800 flex items-center gap-2 transition">
-                <i class="fa-solid fa-business-time"></i> Nhật Ký Chốt Ca
+            <button onclick="switchCashierTab('shifts')" id="tab-btn-shifts" class="px-4 py-2 text-xs font-semibold bg-white border border-slate-200 text-slate-600 hover:text-slate-900 hover:bg-slate-50 rounded-xl flex items-center gap-2 transition cursor-pointer">
+                <i class="fa-solid fa-business-time text-slate-400"></i> Nhật Ký Chốt Ca
             </button>
         </div>
 
@@ -227,14 +214,16 @@
         <!-- ============================================================== -->
         <div id="view-pos" class="grid grid-cols-1 lg:grid-cols-12 gap-6 no-print">
 
-            <!-- CỘT TRÁI (5 Cột): DANH SÁCH PHIẾU CHỜ THANH TOÁN -->
+            <!-- CỘT TRÁI (5 Cột): DANH SÁCH PHIẾU CHỜ THANH TOÁN (Phong cách KTV) -->
             <div class="lg:col-span-5 space-y-4">
-                <div class="bg-white rounded-2xl border border-slate-200 p-4 shadow-xs space-y-3">
-                    <div class="flex items-center justify-between">
-                        <h2 class="text-xs font-black text-slate-900 uppercase tracking-wider flex items-center gap-2">
-                            <i class="fa-solid fa-list-check text-emerald-600"></i> Phiếu Chờ Thanh Toán
-                            <span id="pending-ticket-count" class="px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 text-[10px] font-black">0</span>
-                        </h2>
+                <div class="bg-white rounded-2xl p-5 border border-slate-200 shadow-sm space-y-4">
+                    <!-- Tiêu đề danh sách thiết bị dạng Pill nổi bật giống KTV -->
+                    <div class="flex flex-wrap items-center justify-between gap-3 border-b border-slate-100 pb-3">
+                        <div class="flex items-center gap-2">
+                            <span class="px-3.5 py-1.5 rounded-xl text-xs font-bold bg-emerald-600 text-white shadow-xs inline-flex items-center gap-1.5">
+                                <i class="fa-solid fa-receipt"></i> Phiếu Chờ Thanh Toán (<span id="pending-ticket-count">0</span>)
+                            </span>
+                        </div>
                         <button onclick="loadPendingTickets()" class="text-xs text-slate-400 hover:text-emerald-600 transition" title="Làm mới">
                             <i class="fa-solid fa-rotate-right"></i>
                         </button>
@@ -244,11 +233,11 @@
                     <div class="relative">
                         <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-xs"></i>
                         <input id="search-ticket-input" type="text" oninput="filterPendingTickets()" placeholder="Tìm theo mã phiếu, tên khách, số ĐT..." 
-                            class="w-full bg-slate-50 border border-slate-200 pl-8 pr-3 py-2 rounded-xl text-xs font-semibold text-slate-800 placeholder:text-slate-400 focus:outline-none focus:border-emerald-500 focus:bg-white transition">
+                            class="w-full bg-slate-50 border border-slate-200 pl-8 pr-3 py-2 rounded-xl text-xs font-bold text-slate-800 placeholder:text-slate-400 focus:outline-none focus:border-emerald-500 focus:bg-white transition">
                     </div>
 
                     <!-- Danh sách phiếu scrollable -->
-                    <div id="tickets-list-container" class="space-y-2.5 max-h-[580px] overflow-y-auto custom-scrollbar pr-1">
+                    <div id="tickets-list-container" class="space-y-3 max-h-[580px] overflow-y-auto custom-scrollbar pr-1">
                         <div class="text-center py-10 text-xs text-slate-400">
                             <i class="fa-solid fa-spinner fa-spin text-lg mb-2"></i>
                             <p>Đang tải danh sách phiếu từ MySQL...</p>
@@ -257,52 +246,57 @@
                 </div>
             </div>
 
-            <!-- CỘT PHẢI (7 Cột): KHUNG XUẤT HÓA ĐƠN & THU TIỀN -->
+            <!-- CỘT PHẢI (7 Cột): KHUNG XUẤT HÓA ĐƠN & THU TIỀN (Phong cách KTV) -->
             <div class="lg:col-span-7 space-y-4">
-                <div class="bg-white rounded-2xl border border-emerald-200/80 p-5 shadow-xs space-y-5">
+                <div class="bg-white rounded-2xl p-5 border border-slate-200 shadow-sm space-y-4">
                     
-                    <!-- Header hóa đơn -->
-                    <div class="flex flex-wrap items-center justify-between pb-3 border-b border-slate-100 gap-2">
-                        <div>
-                            <span class="text-[10px] font-black text-emerald-600 uppercase tracking-widest">HÓA ĐƠN DỊCH VỤ SỬA CHỮA</span>
-                            <h3 id="bill-ticket-title" class="text-lg font-black text-slate-900">Vui lòng chọn phiếu bên trái</h3>
+                    <!-- Header Panel Gọn Gàng & Đầy Màu Sắc Giống KTV -->
+                    <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+                        <div class="flex items-center gap-2.5">
+                            <span class="w-8 h-8 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center text-sm shadow-xs">
+                                <i class="fa-solid fa-file-invoice-dollar"></i>
+                            </span>
+                            <div>
+                                <h3 id="bill-ticket-title" class="text-sm font-bold text-slate-900">Chi Tiết Hóa Đơn Sửa Chữa</h3>
+                                <p class="text-[11px] text-slate-500 font-medium">Thanh toán & xuất phiếu thu tự động</p>
+                            </div>
                         </div>
-                        <div id="bill-status-pill" class="hidden px-2.5 py-1 rounded-full text-xs font-black bg-slate-100 text-slate-600">
-                            Chờ Thu Tiền
-                        </div>
+                        <span id="bill-status-pill" class="hidden px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-amber-100 text-amber-800 border border-amber-200">
+                            Trạng thái: Chờ thanh toán
+                        </span>
                     </div>
 
-                    <!-- Thông tin khách hàng & KTV -->
-                    <div class="grid grid-cols-2 sm:grid-cols-3 gap-3 p-3 bg-slate-50 rounded-xl text-xs border border-slate-100">
+                    <!-- Khung thông tin khách hàng & KTV -->
+                    <div class="grid grid-cols-2 sm:grid-cols-3 gap-3 p-3.5 bg-slate-50 rounded-2xl text-xs border border-slate-200">
                         <div>
-                            <span class="text-slate-400 block text-[10px] font-bold">Khách Hàng</span>
-                            <strong id="bill-customer-name" class="text-slate-800 font-extrabold truncate block">---</strong>
-                            <span id="bill-customer-phone" class="text-[11px] text-slate-500">---</span>
+                            <span class="text-slate-500 block text-[11px] font-semibold uppercase tracking-wider mb-0.5"><i class="fa-solid fa-user text-sky-500 mr-1"></i>Khách Hàng</span>
+                            <strong id="bill-customer-name" class="text-slate-900 font-extrabold text-sm truncate block">---</strong>
+                            <span id="bill-customer-phone" class="text-xs text-slate-600 font-mono">---</span>
                         </div>
                         <div>
-                            <span class="text-slate-400 block text-[10px] font-bold">KTV Phụ Trách</span>
-                            <strong id="bill-technician-name" class="text-slate-800 font-extrabold truncate block">---</strong>
-                            <span class="text-[11px] text-slate-500">Phòng Kỹ Thuật</span>
+                            <span class="text-slate-500 block text-[11px] font-semibold uppercase tracking-wider mb-0.5"><i class="fa-solid fa-user-gear text-emerald-500 mr-1"></i>KTV Phụ Trách</span>
+                            <strong id="bill-technician-name" class="text-slate-900 font-extrabold text-sm truncate block">---</strong>
+                            <span class="text-xs text-slate-600">Phòng Kỹ Thuật</span>
                         </div>
                         <div class="col-span-2 sm:col-span-1">
-                            <span class="text-slate-400 block text-[10px] font-bold">Mô Tả Lỗi Thiết Bị</span>
-                            <p id="bill-device-symptom" class="text-slate-700 text-[11px] truncate">---</p>
+                            <span class="text-slate-500 block text-[11px] font-semibold uppercase tracking-wider mb-0.5"><i class="fa-solid fa-wrench text-orange-500 mr-1"></i>Mô Tả Thiết Bị & Lỗi</span>
+                            <p id="bill-device-symptom" class="text-slate-700 text-xs font-medium leading-relaxed line-clamp-2">---</p>
                         </div>
                     </div>
 
                     <!-- Bảng chi tiết linh kiện & dịch vụ -->
                     <div>
-                        <p class="text-xs font-black text-slate-800 mb-2 flex items-center gap-1.5">
-                            <i class="fa-solid fa-boxes-stacked text-emerald-600"></i> Chi Tiết Linh Kiện & Dịch Vụ Thay Thế:
+                        <p class="text-xs font-bold text-slate-800 mb-2 flex items-center gap-1.5">
+                            <i class="fa-solid fa-boxes-stacked text-emerald-600"></i> Bảng kê dịch vụ & linh kiện thay thế:
                         </p>
                         <div class="border border-slate-200 rounded-xl overflow-hidden text-xs">
                             <table class="w-full text-left">
-                                <thead class="bg-slate-100/80 text-[11px] font-bold text-slate-600 uppercase border-b border-slate-200">
+                                <thead class="bg-slate-100/90 text-xs font-bold text-slate-700 uppercase tracking-wider border-b border-slate-200">
                                     <tr>
-                                        <th class="p-2.5">Nội dung / Linh kiện</th>
-                                        <th class="p-2.5 text-center">SL</th>
-                                        <th class="p-2.5 text-right">Đơn Giá</th>
-                                        <th class="p-2.5 text-right">Thành Tiền</th>
+                                        <th class="py-3 px-3.5">Nội dung / Linh kiện</th>
+                                        <th class="py-3 px-2.5 text-center">SL</th>
+                                        <th class="py-3 px-3.5 text-right">Đơn Giá</th>
+                                        <th class="py-3 px-3.5 text-right">Thành Tiền</th>
                                     </tr>
                                 </thead>
                                 <tbody id="bill-items-tbody" class="divide-y divide-slate-100 font-medium">
@@ -316,35 +310,35 @@
                         </div>
                     </div>
 
-                    <!-- Tổng kết tài chính -->
-                    <div class="p-4 bg-emerald-50/60 border border-emerald-100 rounded-2xl space-y-2">
-                        <div class="flex justify-between text-xs text-slate-600">
-                            <span>Tiền linh kiện thay thế:</span>
-                            <span id="bill-parts-cost" class="font-bold text-slate-800">0 đ</span>
+                    <!-- Tổng kết tài chính (Màu sắc tươi tắn, rõ ràng) -->
+                    <div class="p-4 bg-emerald-50/70 border border-emerald-200 rounded-2xl space-y-2 shadow-2xs">
+                        <div class="flex justify-between text-xs text-slate-700">
+                            <span class="font-medium">Tiền linh kiện thay thế:</span>
+                            <span id="bill-parts-cost" class="font-mono font-bold text-slate-900 text-sm">0 đ</span>
                         </div>
-                        <div class="flex justify-between text-xs text-slate-600">
-                            <span>Tiền công kỹ thuật & vệ sinh máy:</span>
-                            <span id="bill-labor-cost" class="font-bold text-slate-800">150.000 đ</span>
+                        <div class="flex justify-between text-xs text-slate-700">
+                            <span class="font-medium">Tiền công kỹ thuật & bảo dưỡng:</span>
+                            <span id="bill-labor-cost" class="font-mono font-bold text-slate-900 text-sm">150.000 đ</span>
                         </div>
-                        <div class="pt-2 border-t border-emerald-200/80 flex justify-between items-baseline">
-                            <span class="text-xs font-black text-emerald-900 uppercase">TỔNG TIỀN THANH TOÁN:</span>
-                            <span id="bill-total-cost" class="text-2xl font-black text-emerald-700">0 đ</span>
+                        <div class="pt-2.5 border-t border-emerald-200 flex justify-between items-baseline">
+                            <span class="text-xs font-extrabold text-emerald-950 uppercase tracking-wide">TỔNG TIỀN THANH TOÁN:</span>
+                            <span id="bill-total-cost" class="text-2xl font-black text-emerald-600 font-mono tracking-tight">0 đ</span>
                         </div>
                     </div>
 
                     <!-- Chọn phương thức thanh toán -->
-                    <div class="space-y-3 pt-1">
-                        <label class="block text-xs font-black text-slate-800 uppercase tracking-wider">
+                    <div class="space-y-2.5 pt-1">
+                        <label class="block text-xs font-bold text-slate-800 uppercase tracking-wider">
                             Hình thức thanh toán:
                         </label>
                         <div class="grid grid-cols-2 gap-3">
                             <button type="button" onclick="selectPaymentMethod('TienMat')" id="btn-method-cash" 
-                                class="p-3 rounded-xl border-2 border-emerald-600 bg-emerald-50/80 text-emerald-900 font-extrabold text-xs flex items-center justify-center gap-2 transition">
+                                class="p-3 rounded-xl border-2 border-emerald-600 bg-emerald-50 text-emerald-900 font-black text-xs flex items-center justify-center gap-2 transition cursor-pointer">
                                 <i class="fa-solid fa-money-bill-wave text-emerald-600 text-sm"></i>
                                 <span>Tiền Mặt Tại Quầy</span>
                             </button>
                             <button type="button" onclick="selectPaymentMethod('ChuyenKhoan')" id="btn-method-bank" 
-                                class="p-3 rounded-xl border-2 border-slate-200 hover:border-slate-300 bg-white text-slate-700 font-extrabold text-xs flex items-center justify-center gap-2 transition">
+                                class="p-3 rounded-xl border-2 border-slate-200 hover:border-slate-300 bg-white text-slate-700 font-bold text-xs flex items-center justify-center gap-2 transition cursor-pointer">
                                 <i class="fa-solid fa-qrcode text-sky-600 text-sm"></i>
                                 <span>Chuyển Khoản VietQR</span>
                             </button>
@@ -352,33 +346,27 @@
                     </div>
 
                     <!-- BOX TIỀN MẶT -->
-                    <div id="box-cash-payment" class="space-y-3 p-4 bg-slate-50 rounded-xl border border-slate-200 text-xs">
-                        <div class="flex items-center justify-between">
-                            <label class="font-bold text-slate-700">Khách đưa (VND):</label>
-                            <!-- Nút điền nhanh -->
-                            <div class="flex gap-1">
-                                <button type="button" onclick="fillExactCash()" class="px-2 py-1 bg-white border border-slate-300 rounded text-[10px] font-bold text-slate-600 hover:bg-slate-100">Đúng số tiền</button>
-                                <button type="button" onclick="addCash(200000)" class="px-2 py-1 bg-white border border-slate-300 rounded text-[10px] font-bold text-slate-600 hover:bg-slate-100">+200k</button>
-                                <button type="button" onclick="addCash(500000)" class="px-2 py-1 bg-white border border-slate-300 rounded text-[10px] font-bold text-slate-600 hover:bg-slate-100">+500k</button>
-                            </div>
+                    <div id="box-cash-payment" class="space-y-3 p-3.5 bg-slate-50 rounded-2xl border border-slate-200 text-xs">
+                        <div>
+                            <label for="input-cash-given" class="font-bold text-slate-700 block mb-1.5">Khách đưa (VND):</label>
+                            <input id="input-cash-given" type="number" oninput="calculateChange()" placeholder="0" 
+                                class="w-full bg-white border border-slate-200 p-2.5 rounded-xl font-black text-slate-900 text-base focus:border-emerald-500 focus:outline-none">
                         </div>
-                        <input id="input-cash-given" type="number" oninput="calculateChange()" placeholder="0" 
-                            class="w-full bg-white border border-slate-300 p-2.5 rounded-xl font-black text-slate-900 text-base focus:border-emerald-500 focus:outline-none">
                         
                         <div class="flex justify-between items-center pt-1 text-slate-600">
                             <span class="font-bold">Tiền thừa trả khách:</span>
-                            <span id="label-cash-change" class="text-base font-black text-amber-600">0 đ</span>
+                            <span id="label-cash-change" class="text-base font-black text-amber-600 font-mono">0 đ</span>
                         </div>
                     </div>
 
                     <!-- BOX CHUYỂN KHOẢN VIETQR ĐỘNG -->
-                    <div id="box-qr-payment" class="hidden p-4 bg-sky-50 border border-sky-200 rounded-xl text-xs space-y-3">
+                    <div id="box-qr-payment" class="hidden p-4 bg-sky-50 border border-sky-200 rounded-2xl text-xs space-y-3">
                         <div class="flex flex-col sm:flex-row items-center gap-4">
-                            <div class="w-36 h-36 bg-white p-1.5 rounded-xl border border-sky-200 shadow-xs flex-shrink-0 flex items-center justify-center">
-                                <img id="vietqr-image" src="" alt="VietQR" class="w-full h-full object-contain rounded-lg" onerror="this.src='/logo.png'">
+                            <div class="w-36 h-36 bg-white p-1.5 rounded-2xl border border-sky-200 shadow-xs flex-shrink-0 flex items-center justify-center">
+                                <img id="vietqr-image" src="" alt="VietQR" class="w-full h-full object-contain rounded-xl" onerror="this.src='/logo.png'">
                             </div>
                             <div class="space-y-1.5 flex-1 text-slate-700">
-                                <span class="px-2 py-0.5 rounded text-[10px] font-extrabold bg-sky-600 text-white">VIETQR NAPAS 247</span>
+                                <span class="px-2.5 py-0.5 rounded text-[10px] font-extrabold bg-sky-600 text-white">VIETQR NAPAS 247</span>
                                 <p class="text-xs"><strong>Ngân hàng:</strong> <span class="text-sky-800 font-bold">MBBank (Quân Đội)</span></p>
                                 <p class="text-xs"><strong>Số tài khoản:</strong> <span class="font-mono font-black text-slate-900 bg-white px-2 py-0.5 rounded border border-slate-200">0345678901</span></p>
                                 <p class="text-xs"><strong>Chủ tài khoản:</strong> <span class="font-bold text-slate-800">FROG HIPPO PHONE CARE</span></p>
@@ -393,19 +381,19 @@
                     <!-- Ghi chú hóa đơn -->
                     <div>
                         <input id="input-bill-notes" type="text" placeholder="Ghi chú hóa đơn (vd: Khách nhận lại phụ kiện cũ, giảm giá bảo hành...)" 
-                            class="w-full bg-slate-50 border border-slate-200 p-2.5 rounded-xl text-xs text-slate-800 placeholder:text-slate-400 focus:outline-none focus:border-emerald-500 focus:bg-white transition">
+                            class="w-full bg-slate-50 border border-slate-200 p-2.5 rounded-xl text-xs text-slate-800 placeholder:text-slate-400 focus:outline-none focus:border-emerald-500 focus:bg-white transition font-medium">
                     </div>
 
-                    <!-- Nút hành động thanh toán -->
-                    <div class="flex gap-3 pt-2">
+                    <!-- Nút hành động thanh toán (To, màu sắc rực rỡ như KTV) -->
+                    <div class="flex gap-3 pt-1">
                         <button onclick="handleConfirmPayment()" id="btn-submit-payment" 
-                            class="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white py-3.5 rounded-xl font-black text-sm shadow-md shadow-emerald-600/20 transition transform active:scale-[0.98] flex items-center justify-center gap-2">
+                            class="flex-1 bg-emerald-600 hover:bg-emerald-500 text-white py-3.5 rounded-xl font-black text-xs shadow-md shadow-emerald-600/25 transition transform active:scale-[0.98] flex items-center justify-center gap-2 cursor-pointer">
                             <i class="fa-solid fa-check-circle"></i>
                             <span>XÁC NHẬN THANH TOÁN</span>
                         </button>
                         <button onclick="handlePrintCurrentBill()" id="btn-print-bill-quick" 
-                            class="px-4 py-3.5 rounded-xl border border-slate-300 hover:bg-slate-100 text-slate-700 font-black text-xs transition flex items-center gap-1.5 shadow-xs">
-                            <i class="fa-solid fa-print"></i>
+                            class="px-4 py-3.5 rounded-xl border border-slate-200 hover:bg-slate-100 text-slate-700 font-bold text-xs transition flex items-center gap-1.5 shadow-xs cursor-pointer">
+                            <i class="fa-solid fa-print text-slate-500"></i>
                             <span>In Phiếu Thu</span>
                         </button>
                     </div>
@@ -816,26 +804,26 @@
             container.innerHTML = list.map(p => {
                 const isPaid = p.daThanhToan;
                 const statusBadge = isPaid 
-                    ? `<span class="px-2 py-0.5 rounded-full text-[10px] font-extrabold bg-emerald-100 text-emerald-800 border border-emerald-200">ĐÃ THANH TOÁN</span>`
-                    : `<span class="px-2 py-0.5 rounded-full text-[10px] font-extrabold bg-amber-100 text-amber-800 border border-amber-200">CHỜ THU TIỀN</span>`;
+                    ? `<span class="px-2.5 py-0.5 rounded-full text-[10px] font-black bg-emerald-100 text-emerald-800 border border-emerald-200">ĐÃ THANH TOÁN</span>`
+                    : `<span class="px-2.5 py-0.5 rounded-full text-[10px] font-black bg-amber-100 text-amber-800 border border-amber-200">CHỜ THU TIỀN</span>`;
 
                 const cleanId = noHash(p.maPhieu);
                 return `
                     <div onclick="selectTicket('${p.maPhieu}')" id="ticket-card-${cleanId}" 
-                        class="ticket-card p-3 rounded-xl border border-slate-200 hover:border-emerald-500 bg-white hover:bg-emerald-50/40 cursor-pointer transition space-y-1.5 shadow-xs">
+                        class="ticket-card p-4 rounded-2xl border border-slate-200 hover:border-emerald-500 bg-white hover:bg-emerald-50/20 cursor-pointer transition space-y-2 shadow-xs">
                         <div class="flex items-center justify-between">
-                            <span class="font-black text-xs text-slate-900 flex items-center gap-1.5">
-                                <i class="fa-solid fa-receipt text-emerald-600"></i> #${cleanId}
+                            <span class="font-mono font-black text-xs text-emerald-700 flex items-center gap-1.5">
+                                <i class="fa-solid fa-receipt"></i> #${cleanId}
                             </span>
                             ${statusBadge}
                         </div>
                         <div class="flex justify-between items-baseline text-xs">
                             <div class="overflow-hidden pr-2">
-                                <p class="font-bold text-slate-800 truncate">${p.tenKH || p.maKH}</p>
-                                <p class="text-[11px] text-slate-500">${p.sdtKH ? p.sdtKH : 'KTV: ' + (p.tenKTV || '---')}</p>
+                                <p class="font-bold text-slate-900 text-sm truncate">${p.tenKH || p.maKH}</p>
+                                <p class="text-xs text-slate-500 font-mono mt-0.5">${p.sdtKH ? p.sdtKH : 'KTV: ' + (p.tenKTV || '---')}</p>
                             </div>
                             <div class="text-right flex-shrink-0">
-                                <span class="font-black text-emerald-700 text-xs">${formatMoney(p.tongTien)}</span>
+                                <span class="font-mono font-black text-emerald-600 text-base">${formatMoney(p.tongTien)}</span>
                             </div>
                         </div>
                     </div>
@@ -850,11 +838,11 @@
 
             // Đánh dấu card active
             document.querySelectorAll('.ticket-card').forEach(c => {
-                c.classList.remove('border-emerald-600', 'bg-emerald-50/70', 'ring-2', 'ring-emerald-500/20');
+                c.classList.remove('border-emerald-600', 'bg-emerald-50/60', 'ring-2', 'ring-emerald-500/20');
             });
             const activeCard = document.getElementById(`ticket-card-${cleanId}`) || document.getElementById(`ticket-card-${maPhieu}`);
             if (activeCard) {
-                activeCard.classList.add('border-emerald-600', 'bg-emerald-50/70', 'ring-2', 'ring-emerald-500/20');
+                activeCard.classList.add('border-emerald-600', 'bg-emerald-50/60', 'ring-2', 'ring-emerald-500/20');
             }
 
             try {
@@ -884,14 +872,14 @@
             const statusPill = document.getElementById('bill-status-pill');
             statusPill.classList.remove('hidden');
             if (data.daThanhToan) {
-                statusPill.className = 'px-3 py-1 rounded-full text-xs font-black bg-emerald-100 text-emerald-800 border border-emerald-300';
-                statusPill.innerText = 'ĐÃ THANH TOÁN';
+                statusPill.className = 'px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200';
+                statusPill.innerText = 'Đã thanh toán';
                 document.getElementById('btn-submit-payment').innerHTML = '<i class="fa-solid fa-check"></i> ĐÃ THANH TOÁN THÀNH CÔNG';
                 document.getElementById('btn-submit-payment').classList.add('opacity-60', 'cursor-not-allowed');
                 document.getElementById('btn-submit-payment').disabled = true;
             } else {
-                statusPill.className = 'px-3 py-1 rounded-full text-xs font-black bg-amber-100 text-amber-800 border border-amber-300 animate-pulse';
-                statusPill.innerText = 'CHỜ THANH TOÁN';
+                statusPill.className = 'px-2.5 py-0.5 rounded-full text-xs font-semibold bg-amber-50 text-amber-700 border border-amber-200';
+                statusPill.innerText = 'Chờ thanh toán';
                 document.getElementById('btn-submit-payment').innerHTML = '<i class="fa-solid fa-check-circle"></i> XÁC NHẬN THANH TOÁN';
                 document.getElementById('btn-submit-payment').classList.remove('opacity-60', 'cursor-not-allowed');
                 document.getElementById('btn-submit-payment').disabled = false;
@@ -903,28 +891,30 @@
 
             // Dòng tiền công
             itemsHtml += `
-                <tr class="hover:bg-slate-50">
-                    <td class="p-2.5 font-bold text-slate-800">
+                <tr class="hover:bg-slate-50/60 transition">
+                    <td class="py-2.5 px-3 font-semibold text-slate-800 text-xs">
                         Tiền công kỹ thuật & bảo dưỡng
-                        <span class="block text-[10px] text-slate-400 font-normal">Kiểm tra vi mạch, sấy khô, vệ sinh toàn diện</span>
+                        <span class="block text-[11px] text-slate-400 font-normal mt-0.5">Kiểm tra vi mạch, sấy khô, vệ sinh toàn diện</span>
                     </td>
-                    <td class="p-2.5 text-center font-bold">1</td>
-                    <td class="p-2.5 text-right font-medium text-slate-600">${formatMoney(data.tienCong)}</td>
-                    <td class="p-2.5 text-right font-black text-slate-800">${formatMoney(data.tienCong)}</td>
+                    <td class="py-2.5 px-2 text-center font-medium text-slate-600 text-xs">1</td>
+                    <td class="py-2.5 px-3 text-right font-mono font-normal text-slate-600 text-xs">${formatMoney(data.tienCong)}</td>
+                    <td class="py-2.5 px-3 text-right font-mono font-semibold text-slate-800 text-xs">${formatMoney(data.tienCong)}</td>
                 </tr>
             `;
 
             if (data.linhKien && data.linhKien.length > 0) {
                 data.linhKien.forEach(lk => {
                     itemsHtml += `
-                        <tr class="hover:bg-slate-50">
-                            <td class="p-2.5 font-bold text-slate-800">
+                        <tr class="hover:bg-slate-50/60 transition">
+                            <td class="py-2.5 px-3 font-semibold text-slate-800 text-xs">
                                 ${lk.tenLK}
-                                <span class="block text-[10px] text-emerald-600 font-semibold">BH: ${lk.thoiGianBaoHanh}</span>
+                                <span class="inline-flex items-center gap-1 text-[10px] text-slate-500 bg-slate-100 border border-slate-200 font-normal px-1.5 py-0.2 rounded ml-1">
+                                    BH: ${lk.thoiGianBaoHanh}
+                                </span>
                             </td>
-                            <td class="p-2.5 text-center font-bold">${lk.soLuong}</td>
-                            <td class="p-2.5 text-right font-medium text-slate-600">${formatMoney(lk.donGia)}</td>
-                            <td class="p-2.5 text-right font-black text-slate-800">${formatMoney(lk.thanhTien)}</td>
+                            <td class="py-2.5 px-2 text-center font-medium text-slate-600 text-xs">${lk.soLuong}</td>
+                            <td class="py-2.5 px-3 text-right font-mono font-normal text-slate-600 text-xs">${formatMoney(lk.donGia)}</td>
+                            <td class="py-2.5 px-3 text-right font-mono font-semibold text-slate-800 text-xs">${formatMoney(lk.thanhTien)}</td>
                         </tr>
                     `;
                 });
@@ -1150,17 +1140,21 @@
                 document.getElementById('stat-bank-revenue').innerText = formatMoney(currentShiftData.tongChuyenKhoan);
                 document.getElementById('stat-paid-count').innerText = `${currentShiftData.soDon} đơn`;
 
-                // Badge ca
+                // Badge ca (Gọn gàng, không bị tràn dài loằng ngoằng)
                 const badge = document.getElementById('shift-status-badge');
                 badge.classList.remove('hidden');
                 if (currentShiftData.coCaMo) {
-                    badge.className = 'hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold bg-emerald-50 text-emerald-700 border border-emerald-200';
-                    document.getElementById('shift-status-text').innerText = `Ca Trực: #${currentShiftData.maCa}`;
-                    document.getElementById('btn-shift-text').innerText = 'Chốt Ca Trực';
+                    badge.className = 'hidden sm:flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl text-xs font-semibold bg-emerald-50 text-emerald-800 border border-emerald-200/80';
+                    const rawCa = String(currentShiftData.maCa || '');
+                    const shortCa = rawCa.length > 8 ? rawCa.slice(-4) : rawCa.replace(/^#?CA-?/, '');
+                    document.getElementById('shift-status-text').innerHTML = `<span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse inline-block mr-1"></span> Đang mở ca #${shortCa}`;
+                    badge.setAttribute('title', `Ca trực: ${rawCa}`);
+                    document.getElementById('btn-shift-text').innerText = 'Chốt Ca';
                 } else {
-                    badge.className = 'hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold bg-amber-50 text-amber-700 border border-amber-200';
-                    document.getElementById('shift-status-text').innerText = 'Chưa Mở Ca Mới';
-                    document.getElementById('btn-shift-text').innerText = 'Mở Ca Trực Mới';
+                    badge.className = 'hidden sm:flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl text-xs font-medium bg-slate-100 text-slate-600 border border-slate-200';
+                    document.getElementById('shift-status-text').innerHTML = `<span class="w-2 h-2 rounded-full bg-slate-400 inline-block mr-1"></span> Chưa mở ca`;
+                    badge.setAttribute('title', 'Chưa có ca làm việc nào mở');
+                    document.getElementById('btn-shift-text').innerText = 'Mở Ca Mới';
                 }
 
             } catch (err) {
@@ -1351,20 +1345,23 @@
             document.getElementById('view-history').classList.add('hidden');
             document.getElementById('view-shifts').classList.add('hidden');
 
-            document.getElementById('tab-btn-pos').className = 'px-4 py-2.5 text-xs font-bold border-b-2 border-transparent text-slate-500 hover:text-slate-800 flex items-center gap-2 transition';
-            document.getElementById('tab-btn-history').className = 'px-4 py-2.5 text-xs font-bold border-b-2 border-transparent text-slate-500 hover:text-slate-800 flex items-center gap-2 transition';
-            document.getElementById('tab-btn-shifts').className = 'px-4 py-2.5 text-xs font-bold border-b-2 border-transparent text-slate-500 hover:text-slate-800 flex items-center gap-2 transition';
+            const inactiveClass = 'px-4 py-2 text-xs font-semibold bg-white border border-slate-200 text-slate-600 hover:text-slate-900 hover:bg-slate-50 rounded-xl flex items-center gap-2 transition cursor-pointer';
+            const activeClass = 'px-4 py-2 text-xs font-bold bg-emerald-600 text-white rounded-xl shadow-xs flex items-center gap-2 transition cursor-pointer';
+
+            document.getElementById('tab-btn-pos').className = inactiveClass;
+            document.getElementById('tab-btn-history').className = inactiveClass;
+            document.getElementById('tab-btn-shifts').className = inactiveClass;
 
             if (tab === 'pos') {
                 document.getElementById('view-pos').classList.remove('hidden');
-                document.getElementById('tab-btn-pos').className = 'px-4 py-2.5 text-xs font-black border-b-2 border-emerald-600 text-emerald-700 flex items-center gap-2 transition';
+                document.getElementById('tab-btn-pos').className = activeClass;
             } else if (tab === 'history') {
                 document.getElementById('view-history').classList.remove('hidden');
-                document.getElementById('tab-btn-history').className = 'px-4 py-2.5 text-xs font-black border-b-2 border-emerald-600 text-emerald-700 flex items-center gap-2 transition';
+                document.getElementById('tab-btn-history').className = activeClass;
                 loadInvoiceHistory();
             } else if (tab === 'shifts') {
                 document.getElementById('view-shifts').classList.remove('hidden');
-                document.getElementById('tab-btn-shifts').className = 'px-4 py-2.5 text-xs font-black border-b-2 border-emerald-600 text-emerald-700 flex items-center gap-2 transition';
+                document.getElementById('tab-btn-shifts').className = activeClass;
                 loadShiftHistory();
             }
         }

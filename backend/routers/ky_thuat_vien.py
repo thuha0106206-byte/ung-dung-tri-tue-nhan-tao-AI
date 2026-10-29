@@ -304,14 +304,24 @@ def api_ai_diagnose(
     deviceModel: Optional[str] = None
 ):
     """Trợ lý AI chẩn đoán nguyên nhân, rủi ro tiềm ẩn và các phương án sửa chữa (hỗ trợ cả GET & POST)."""
-    sym = (req.symptoms if req else None) or symptoms or "Thiết bị gặp sự cố hoạt động bất thường"
+    sym = (req.symptoms if req else None) or symptoms or ""
     dev = (req.deviceModel if req else None) or deviceModel or "Điện thoại"
     
-    result = ai_service.diagnose_and_estimate_repair(
-        symptoms=sym.strip(),
-        device_model=dev.strip()
-    )
-    return result
+    if not sym.strip():
+        raise HTTPException(status_code=400, detail="Vui lòng cung cấp mô tả triệu chứng hư hỏng của thiết bị!")
+
+    try:
+        result = ai_service.diagnose_repair_symptoms(
+            device_model=dev.strip(),
+            symptoms=sym.strip()
+        )
+        return result
+    except Exception as e:
+        print(f"[API AI Diagnose Error] {e}")
+        raise HTTPException(
+            status_code=503,
+            detail="Không thể kết nối dịch vụ AI lúc này, vui lòng nhập thủ công."
+        )
 
 
 @router.get("/api/ktv/bao-hanh", include_in_schema=False)
@@ -409,6 +419,8 @@ def luu_bao_hanh_ktv(
         ).first()
 
         if not ct:
+            if lk.soLuongTon < sl or lk.soLuongTon <= 0:
+                raise HTTPException(status_code=400, detail=f"Linh kiện {lk.tenLK} đã hết hàng trong kho (chỉ còn {lk.soLuongTon})!")
             ct_new = models.ChiTietSuaChua(
                 maPhieu=phieu.maPhieu,
                 maLK=lk.maLK,
@@ -417,20 +429,16 @@ def luu_bao_hanh_ktv(
                 thoiGianBaoHanh=bh_item
             )
             db.add(ct_new)
-            if lk.soLuongTon >= sl:
-                lk.soLuongTon -= sl
-            else:
-                lk.soLuongTon = 0
+            lk.soLuongTon -= sl
         else:
             diff_sl = sl - ct.soLuong
             ct.soLuong = sl
             ct.donGia = gia_ap_dung
             ct.thoiGianBaoHanh = bh_item
             if diff_sl > 0:
-                if lk.soLuongTon >= diff_sl:
-                    lk.soLuongTon -= diff_sl
-                else:
-                    lk.soLuongTon = 0
+                if lk.soLuongTon < diff_sl:
+                    raise HTTPException(status_code=400, detail=f"Linh kiện {lk.tenLK} không đủ tồn kho (chỉ còn {lk.soLuongTon})!")
+                lk.soLuongTon -= diff_sl
 
     # Đồng bộ thời gian bảo hành vào chi tiết linh kiện nếu chọn Bảo hành linh kiện
     if req.loaiBaoHanh == "Bảo hành linh kiện":
@@ -607,8 +615,8 @@ def add_bao_hanh_chi_tiet(item: ChiTietBaoHanhCreate, db: Session = Depends(get_
     # Kiểm tra tồn kho linh kiện
     lk = db.query(models.LinhKien).filter(models.LinhKien.maLK == item.maLK).first()
     if lk:
-        if lk.soLuongTon < item.soLuong:
-            raise HTTPException(status_code=400, detail=f"Linh kiện {lk.tenLK} chỉ còn {lk.soLuongTon} trong kho!")
+        if lk.soLuongTon < item.soLuong or lk.soLuongTon <= 0:
+            raise HTTPException(status_code=400, detail=f"Linh kiện {lk.tenLK} đã hết hàng trong kho (chỉ còn {lk.soLuongTon})!")
         lk.soLuongTon -= item.soLuong
 
     # Kiểm tra xem linh kiện đã có trong phiếu chưa

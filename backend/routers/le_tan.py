@@ -1,4 +1,5 @@
 import os
+import re
 import json
 from datetime import datetime
 from typing import Optional, List
@@ -138,12 +139,31 @@ def get_danh_sach_ktv(db: Session = Depends(get_db)):
     ).all()
     return [{"maNV": nv.maNV, "hoTen": nv.hoTen, "chucVu": nv.chucVu, "sdt": nv.sdt} for nv in ktvs]
 
+def generate_ma_kh_le_tan(db: Session) -> str:
+    """Tự động sinh mã khách hàng tăng dần duy nhất: KH001, KH002... KH046..."""
+    all_rows = db.query(models.KhachHang.maKH).all()
+    max_num = 0
+    for (m,) in all_rows:
+        if m:
+            found = re.search(r"KH(\d+)", m, re.IGNORECASE)
+            if found:
+                try:
+                    num = int(found.group(1))
+                    if num > max_num:
+                        max_num = num
+                except ValueError:
+                    pass
+    return f"KH{max_num + 1:03d}"
+
+@router.get("/next-makh", summary="Tự động sinh mã khách hàng mới tiếp theo")
+def get_next_makh(db: Session = Depends(get_db)):
+    return {"nextMaKH": generate_ma_kh_le_tan(db)}
+
 @router.post("/phieu-sua/", summary="Tạo phiếu sửa chữa mới hoặc gửi tin nhắn fallback")
 @router.post("/phieu-sua", summary="Tạo phiếu sửa chữa mới hoặc gửi tin nhắn fallback")
 def tao_phieu_sua(phieu: PhieuSuaCreate, db: Session = Depends(get_db)):
     # 1. Fallback nếu client cũ bị cắt URL do dấu '#' và gửi request gửi tin nhắn vào đây
     if phieu.noiDung or (not phieu.maPhieu and not phieu.maKH):
-        import re
         target = None
         if phieu.maPhieu:
             target = find_phieu(db, phieu.maPhieu)
@@ -185,26 +205,6 @@ def tao_phieu_sua(phieu: PhieuSuaCreate, db: Session = Depends(get_db)):
                 }
             }
         raise HTTPException(status_code=400, detail="Thiếu thông tin phiếu sửa chữa!")
-
-def generate_ma_kh_le_tan(db: Session) -> str:
-    """Tự động sinh mã khách hàng tăng dần duy nhất: KH001, KH002... KH046..."""
-    all_rows = db.query(models.KhachHang.maKH).all()
-    max_num = 0
-    for (m,) in all_rows:
-        if m:
-            found = re.search(r"KH(\d+)", m, re.IGNORECASE)
-            if found:
-                try:
-                    num = int(found.group(1))
-                    if num > max_num:
-                        max_num = num
-                except ValueError:
-                    pass
-    return f"KH{max_num + 1:03d}"
-
-@router.get("/next-makh", summary="Tự động sinh mã khách hàng mới tiếp theo")
-def get_next_makh(db: Session = Depends(get_db)):
-    return {"nextMaKH": generate_ma_kh_le_tan(db)}
 
     # 2. Xử lý tạo phiếu tiếp nhận bình thường
     if not phieu.maPhieu:

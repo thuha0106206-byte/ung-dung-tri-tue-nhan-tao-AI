@@ -1,30 +1,34 @@
 /**
  * FrogHippo Phone - RBAC Role Guard & Access Control
  * 
- * Quy định phân quyền cốt lõi:
- * 1. Chỉ có Tác nhân ADMIN mới được phép truy cập tất cả các phân hệ:
+ * QUY ĐỊNH PHÂN QUYỀN TUYỆT ĐỐI:
+ * 1. CHỈ CÓ TÁC NHÂN ADMIN MỚI CÓ TOÀN QUYỀN TRÊN TẤT CẢ CÁC PHÂN HỆ:
  *    - Quản Trị Viên (Admin) [/admin]
  *    - Lễ Tân & Tiếp Nhận [/le-tan]
  *    - Thu Ngân & Thanh Toán [/thu-ngan]
  *    - Kỹ Thuật Viên Sửa Chữa [/ky-thuat-vien]
- * 2. Các tác nhân khác KHÔNG có quyền truy cập vào phân hệ của tác nhân khác:
- *    - Lễ Tân: CHỈ được truy cập [/le-tan]
- *    - Thu Ngân: CHỈ được truy cập [/thu-ngan]
- *    - Kỹ Thuật Viên: CHỈ được truy cập [/ky-thuat-vien]
- * 3. Nếu tác nhân cố tình truy cập vào phân hệ khác, hệ thống lập tức chặn lại,
- *    thông báo cảnh báo và điều hướng về đúng phân hệ của họ.
+ * 
+ * 2. CÁC TÁC NHÂN KHÁC (LỄ TÂN, THU NGÂN, KTV) KHÔNG ĐƯỢC PHÉP TRUY CẬP VÀO PHÂN HỆ KHÁC:
+ *    - Lễ Tân: CHỈ ĐƯỢC PHÉP làm việc tại [/le-tan]. Tuyệt đối bị chặn khi vào Admin, KTV, Thu Ngân.
+ *    - Thu Ngân: CHỈ ĐƯỢC PHÉP làm việc tại [/thu-ngan].
+ *    - Kỹ Thuật Viên: CHỈ ĐƯỢC PHÉP làm việc tại [/ky-thuat-vien].
+ * 
+ * 3. Nếu người dùng cố tình truy cập vào phân hệ trái phép:
+ *    - Ẩn ngay lập tức nội dung trang để bảo mật.
+ *    - Hiện cảnh báo từ chối truy cập.
+ *    - Tự động điều hướng về đúng phân hệ làm việc của tác nhân đó.
  */
 
 (function (window) {
     'use strict';
 
-    // 1. Lấy thông tin người dùng đang đăng nhập
+    // 1. Lấy thông tin tài khoản đang đăng nhập từ LocalStorage/SessionStorage
     function getLoggedInUser() {
         try {
-            const raw = localStorage.getItem('phonecare_user') 
-                     || localStorage.getItem('phonecare_session')
-                     || sessionStorage.getItem('phonecare_user')
-                     || sessionStorage.getItem('phonecare_session');
+            const raw = localStorage.getItem('phonecare_user')
+                || localStorage.getItem('phonecare_session')
+                || sessionStorage.getItem('phonecare_user')
+                || sessionStorage.getItem('phonecare_session');
             if (!raw) return null;
             const parsed = JSON.parse(raw);
             if (!parsed || (!parsed.maNV && !parsed.chucVu && !parsed.tenDangNhap)) {
@@ -37,28 +41,28 @@
         }
     }
 
-    // 2. Chuẩn hóa tên vai trò
+    // 2. Chuẩn hóa vai trò người dùng thành 4 nhóm chuẩn: 'Admin', 'Lễ tân', 'Thu ngân', 'Kỹ thuật viên'
     function getNormalizedRole(user) {
         if (!user) return 'Khách hàng';
-        const roleStr = (user.chucVu || user.vaiTro || '').toLowerCase().trim();
+        const roleStr = ((user.vaiTro || '') + ' ' + (user.chucVu || '')).toLowerCase().trim();
         const username = (user.tenDangNhap || '').toLowerCase().trim();
 
         if (roleStr.includes('admin') || roleStr.includes('quan tri') || username === 'admin') {
             return 'Admin';
         }
-        if (roleStr.includes('lễ tân') || roleStr.includes('le tan') || roleStr.includes('letan') || username.includes('letan')) {
+        if (roleStr.includes('letan') || roleStr.includes('lễ tân') || roleStr.includes('le tan') || username.includes('letan')) {
             return 'Lễ tân';
         }
-        if (roleStr.includes('thu ngân') || roleStr.includes('thu ngan') || roleStr.includes('thungan') || username.includes('thungan')) {
+        if (roleStr.includes('thungan') || roleStr.includes('thu ngân') || roleStr.includes('thu ngan') || username.includes('thungan')) {
             return 'Thu ngân';
         }
-        if (roleStr.includes('kỹ thuật') || roleStr.includes('ky thuat') || roleStr.includes('ktv') || username.includes('ktv')) {
+        if (roleStr.includes('ktv') || roleStr.includes('kythuat') || roleStr.includes('kỹ thuật') || roleStr.includes('ky thuat') || username.includes('ktv')) {
             return 'Kỹ thuật viên';
         }
         return user.chucVu || 'Nhân viên';
     }
 
-    // 3. Đường dẫn phân hệ mặc định theo từng vai trò
+    // 3. Đường dẫn phân hệ đúng thẩm quyền theo từng vai trò
     function getRoleHomeUrl(role) {
         switch (role) {
             case 'Admin':
@@ -74,16 +78,17 @@
         }
     }
 
-    // 4. Kiểm tra và thực thi chặn quyền truy cập (Chạy ngay trong <head> để ngăn hiển thị trang)
+    // 4. KIỂM SOÁT VÀ THỰC THI PHÂN QUYỀN NGHIÊM NGẶT (CHẠY NGAY TRONG <HEAD>)
     function enforcePageAccess(allowedRoles, pageTitle) {
         const user = getLoggedInUser();
 
-        // Trường hợp 1: Chưa đăng nhập tài khoản
+        // TRƯỜNG HỢP 1: Chưa đăng nhập tài khoản
         if (!user) {
+            if (document.documentElement) document.documentElement.style.display = 'none';
             alert(
                 "⚠️ YÊU CẦU ĐĂNG NHẬP!\n\n" +
                 "Bạn chưa đăng nhập vào hệ thống.\n" +
-                "Vui lòng đăng nhập tài khoản nhân viên để truy cập [" + pageTitle + "]."
+                "Vui lòng đăng nhập để truy cập [" + pageTitle + "]."
             );
             sessionStorage.setItem('phonecare_redirect', window.location.pathname);
             window.location.replace('/?login=1');
@@ -92,24 +97,31 @@
 
         const currentRole = getNormalizedRole(user);
 
-        // Trường hợp 2: Admin luôn có toàn quyền truy cập TẤT CẢ các phân hệ
+        // TRƯỜNG HỢP 2: Admin luôn có TOÀN QUYỀN trên mọi phân hệ
         if (currentRole === 'Admin') {
+            if (document.documentElement) document.documentElement.style.display = '';
             return true;
         }
 
-        // Trường hợp 3: Người dùng thuộc danh sách vai trò cho phép của trang này
+        // TRƯỜNG HỢP 3: Vai trò người dùng nằm trong danh sách cho phép của phân hệ này
         if (allowedRoles.includes(currentRole)) {
+            if (document.documentElement) document.documentElement.style.display = '';
             return true;
         }
 
-        // Trường hợp 4: VI PHẠM PHÂN QUYỀN - Tác nhân truy cập trái phép vào phân hệ của tác nhân khác
+        // TRƯỜNG HỢP 4: VI PHẠM PHÂN QUYỀN - Tác nhân cố tình vào phân hệ không được phép
+        // Ẩn trắng trang ngay lập tức để không lộ giao diện hay dữ liệu bảo mật
+        if (document.documentElement) document.documentElement.style.display = 'none';
+
         const correctUrl = getRoleHomeUrl(currentRole);
+        const displayName = user.hoTen || user.tenDangNhap;
+
         alert(
             "⛔ TRUY CẬP BỊ TỪ CHỐI!\n\n" +
-            "Tài khoản của bạn: " + (user.hoTen || user.tenDangNhap) + " (" + currentRole + ").\n\n" +
+            "Tài khoản: " + displayName + " (" + currentRole + ").\n\n" +
             "Theo quy định phân quyền của FrogHippo Phone:\n" +
-            "• Chỉ có Tác nhân ADMIN mới có quyền truy cập vào các chức năng Lễ Tân, Thu Ngân và KTV.\n" +
-            "• Tác nhân [" + currentRole + "] chỉ có quyền truy cập vào phân hệ của chính mình.\n\n" +
+            "👉 Chỉ có Quản Trị Viên (Admin) mới có toàn quyền truy cập tất cả các phân hệ.\n" +
+            "👉 Tài khoản [" + currentRole + "] KHÔNG ĐƯỢC PHÉP truy cập vào [" + pageTitle + "].\n\n" +
             "Hệ thống đang chuyển bạn về đúng phân hệ làm việc của bạn."
         );
 
@@ -118,8 +130,8 @@
     }
 
     // 5. Cập nhật thanh Header sau khi tải trang:
-    //    - Nếu là Admin: Hiển thị đầy đủ lối tắt sang Lễ Tân, Thu Ngân, Bàn KTV
-    //    - Nếu là Tác nhân khác: ẨN TOÀN BỘ nút chuyển sang các phân hệ khác (chỉ thấy Trang Chủ và phân hệ của mình)
+    //    - Cập nhật tên người dùng & vai trò
+    //    - Ẩn toàn bộ link phân hệ khác nếu không phải Admin
     function setupPortalHeader(currentPortalRole) {
         document.addEventListener('DOMContentLoaded', () => {
             const user = getLoggedInUser();
@@ -128,26 +140,34 @@
             const role = getNormalizedRole(user);
 
             // Cập nhật tên người dùng hiển thị ở header nếu có phần tử
-            const userEl = document.getElementById('current-user-name') 
-                        || document.getElementById('admin-user-name');
+            const userEl = document.getElementById('current-user-name')
+                || document.getElementById('admin-user-name');
             if (userEl) {
-                if (role === 'Admin') {
-                    userEl.textContent = `${user.hoTen || 'Admin'} (Admin - Toàn quyền)`;
+                const path = window.location.pathname.toLowerCase();
+                if (currentPortalRole === 'Admin' || path.includes('/admin')) {
+                    userEl.textContent = `${user.hoTen || 'Nguyễn Văn An'} (Admin - Toàn quyền)`;
+                } else if (currentPortalRole === 'Lễ tân' || path.includes('/le-tan')) {
+                    // Phân hệ Lễ Tân: Ca trực chuẩn là Trần Thị Bình (Lễ Tân)
+                    userEl.textContent = (role === 'Lễ tân') ? `${user.hoTen} (Lễ Tân)` : 'Trần Thị Bình (Lễ Tân)';
+                } else if (currentPortalRole === 'Thu ngân' || path.includes('/thu-ngan')) {
+                    // Phân hệ Thu Ngân: Ca trực chuẩn là Phạm Thị Dung (Thu Ngân)
+                    userEl.textContent = (role === 'Thu ngân') ? `${user.hoTen} (Thu Ngân)` : 'Phạm Thị Dung (Thu Ngân)';
+                } else if (currentPortalRole === 'Kỹ thuật viên' || path.includes('/ky-thuat-vien') || path.includes('/ktv')) {
+                    // Phân hệ Kỹ Thuật Viên: Ca trực KTV
+                    userEl.textContent = (role === 'Kỹ thuật viên') ? `${user.hoTen} (KTV)` : 'Kỹ thuật viên Trực ban';
                 } else {
                     userEl.textContent = `${user.hoTen} (${role})`;
                 }
             }
 
-            // Nếu KHÔNG PHẢI ADMIN: Ẩn tất cả các nút lối tắt sang phân hệ khác
+            // Nếu KHÔNG PHẢI ADMIN: Ẩn triệt để tất cả các nút lối tắt sang phân hệ khác
+            const crossLinks = document.querySelectorAll('.cross-portal-link');
             if (role !== 'Admin') {
-                const crossLinks = document.querySelectorAll('.cross-portal-link');
                 crossLinks.forEach(link => {
                     link.style.display = 'none';
                     link.classList.add('hidden');
                 });
             } else {
-                // Là Admin: Đảm bảo các nút lối tắt hiển thị rõ ràng
-                const crossLinks = document.querySelectorAll('.cross-portal-link');
                 crossLinks.forEach(link => {
                     link.style.display = 'inline-flex';
                     link.classList.remove('hidden');
@@ -171,7 +191,7 @@
         }
     }
 
-    // Export các hàm ra global window
+    // Export ra global window
     window.AuthGuard = {
         getLoggedInUser,
         getNormalizedRole,

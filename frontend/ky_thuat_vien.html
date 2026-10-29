@@ -97,23 +97,14 @@
                 <div class="flex items-center gap-2 bg-slate-50 border border-slate-200 py-1.5 px-3 rounded-xl text-xs">
                     <span class="text-slate-500 font-semibold">Đang làm việc:</span>
                     <select id="select-active-ktv" onchange="onKtvChange()" class="bg-transparent font-bold text-sky-700 focus:outline-none cursor-pointer">
-                        <option value="ALL">-- Xem tất cả KTV --</option>
+                        <option value="ALL" selected>-- Xem tất cả KTV --</option>
                         <option value="NV_KTV">Kỹ thuật viên Trực ban (NV_KTV)</option>
-                        <option value="NV03" selected>Lê Văn Cường (NV03)</option>
+                        <option value="NV03">Lê Văn Cường (NV03)</option>
                         <option value="NV05">Hoàng Minh Đức (NV05)</option>
                         <option value="NV06">Nguyễn Văn Khánh (NV06)</option>
                         <option value="NV07">Trần Trung Hiếu (NV07)</option>
                     </select>
                 </div>
-                <a href="/admin" target="_blank" class="cross-portal-link px-3 py-1.5 rounded-xl border border-purple-200 bg-purple-50 hover:bg-purple-100 text-xs font-bold text-purple-800 transition flex items-center gap-1.5">
-                    <i class="fa-solid fa-crown text-purple-600"></i> Admin
-                </a>
-                <a href="/le-tan" target="_blank" class="cross-portal-link px-3 py-1.5 rounded-xl border border-pink-200 bg-pink-50 hover:bg-pink-100 text-xs font-bold text-pink-800 transition flex items-center gap-1.5">
-                    <i class="fa-solid fa-bell-concierge text-pink-600"></i> Lễ Tân
-                </a>
-                <a href="/thu-ngan" target="_blank" class="cross-portal-link px-3 py-1.5 rounded-xl border border-emerald-200 bg-emerald-50 hover:bg-emerald-100 text-xs font-bold text-emerald-800 transition flex items-center gap-1.5">
-                    <i class="fa-solid fa-cash-register"></i> Thu Ngân
-                </a>
                 <button onclick="AuthGuard.handleLogout()" title="Đăng xuất tài khoản" class="px-3 py-1.5 rounded-xl border border-rose-200 bg-rose-50 hover:bg-rose-100 text-xs font-bold text-rose-700 transition flex items-center gap-1.5 cursor-pointer">
                     <i class="fa-solid fa-arrow-right-from-bracket"></i> <span class="hidden sm:inline">Đăng Xuất</span>
                 </button>
@@ -246,8 +237,8 @@
                             <span class="font-black text-purple-700 font-bold flex items-center gap-1.5 text-xs">
                                 <i class="fa-solid fa-microchip text-purple-400"></i> Kết Quả Chẩn Đoán AI
                             </span>
-                            <span id="ai-confidence-badge" class="px-2 py-0.5 rounded-full text-[10px] font-black bg-emerald-100 text-emerald-800 border border-emerald-200 font-bold">
-                                Độ tin cậy: 95%
+                            <span id="ai-confidence-badge" class="px-2 py-0.5 rounded-full text-[10px] font-black bg-amber-100 text-amber-800 border border-amber-200 font-bold">
+                                AI DRAFT – chờ kỹ thuật viên duyệt
                             </span>
                         </div>
 
@@ -256,7 +247,7 @@
                             <span class="text-[10px] font-bold text-slate-600 uppercase tracking-wider flex items-center gap-1">
                                 <i class="fa-solid fa-stethoscope text-sky-400"></i> Chẩn đoán & Nguyên nhân:
                             </span>
-                            <textarea id="ai-res-diagnosis" rows="2" placeholder="Chẩn đoán kỹ thuật của thiết bị..." class="w-full text-xs font-semibold text-slate-800 bg-white p-2 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-sky-500/20 leading-relaxed"></textarea>
+                            <textarea id="ai-res-diagnosis" rows="3" placeholder="Chẩn đoán kỹ thuật của thiết bị..." class="w-full text-xs font-semibold text-slate-800 bg-white p-2 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-sky-500/20 leading-relaxed"></textarea>
                         </div>
 
                         <!-- 2. Đề xuất xử lý -->
@@ -264,14 +255,35 @@
                             <span class="text-[10px] font-bold text-slate-600 uppercase tracking-wider flex items-center gap-1">
                                 <i class="fa-solid fa-wrench text-emerald-400"></i> Đề xuất xử lý kỹ thuật:
                             </span>
-                            <input id="ai-res-action" type="text" placeholder="Phương án khắc phục..." class="w-full text-[11px] font-semibold text-emerald-800 bg-emerald-50 p-2 rounded-xl border border-emerald-200 focus:outline-none focus:ring-2 focus:ring-emerald-500/20">
+                            <textarea id="ai-res-action" rows="3" placeholder="Các bước kiểm tra và hướng sửa (mỗi phần tử một dòng)..." class="w-full text-xs font-semibold text-emerald-900 bg-emerald-50/70 p-2 rounded-xl border border-emerald-200 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 leading-relaxed"></textarea>
+                        </div>
+
+                        <!-- 3. Cảnh báo rủi ro (ẩn nếu chuỗi rỗng) -->
+                        <div id="ai-res-risk-box" class="space-y-0.5 hidden">
+                            <span class="text-[10px] font-bold text-rose-600 uppercase tracking-wider flex items-center gap-1">
+                                <i class="fa-solid fa-triangle-exclamation text-rose-500"></i> Cảnh báo rủi ro:
+                            </span>
+                            <textarea id="ai-res-risk" rows="2" placeholder="Cảnh báo an toàn hoặc rủi ro dữ liệu..." class="w-full text-xs font-semibold text-rose-800 bg-rose-50/80 p-2 rounded-xl border border-rose-200 focus:outline-none focus:ring-2 focus:ring-rose-500/20 leading-relaxed"></textarea>
+                        </div>
+
+                        <!-- 4. Nút thao tác: Sửa, Bác bỏ, Duyệt chẩn đoán -->
+                        <div class="flex items-center justify-end gap-2 pt-1 border-t border-purple-100">
+                            <button type="button" onclick="handleEditAIDraft()" id="btn-edit-ai-draft" class="px-2.5 py-1.5 rounded-xl border border-slate-300 bg-white text-slate-700 hover:bg-slate-100 font-bold text-xs flex items-center gap-1 transition cursor-pointer">
+                                <i class="fa-solid fa-pen-to-square text-sky-600"></i> Sửa
+                            </button>
+                            <button type="button" onclick="handleRejectAIDraft()" id="btn-reject-ai-draft" class="px-2.5 py-1.5 rounded-xl border border-rose-300 bg-rose-50 text-rose-700 hover:bg-rose-100 font-bold text-xs flex items-center gap-1 transition cursor-pointer">
+                                <i class="fa-solid fa-xmark text-rose-600"></i> Bác bỏ
+                            </button>
+                            <button type="button" onclick="handleApproveAIDraft()" id="btn-approve-ai-draft" class="px-3 py-1.5 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-bold text-xs flex items-center gap-1.5 transition cursor-pointer shadow-xs">
+                                <i class="fa-solid fa-circle-check"></i> Duyệt chẩn đoán
+                            </button>
                         </div>
                     </div>
 
-                    <!-- THÔNG BÁO LỖI THÂN THIỆN DUY NHẤT KHI MẤT KẾT NỐI AI -->
-                    <div id="ai-diag-error-box" class="hidden p-3.5 rounded-2xl bg-rose-950/40 border border-rose-500/40 text-center space-y-2">
-                        <i class="fa-solid fa-triangle-exclamation text-rose-400 text-xl"></i>
-                        <p class="text-rose-200 font-bold text-xs">Không thể kết nối AI. Vui lòng thử lại.</p>
+                    <!-- THÔNG BÁO LỖI THÂN THIỆN KHI MẤT KẾT NỐI AI -->
+                    <div id="ai-diag-error-box" class="hidden p-3.5 rounded-2xl bg-rose-50 border border-rose-300 text-center space-y-2">
+                        <i class="fa-solid fa-triangle-exclamation text-rose-500 text-xl"></i>
+                        <p class="text-rose-700 font-bold text-xs">Không thể kết nối dịch vụ AI lúc này, vui lòng nhập thủ công</p>
                         <button type="button" onclick="handleAIDiagnose()" class="px-3.5 py-1.5 bg-rose-600 hover:bg-rose-500 text-white rounded-xl text-xs font-bold transition inline-flex items-center gap-1.5 cursor-pointer">
                             <i class="fa-solid fa-rotate"></i> Thử lại
                         </button>
@@ -304,8 +316,8 @@
                                 </div>
                                 <div class="pt-2 border-t border-emerald-200 flex items-center justify-between gap-1">
                                     <span class="text-[10px] text-slate-500 font-medium">Giá:</span>
-                                    <input id="opt-price-0" type="number" step="10000" value="380000" onclick="event.stopPropagation()" onchange="onOptPriceChange(0)" class="w-24 bg-white border border-emerald-300 rounded-lg px-1.5 py-0.5 text-right text-emerald-700 font-black text-xs focus:outline-none">
-                                    <span class="text-[10px] text-emerald-700 font-bold">đ</span>
+                                    <span id="opt-price-display-0" class="text-right text-emerald-700 font-black text-xs">0 đ</span>
+                                    <input id="opt-price-0" type="hidden" value="0">
                                 </div>
                             </div>
 
@@ -322,8 +334,8 @@
                                 </div>
                                 <div class="pt-2 border-t border-slate-200 flex items-center justify-between gap-1">
                                     <span class="text-[10px] text-slate-500 font-medium">Giá:</span>
-                                    <input id="opt-price-1" type="number" step="10000" value="1250000" onclick="event.stopPropagation()" onchange="onOptPriceChange(1)" class="w-24 bg-white border border-slate-300 rounded-lg px-1.5 py-0.5 text-right text-indigo-700 font-black text-xs focus:outline-none">
-                                    <span class="text-[10px] text-indigo-700 font-bold">đ</span>
+                                    <span id="opt-price-display-1" class="text-right text-indigo-700 font-black text-xs">Chưa có hàng</span>
+                                    <input id="opt-price-1" type="hidden" value="0">
                                 </div>
                             </div>
 
@@ -583,6 +595,13 @@
         };
 
         window.addEventListener('DOMContentLoaded', async () => {
+            // Khôi phục ngay KTV đã chọn từ localStorage (mặc định ban đầu là 'ALL')
+            const initialKtv = localStorage.getItem('selected_active_ktv') || 'ALL';
+            const selectEl = document.getElementById('select-active-ktv');
+            if (selectEl && initialKtv) {
+                selectEl.value = initialKtv;
+            }
+
             await loadTechnicians();
             await loadPartsInventory();
             await loadAllTickets();
@@ -596,7 +615,10 @@
                     allTechnicians = await res.json();
                     const select = document.getElementById('select-active-ktv');
                     if (!select) return;
-                    const currentVal = select.value;
+
+                    // Lấy KTV đã lưu trong localStorage (mặc định ban đầu là 'ALL' để xem tất cả KTV)
+                    const savedKtv = localStorage.getItem('selected_active_ktv') || 'ALL';
+
                     select.innerHTML = '<option value="ALL">-- Xem tất cả KTV --</option>';
                     allTechnicians.forEach(ktv => {
                         const opt = document.createElement('option');
@@ -604,8 +626,9 @@
                         opt.textContent = `${ktv.hoTen} (${ktv.maNV})`;
                         select.appendChild(opt);
                     });
-                    if (currentVal && Array.from(select.options).some(o => o.value === currentVal)) {
-                        select.value = currentVal;
+
+                    if (savedKtv && Array.from(select.options).some(o => o.value === savedKtv)) {
+                        select.value = savedKtv;
                     } else {
                         select.value = 'ALL';
                     }
@@ -622,10 +645,14 @@
         }
 
         function getActiveKtv() {
-            return document.getElementById('select-active-ktv').value;
+            const select = document.getElementById('select-active-ktv');
+            return select ? select.value : 'ALL';
         }
 
         function onKtvChange() {
+            const currentVal = getActiveKtv();
+            // Lưu lại KTV đã chọn vào localStorage để khi tải lại trang vẫn giữ nguyên
+            localStorage.setItem('selected_active_ktv', currentVal);
             updateStats();
             renderTicketList();
             populateAiTicketDropdown();
@@ -638,13 +665,21 @@
                 if (res.ok) {
                     allParts = await res.json();
                     const select = document.getElementById('modal-select-part');
-                    select.innerHTML = '<option value="">-- Chọn linh kiện trong kho --</option>';
-                    allParts.forEach(p => {
-                        const opt = document.createElement('option');
-                        opt.value = p.maLK;
-                        opt.textContent = `${p.tenLK} - ${p.giaBan.toLocaleString('vi-VN')} đ (Còn ${p.soLuongTon})`;
-                        select.appendChild(opt);
-                    });
+                    if (select) {
+                        select.innerHTML = '<option value="">-- Chọn linh kiện trong kho --</option>';
+                        allParts.forEach(p => {
+                            const opt = document.createElement('option');
+                            opt.value = p.maLK;
+                            const ton = p.soLuongTon || 0;
+                            const tonToiThieu = p.tonToiThieu || 2;
+                            let statusText = `(Còn ${ton})`;
+                            if (ton <= 0) statusText = `(Hết hàng)`;
+                            else if (ton <= tonToiThieu) statusText = `(Sắp hết: ${ton})`;
+                            opt.textContent = `${p.tenLK} - ${p.giaBan.toLocaleString('vi-VN')} đ ${statusText}`;
+                            select.appendChild(opt);
+                        });
+                    }
+                    populateInventoryDropdown();
                 }
             } catch (err) {
                 console.error("Lỗi tải kho linh kiện:", err);
@@ -1050,10 +1085,17 @@
         function populateInventoryDropdown() {
             const invSel = document.getElementById('diag-select-inventory-part');
             if (invSel && allParts.length > 0) {
+                const curVal = invSel.value;
                 invSel.innerHTML = '<option value="">-- Chọn linh kiện kho để thêm (VD: Màn hình, Pin...) --</option>' +
-                    allParts.map(p => `
-                        <option value="${p.maLK}">📦 ${p.tenLK} | ${p.giaBan.toLocaleString('vi-VN')} đ (Kho: ${p.soLuongTon})</option>
-                    `).join('');
+                    allParts.map(p => {
+                        const ton = p.soLuongTon || 0;
+                        const tonToiThieu = p.tonToiThieu || 2;
+                        let statusText = `(Kho: ${ton})`;
+                        if (ton <= 0) statusText = `(Kho: 0 - Hết hàng)`;
+                        else if (ton <= tonToiThieu) statusText = `(Kho: ${ton} - Sắp hết)`;
+                        return `<option value="${p.maLK}" ${ton <= 0 ? 'class="text-rose-600 font-bold"' : ''}>📦 ${p.tenLK} | ${p.giaBan.toLocaleString('vi-VN')} đ ${statusText}</option>`;
+                    }).join('');
+                if (curVal) invSel.value = curVal;
             }
         }
 
@@ -1106,11 +1148,11 @@
                     if (matchPhone && matchPhone[0]) {
                         deviceInput.value = matchPhone[0].trim();
                     } else if (!deviceInput.value || deviceInput.value === 'Điện thoại') {
-                        deviceInput.value = "iPhone 13 Pro";
+                        deviceInput.value = "iPhone 16 Pro Max";
                     }
                 }
 
-                // Nạp danh sách linh kiện đã lưu của phiếu (hỗ trợ đa linh kiện)
+                // Nạp danh sách linh kiện THỰC TẾ ĐÃ LƯU của phiếu từ CSDL
                 if (ticket.chiTietList && Array.isArray(ticket.chiTietList) && ticket.chiTietList.length > 0) {
                     selectedInventoryParts = ticket.chiTietList.map(ct => ({
                         maLK: ct.maLK,
@@ -1119,47 +1161,75 @@
                         soLuong: ct.soLuong || 1,
                         thoiHan: ct.thoiGianBaoHanh || '12 Tháng'
                     }));
-                    window._userCustomizedParts = true;
-                    renderSelectedPartsList();
                 } else {
+                    // Phiếu chưa gán linh kiện: BẮT ĐẦU VỚI DANH SÁCH RỖNG, KHÔNG TỰ Ý GÁN!
                     selectedInventoryParts = [];
-                    window._userCustomizedParts = false;
-                    if (desc) {
-                        const devVal = deviceInput ? deviceInput.value : '';
-                        autoAssignInventoryParts(desc, devVal, 0, false, false);
-                    } else {
-                        renderSelectedPartsList();
-                    }
                 }
+                renderSelectedPartsList();
 
                 // Kiểm tra gợi ý combo linh kiện nếu phát hiện đa lỗi (Màn hình & Pin)
                 checkAndShowCompoundSuggestions(desc, deviceInput ? deviceInput.value : '');
+
+                // Tính toán và hiển thị gói giá chuẩn theo kho
+                calculateAndSyncPackages();
 
                 // Nếu phiếu đã có chẩn đoán trước đó
                 if (ticket.chuanDoanKTV || ticket.daDuyetChuanDoan) {
                     let cleanDiag = ticket.chuanDoanKTV || 'Đã kiểm định kỹ thuật';
                     let cleanAction = 'Kiểm tra đo đạc và thay thế linh kiện chuyên dụng.';
+                    let cleanRisk = '';
 
                     if (cleanDiag.includes('|')) {
                         const parts = cleanDiag.split('|');
-                        cleanDiag = parts[0] ? parts[0].replace(/Nguyên nhân:\s*/i, '').trim() : cleanDiag;
-                        if (parts[1]) cleanAction = parts[1].replace(/Phương án:\s*/i, '').replace(/Cảnh báo rủi ro:\s*/i, '').trim();
+                        for (const part of parts) {
+                            const trimmed = part.trim();
+                            if (/^nguyên nhân:\s*/i.test(trimmed)) {
+                                cleanDiag = trimmed.replace(/^nguyên nhân:\s*/i, '');
+                            } else if (/^cảnh báo rủi ro:\s*/i.test(trimmed)) {
+                                cleanRisk = trimmed.replace(/^cảnh báo rủi ro:\s*/i, '');
+                            } else if (/^phương án:\s*/i.test(trimmed)) {
+                                cleanAction = trimmed.replace(/^phương án:\s*/i, '');
+                            }
+                        }
                     }
 
                     document.getElementById('ai-res-diagnosis').value = cleanDiag;
                     document.getElementById('ai-res-action').value = cleanAction;
-                    document.getElementById('ai-confidence-badge').innerText = "Đã xác nhận";
+                    
+                    const riskBox = document.getElementById('ai-res-risk-box');
+                    const riskInput = document.getElementById('ai-res-risk');
+                    if (riskInput) riskInput.value = cleanRisk;
+                    if (riskBox) {
+                        if (cleanRisk) riskBox.classList.remove('hidden');
+                        else riskBox.classList.add('hidden');
+                    }
+
+                    const badge = document.getElementById('ai-confidence-badge');
+                    if (badge) {
+                        badge.className = "px-2 py-0.5 rounded-full text-[10px] font-black bg-emerald-100 text-emerald-800 border border-emerald-200 font-bold";
+                        badge.innerText = "ĐÃ DUYỆT";
+                    }
 
                     if (statusPill) {
                         statusPill.className = "px-2.5 py-0.5 rounded-full text-[10px] font-black bg-emerald-100 text-emerald-800 border border-emerald-200 font-bold";
                         statusPill.innerText = "Trạng thái: Đã chẩn đoán";
                     }
                 } else {
-                    document.getElementById('ai-res-diagnosis').value = desc ? `Nghi ngờ sự cố kỹ thuật: ${desc}` : "Thiết bị có dấu hiệu lỗi linh kiện cần đo kiểm";
-                    document.getElementById('ai-res-action').value = "Đo nội trở, kiểm tra cáp tiếp xúc và thay thế linh kiện lỗi";
+                    document.getElementById('ai-res-diagnosis').value = '';
+                    document.getElementById('ai-res-action').value = '';
+                    const riskBox = document.getElementById('ai-res-risk-box');
+                    const riskInput = document.getElementById('ai-res-risk');
+                    if (riskInput) riskInput.value = '';
+                    if (riskBox) riskBox.classList.add('hidden');
+
+                    const badge = document.getElementById('ai-confidence-badge');
+                    if (badge) {
+                        badge.className = "px-2 py-0.5 rounded-full text-[10px] font-black bg-amber-100 text-amber-800 border border-amber-200 font-bold";
+                        badge.innerText = "AI DRAFT – chờ kỹ thuật viên duyệt";
+                    }
                     if (statusPill) {
-                        statusPill.className = "px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-amber-500/20 text-amber-300 border border-amber-500/40";
-                        statusPill.innerText = "Trạng thái: Đang xử lý";
+                        statusPill.className = "px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-amber-500/20 text-amber-700 border border-amber-500/40";
+                        statusPill.innerText = "Trạng thái: Chờ chẩn đoán";
                     }
                 }
 
@@ -1190,8 +1260,176 @@
         }
 
         // ==========================================
-        // CÁC HÀM QUẢN LÝ BÁO GIÁ & NHIỀU LINH KIỆN KHO (TỐI ƯU ĐA LỖI)
+        // CÁC HÀM QUẢN LÝ BÁO GIÁ & LINH KIỆN KHO (CHUẨN HÓA KHO THỰC TẾ)
         // ==========================================
+        function getDeviceSeries(device) {
+            const dLower = (device || '').toLowerCase();
+            const seriesList = [
+                '16 pro max', '16 pro', '16 plus', '16',
+                '15 pro max', '15 pro', '15 plus', '15',
+                '14 pro max', '14 pro', '14 plus', '14',
+                '13 pro max', '13 pro', '13 mini', '13',
+                '12 pro max', '12 pro', '12 mini', '12',
+                '11 pro max', '11 pro', '11',
+                'xs max', 'xs', 'xr', 'x',
+                's23 ultra', 's23', 's22 ultra', 's22', 'note 20 ultra', 'a54'
+            ];
+            for (const s of seriesList) {
+                if (dLower.includes(s)) return s;
+            }
+            return null;
+        }
+
+        // LỖI 1: Chỉ lấy linh kiện thay thế mã LK và VT. Khớp dòng máy trước, sau đó khớp loại lỗi.
+        function findMatchingWarehousePart(device, partTypeKeywords, preferZin = false) {
+            if (!allParts || allParts.length === 0) return null;
+            const series = getDeviceSeries(device);
+
+            // Bắt buộc loại bỏ hoàn toàn mã DC (dụng cụ) và PK (phụ kiện)
+            const validParts = allParts.filter(p => {
+                const code = (p.maLK || '').toUpperCase();
+                return (code.startsWith('LK') || code.startsWith('VT')) && !code.startsWith('DC') && !code.startsWith('PK');
+            });
+
+            // 1. Khớp theo dòng máy của phiếu trước (ví dụ iPhone 16 Pro Max), sau đó mới khớp loại lỗi
+            if (series) {
+                for (const p of validParts) {
+                    const n = p.tenLK.toLowerCase();
+                    const hasType = partTypeKeywords.some(kw => n.includes(kw));
+                    if (!hasType) continue;
+                    if (partTypeKeywords.includes('màn') && n.includes('ép kính')) continue;
+
+                    const hasModel = n.includes(series);
+                    if (!hasModel) continue;
+
+                    const isZin = n.includes('zin') || n.includes('bóc máy') || n.includes('chính hãng') || n.includes('oled') || n.includes('deji');
+                    if (preferZin ? isZin : !isZin) {
+                        return p;
+                    }
+                }
+
+                for (const p of validParts) {
+                    const n = p.tenLK.toLowerCase();
+                    const hasType = partTypeKeywords.some(kw => n.includes(kw));
+                    if (!hasType) continue;
+                    if (partTypeKeywords.includes('màn') && n.includes('ép kính')) continue;
+
+                    if (n.includes(series)) {
+                        return p;
+                    }
+                }
+            }
+
+            // 2. Fallback nếu không khớp model cụ thể
+            for (const p of validParts) {
+                const n = p.tenLK.toLowerCase();
+                const hasType = partTypeKeywords.some(kw => n.includes(kw));
+                if (hasType && !(partTypeKeywords.includes('màn') && n.includes('ép kính'))) {
+                    return p;
+                }
+            }
+
+            return null;
+        }
+
+        // LỖI 2: Giá hai gói lấy đúng từ Giá Bán Khách trong kho, định dạng có dấu phân cách hàng nghìn.
+        function calculateAndSyncPackages() {
+            const device = document.getElementById('ai-diag-device')?.value?.trim() || 'Điện thoại';
+            const symptoms = document.getElementById('ai-diag-symptoms')?.value?.trim() || '';
+            const sLower = symptoms.toLowerCase();
+
+            const isScreen = sLower.includes('màn') || sLower.includes('vỡ') || sLower.includes('nứt') || sLower.includes('sọc') || sLower.includes('cảm ứng') || sLower.includes('liệt');
+            const isBattery = sLower.includes('pin') || sLower.includes('chai') || sLower.includes('phồng') || sLower.includes('sập nguồn') || sLower.includes('nóng');
+            const isCompound = isScreen && isBattery;
+
+            // NẾU KTV ĐÃ GÁN LINH KIỆN VÀO PHIẾU
+            if (selectedInventoryParts.length > 0) {
+                let total = 0;
+                const names = [];
+                selectedInventoryParts.forEach(p => {
+                    const lineTotal = (p.giaBan || 0) * (p.soLuong || 1);
+                    total += lineTotal;
+                    names.push(p.soLuong > 1 ? `${p.tenLK} (x${p.soLuong})` : p.tenLK);
+                });
+
+                const card0 = document.getElementById('card-pkg-0');
+                const name0 = document.getElementById('opt-name-0');
+                const priceDisp0 = document.getElementById('opt-price-display-0');
+                const priceInput0 = document.getElementById('opt-price-0');
+
+                if (name0) name0.innerText = names.join(' + ');
+                if (priceDisp0) priceDisp0.innerText = `${total.toLocaleString('vi-VN')} đ`;
+                if (priceInput0) priceInput0.value = total;
+
+                // Gói Chính Hãng (card 1): Nếu không có mã linh kiện Zin riêng trong kho cho dòng máy này thì hiển thị "Chưa có hàng"
+                const card1 = document.getElementById('card-pkg-1');
+                const name1 = document.getElementById('opt-name-1');
+                const priceDisp1 = document.getElementById('opt-price-display-1');
+                const priceInput1 = document.getElementById('opt-price-1');
+
+                if (name1) name1.innerText = "Linh kiện Zin chính hãng cho dòng máy này chưa có sẵn";
+                if (priceDisp1) priceDisp1.innerHTML = '<span class="text-slate-400 font-bold">Chưa có hàng</span>';
+                if (priceInput1) priceInput1.value = 0;
+                if (card1) card1.classList.add('opacity-50', 'cursor-not-allowed');
+
+                updateBaoHanhTemplate();
+                return;
+            }
+
+            // NẾU CHƯA GÁN LINH KIỆN: Tính giá dự kiến từ kho cho Gói Tiết Kiệm
+            let budgetItems = [];
+            let budgetTotal = 0;
+
+            if (isCompound) {
+                const sc = findMatchingWarehousePart(device, ['màn hình', 'màn']);
+                const bt = findMatchingWarehousePart(device, ['pin']);
+                const ron = allParts.find(p => p.maLK === 'VT04');
+                const tape = allParts.find(p => p.maLK === 'VT03');
+
+                if (sc) { budgetItems.push(sc); budgetTotal += sc.giaBan; }
+                if (bt) { budgetItems.push(bt); budgetTotal += bt.giaBan; }
+                if (ron) { budgetItems.push(ron); budgetTotal += ron.giaBan; }
+                if (tape) { budgetItems.push(tape); budgetTotal += tape.giaBan; }
+            } else if (isScreen) {
+                const sc = findMatchingWarehousePart(device, ['màn hình', 'màn']);
+                const ron = allParts.find(p => p.maLK === 'VT04');
+                if (sc) { budgetItems.push(sc); budgetTotal += sc.giaBan; }
+                if (ron) { budgetItems.push(ron); budgetTotal += ron.giaBan; }
+            } else if (isBattery) {
+                const bt = findMatchingWarehousePart(device, ['pin']);
+                const tape = allParts.find(p => p.maLK === 'VT03');
+                if (bt) { budgetItems.push(bt); budgetTotal += bt.giaBan; }
+                if (tape) { budgetItems.push(tape); budgetTotal += tape.giaBan; }
+            }
+
+            const name0 = document.getElementById('opt-name-0');
+            const priceDisp0 = document.getElementById('opt-price-display-0');
+            const priceInput0 = document.getElementById('opt-price-0');
+
+            if (budgetItems.length > 0) {
+                if (name0) name0.innerText = budgetItems.map(p => p.tenLK).join(' + ');
+                if (priceDisp0) priceDisp0.innerText = `${budgetTotal.toLocaleString('vi-VN')} đ`;
+                if (priceInput0) priceInput0.value = budgetTotal;
+            } else {
+                if (name0) name0.innerText = "Linh kiện thay thế tiêu chuẩn";
+                if (priceDisp0) priceDisp0.innerText = "0 đ";
+                if (priceInput0) priceInput0.value = 0;
+            }
+
+            // Gói Chính Hãng (card 1): Nếu không có mã linh kiện Zin riêng trong kho -> hiển thị "Chưa có hàng"
+            const card1 = document.getElementById('card-pkg-1');
+            const name1 = document.getElementById('opt-name-1');
+            const priceDisp1 = document.getElementById('opt-price-display-1');
+            const priceInput1 = document.getElementById('opt-price-1');
+
+            if (name1) name1.innerText = "Linh kiện Zin chính hãng cho dòng máy này chưa có sẵn";
+            if (priceDisp1) priceDisp1.innerHTML = '<span class="text-slate-400 font-bold">Chưa có hàng</span>';
+            if (priceInput1) priceInput1.value = 0;
+            if (card1) card1.classList.add('opacity-50', 'cursor-not-allowed');
+
+            updateBaoHanhTemplate();
+        }
+
         function choosePricePackage(idx) {
             selectedPackageIndex = idx;
 
@@ -1201,7 +1439,7 @@
 
             if (idx === 0) {
                 if (card0) card0.className = "p-3 rounded-xl border-2 border-emerald-500 bg-emerald-50/80 cursor-pointer transition hover:border-emerald-600 flex flex-col justify-between space-y-2 shadow-xs";
-                if (card1) card1.className = "p-3 rounded-xl border border-slate-200 bg-white cursor-pointer transition hover:border-indigo-300 flex flex-col justify-between space-y-2 opacity-80 hover:opacity-100";
+                if (card1) card1.className = "p-3 rounded-xl border border-slate-200 bg-white cursor-pointer transition hover:border-indigo-300 flex flex-col justify-between space-y-2 opacity-60";
                 if (pill) {
                     pill.className = "text-[10px] px-2 py-0.5 rounded-full font-bold bg-emerald-100 text-emerald-800 border border-emerald-200";
                     pill.innerText = "Gói Tiết Kiệm";
@@ -1209,8 +1447,13 @@
                 selectBaoHanhType('Bảo hành sửa chữa', false);
                 document.getElementById('bh-thoihan').value = "6 Tháng";
             } else {
+                const priceDisp1 = document.getElementById('opt-price-display-1');
+                if (priceDisp1 && priceDisp1.innerText.includes('Chưa có hàng')) {
+                    showToast("Gói Chính Hãng hiện chưa có hàng trong kho cho dòng máy này!", "info");
+                    return;
+                }
                 if (card1) card1.className = "p-3 rounded-xl border-2 border-indigo-500 bg-indigo-50/80 cursor-pointer transition hover:border-indigo-600 flex flex-col justify-between space-y-2 shadow-xs";
-                if (card0) card0.className = "p-3 rounded-xl border border-slate-200 bg-white cursor-pointer transition hover:border-emerald-300 flex flex-col justify-between space-y-2 opacity-80 hover:opacity-100";
+                if (card0) card0.className = "p-3 rounded-xl border border-slate-200 bg-white cursor-pointer transition hover:border-emerald-300 flex flex-col justify-between space-y-2 opacity-80";
                 if (pill) {
                     pill.className = "text-[10px] px-2 py-0.5 rounded-full font-bold bg-indigo-100 text-indigo-800 border border-indigo-200";
                     pill.innerText = "Gói Chính Hãng";
@@ -1221,81 +1464,137 @@
 
             updateBaoHanhBadge();
             updateBaoHanhTemplate();
-
-            if (!window._userCustomizedParts) {
-                const curDev = document.getElementById('ai-diag-device')?.value?.trim() || 'Điện thoại';
-                const curSym = document.getElementById('ai-diag-symptoms')?.value?.trim() || '';
-                const curSug = currentAiOptions[idx]?.suggestedParts || [];
-                if (curSym) {
-                    autoAssignInventoryParts(curSym, curDev, idx, false, false, curSug);
-                }
-            }
         }
 
-        function onOptPriceChange(idx) {
-            const val = parseInt(document.getElementById(`opt-price-${idx}`).value) || 0;
-            if (currentAiOptions && currentAiOptions[idx]) {
-                currentAiOptions[idx].price = val;
-            }
-            if (selectedPackageIndex === idx) {
-                updateBaoHanhTemplate();
-            }
-        }
-
-        // Thêm linh kiện vào danh sách gán
-        function addSelectedInventoryPart(partCode = null) {
-            window._userCustomizedParts = true;
+        // LỖI 3: Kiểm soát tồn kho khi gán linh kiện
+        async function addSelectedInventoryPart(partCode = null) {
             const sel = document.getElementById('diag-select-inventory-part');
             const code = partCode || (sel ? sel.value : null);
             if (!code) {
                 showToast("Vui lòng chọn linh kiện kho để thêm!", "warning");
                 return;
             }
-            const part = allParts.find(p => p.maLK === code);
-            if (!part) return;
 
-            const existing = selectedInventoryParts.find(p => p.maLK === code);
-            if (existing) {
-                existing.soLuong = (existing.soLuong || 1) + 1;
-                showToast(`Đã tăng số lượng: ${part.tenLK} (x${existing.soLuong})`, 'info');
-            } else {
-                selectedInventoryParts.push({
-                    maLK: part.maLK,
-                    tenLK: part.tenLK,
-                    giaBan: part.giaBan,
-                    soLuong: 1,
-                    thoiHan: "12 Tháng"
-                });
-                showToast(`Đã thêm linh kiện: ${part.tenLK}`, 'success');
+            const part = allParts.find(p => p.maLK === code);
+            if (!part) {
+                showToast("Không tìm thấy linh kiện trong kho!", "error");
+                return;
             }
 
-            selectedInventoryPartCode = selectedInventoryParts.length > 0 ? selectedInventoryParts[0].maLK : null;
-            if (sel) sel.value = "";
-            renderSelectedPartsList();
-            applySelectedPartsToPackage();
+            // Kiểm tra tồn kho trước khi gán
+            if ((part.soLuongTon || 0) <= 0) {
+                showToast(`❌ Hết hàng: Linh kiện ${part.tenLK} đã hết hàng (Tồn: 0)! Không thể gán.`, "error");
+                return;
+            }
+
+            const selTicket = document.getElementById('ai-diag-select-ticket')?.value;
+            if (!selTicket) {
+                showToast("Vui lòng chọn phiếu sửa chữa trước khi thêm linh kiện!", "warning");
+                return;
+            }
+
+            const cleanId = selTicket.replace(/^#+/, '');
+
+            try {
+                const res = await fetch(`${API_BASE}/bao-hanh-chi-tiet/`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        maPhieu: selTicket,
+                        maLK: part.maLK,
+                        soLuong: 1,
+                        donGia: part.giaBan,
+                        thoiGianBaoHanh: '12 Tháng'
+                    })
+                });
+
+                const data = await res.json();
+                if (!res.ok) {
+                    showToast(`❌ ${data.detail || 'Không thể thêm linh kiện (Hết hàng)'}`, 'error');
+                    return;
+                }
+
+                // Tải lại kho và phiếu từ server để cập nhật tồn kho tức thì
+                await loadPartsInventory();
+                await loadAllTickets();
+
+                const curTicket = allTickets.find(t => t.maPhieu === selTicket);
+                if (curTicket && curTicket.chiTietList) {
+                    selectedInventoryParts = curTicket.chiTietList.map(ct => ({
+                        maLK: ct.maLK,
+                        tenLK: ct.tenLK || (allParts.find(p => p.maLK === ct.maLK)?.tenLK) || ct.maLK,
+                        giaBan: ct.donGia || (allParts.find(p => p.maLK === ct.maLK)?.giaBan) || 0,
+                        soLuong: ct.soLuong || 1,
+                        thoiHan: ct.thoiGianBaoHanh || '12 Tháng'
+                    }));
+                }
+
+                const updatedPart = allParts.find(p => p.maLK === code);
+                const tonConLai = updatedPart ? updatedPart.soLuongTon : 0;
+                showToast(`✅ Đã thêm ${part.tenLK} vào phiếu #${cleanId}! (Tồn kho còn: ${tonConLai})`, 'success');
+
+                if (sel) sel.value = "";
+                renderSelectedPartsList();
+                calculateAndSyncPackages();
+                checkAndShowCompoundSuggestions(
+                    document.getElementById('ai-diag-symptoms')?.value,
+                    document.getElementById('ai-diag-device')?.value
+                );
+                populateInventoryDropdown();
+
+            } catch (err) {
+                showToast(`Lỗi khi gán linh kiện: ${err.message}`, 'error');
+            }
         }
 
-        // Xóa linh kiện khỏi danh sách gán
-        function removeSelectedInventoryPart(code) {
-            window._userCustomizedParts = true;
-            selectedInventoryParts = selectedInventoryParts.filter(p => p.maLK !== code);
-            selectedInventoryPartCode = selectedInventoryParts.length > 0 ? selectedInventoryParts[0].maLK : null;
-            renderSelectedPartsList();
-            applySelectedPartsToPackage();
-            showToast("Đã gỡ linh kiện khỏi danh sách", "info");
+        async function removeSelectedInventoryPart(code) {
+            const selTicket = document.getElementById('ai-diag-select-ticket')?.value;
+            if (!selTicket) return;
+            const cleanId = selTicket.replace(/^#+/, '');
+
+            try {
+                const res = await fetch(`${API_BASE}/bao-hanh-chi-tiet/${encodeURIComponent(cleanId)}/${encodeURIComponent(code)}`, {
+                    method: 'DELETE'
+                });
+                const data = await res.json();
+                if (!res.ok) {
+                    showToast(data.detail || "Không thể gỡ linh kiện", "error");
+                    return;
+                }
+
+                await loadPartsInventory();
+                await loadAllTickets();
+
+                const curTicket = allTickets.find(t => t.maPhieu === selTicket);
+                if (curTicket && curTicket.chiTietList) {
+                    selectedInventoryParts = curTicket.chiTietList.map(ct => ({
+                        maLK: ct.maLK,
+                        tenLK: ct.tenLK || (allParts.find(p => p.maLK === ct.maLK)?.tenLK) || ct.maLK,
+                        giaBan: ct.donGia || (allParts.find(p => p.maLK === ct.maLK)?.giaBan) || 0,
+                        soLuong: ct.soLuong || 1,
+                        thoiHan: ct.thoiGianBaoHanh || '12 Tháng'
+                    }));
+                } else {
+                    selectedInventoryParts = [];
+                }
+
+                const restoredPart = allParts.find(p => p.maLK === code);
+                const tonSauHoan = restoredPart ? restoredPart.soLuongTon : 1;
+                showToast(`Đã gỡ linh kiện khỏi phiếu và hoàn lại kho (Tồn: ${tonSauHoan})`, 'info');
+
+                renderSelectedPartsList();
+                calculateAndSyncPackages();
+                checkAndShowCompoundSuggestions(
+                    document.getElementById('ai-diag-symptoms')?.value,
+                    document.getElementById('ai-diag-device')?.value
+                );
+                populateInventoryDropdown();
+
+            } catch (err) {
+                showToast(err.message, 'error');
+            }
         }
 
-        // Thay đổi số lượng linh kiện
-        function changePartQuantity(code, delta) {
-            window._userCustomizedParts = true;
-            const item = selectedInventoryParts.find(p => p.maLK === code);
-            if (!item) return;
-            item.soLuong = Math.max(1, (item.soLuong || 1) + delta);
-            renderSelectedPartsList();
-            applySelectedPartsToPackage();
-        }
-
-        // Hiển thị danh sách linh kiện đã chọn
         function renderSelectedPartsList() {
             const container = document.getElementById('selected-parts-list');
             const badge = document.getElementById('parts-count-badge');
@@ -1334,11 +1633,8 @@
                             </div>
                         </div>
                         <div class="flex items-center gap-1.5 shrink-0">
-                            <button type="button" onclick="changePartQuantity('${item.maLK}', -1)" class="w-5 h-5 rounded bg-white border border-slate-300 hover:bg-slate-100 flex items-center justify-center text-[10px] font-bold text-slate-600 cursor-pointer">-</button>
-                            <span class="w-5 text-center font-bold text-xs text-slate-800">${item.soLuong}</span>
-                            <button type="button" onclick="changePartQuantity('${item.maLK}', 1)" class="w-5 h-5 rounded bg-white border border-slate-300 hover:bg-slate-100 flex items-center justify-center text-[10px] font-bold text-slate-600 cursor-pointer">+</button>
-                            <span class="font-black text-indigo-700 text-[11px] ml-1 w-20 text-right">${itemTotal.toLocaleString('vi-VN')} đ</span>
-                            <button type="button" onclick="removeSelectedInventoryPart('${item.maLK}')" title="Xóa linh kiện này" class="w-6 h-6 rounded-lg text-rose-500 hover:bg-rose-50 flex items-center justify-center ml-1 cursor-pointer">
+                            <span class="font-black text-indigo-700 text-[11px] ml-1 w-24 text-right">${itemTotal.toLocaleString('vi-VN')} đ</span>
+                            <button type="button" onclick="removeSelectedInventoryPart('${item.maLK}')" title="Xóa linh kiện này và hoàn lại kho" class="w-6 h-6 rounded-lg text-rose-500 hover:bg-rose-50 flex items-center justify-center ml-1 cursor-pointer">
                                 <i class="fa-solid fa-trash-can text-xs"></i>
                             </button>
                         </div>
@@ -1353,224 +1649,7 @@
             }
         }
 
-        // Tự động đồng bộ các linh kiện đã chọn sang thẻ Báo Giá & Nội Dung Bảo Hành
-        function applySelectedPartsToPackage() {
-            if (selectedInventoryParts.length === 0) return;
-
-            let total = 0;
-            const names = [];
-            selectedInventoryParts.forEach(p => {
-                total += (p.giaBan || 0) * (p.soLuong || 1);
-                names.push(p.soLuong > 1 ? `${p.tenLK} (x${p.soLuong})` : p.tenLK);
-            });
-
-            const activeOpt = currentAiOptions[selectedPackageIndex];
-            if (activeOpt) {
-                // Nếu tổng tiền linh kiện lớn hơn giá dự kiến gói thì cập nhật theo linh kiện
-                if (total > (activeOpt.price || 0)) {
-                    activeOpt.price = total;
-                }
-                // Chỉ cập nhật tên linh kiện nếu tên gói đang là mặc định
-                if (!activeOpt.partName || activeOpt.partName.includes('tiêu chuẩn') || activeOpt.partName.includes('Zin chính hãng cao cấp')) {
-                    activeOpt.partName = names.join(' + ');
-                }
-            }
-
-            const priceInput = document.getElementById(`opt-price-${selectedPackageIndex}`);
-            const nameEl = document.getElementById(`opt-name-${selectedPackageIndex}`);
-            const warEl = document.getElementById(`opt-warranty-${selectedPackageIndex}`);
-
-            if (priceInput && activeOpt) priceInput.value = activeOpt.price;
-            if (nameEl && activeOpt) nameEl.innerText = activeOpt.partName;
-            if (warEl && activeOpt) warEl.innerText = `BH ${activeOpt.warranty || '12T'}`;
-
-            selectBaoHanhType('Bảo hành linh kiện', false);
-            updateBaoHanhBadge();
-            updateBaoHanhTemplate();
-        }
-
-        // Kiểm tra và hiển thị gợi ý linh kiện khi phát hiện sự cố đa thành phần (Màn hình & Pin)
-        
-        // ==========================================
-        // THUẬT TOÁN TỰ ĐỘNG KHỚP & GÁN LINH KIỆN KHO (AI AUTO-MATCH WAREHOUSE)
-        // ==========================================
-        window._userCustomizedParts = false;
-
-        function autoMatchWarehouseParts(device, symptoms, packageIdx = selectedPackageIndex) {
-            if (!allParts || allParts.length === 0) return [];
-
-            const dLower = (device || '').toLowerCase();
-            const sLower = (symptoms || '').toLowerCase();
-            const matched = [];
-            const isPremium = packageIdx === 1;
-
-            // 1. Nhận diện đời máy / Model series
-            const modelKeywords = [];
-            const seriesList = [
-                '16 pro max', '16 pro', '16 plus', '16', 
-                '15 pro max', '15 pro', '15 plus', '15', 
-                '14 pro max', '14 pro', '14 plus', '14', 
-                '13 pro max', '13 pro', '13 mini', '13',
-                '12 pro max', '12 pro', '12 mini', '12', 
-                '11 pro max', '11 pro', '11', 'xs max', 'xs', 'xr', 'x',
-                's22 ultra', 's22', 's23 ultra', 'note 20 ultra', 'a54'
-            ];
-            for (const s of seriesList) {
-                if (dLower.includes(s)) {
-                    modelKeywords.push(s);
-                    break;
-                }
-            }
-
-            function findPart(typeKeywords, preferZin = false) {
-                for (const mk of modelKeywords) {
-                    for (const p of allParts) {
-                        const n = p.tenLK.toLowerCase();
-                        const hasType = typeKeywords.some(tk => n.includes(tk));
-                        const hasModel = n.includes(mk);
-                        const isZin = preferZin ? (n.includes('zin') || n.includes('hãng') || n.includes('chính hãng') || n.includes('oled') || n.includes('deji') || n.includes('bóc máy')) : true;
-                        if (hasType && hasModel && isZin && !matched.some(m => m.maLK === p.maLK)) {
-                            return p;
-                        }
-                    }
-                }
-                for (const mk of modelKeywords) {
-                    for (const p of allParts) {
-                        const n = p.tenLK.toLowerCase();
-                        const hasType = typeKeywords.some(tk => n.includes(tk));
-                        const hasModel = n.includes(mk);
-                        if (hasType && hasModel && !matched.some(m => m.maLK === p.maLK)) {
-                            return p;
-                        }
-                    }
-                }
-                for (const p of allParts) {
-                    const n = p.tenLK.toLowerCase();
-                    const hasType = typeKeywords.some(tk => n.includes(tk));
-                    if (hasType && !matched.some(m => m.maLK === p.maLK)) {
-                        return p;
-                    }
-                }
-                return null;
-            }
-
-            // 1. Sự cố VÀO NƯỚC / ẨM / ĐOẢN MẠCH / CHẬP MẠCH
-            const isWater = sLower.includes('nước') || sLower.includes('ẩm') || sLower.includes('đoản mạch') || sLower.includes('chập mạch') || sLower.includes('chập nguồn');
-            if (isWater) {
-                const ron = allParts.find(p => p.maLK === 'VT04' || p.tenLK.toLowerCase().includes('ron chống nước'));
-                if (ron) matched.push({ ...ron, soLuong: 1 });
-                const con = allParts.find(p => p.maLK === 'VT05' || p.tenLK.toLowerCase().includes('cồn vệ sinh'));
-                if (con) matched.push({ ...con, soLuong: 1 });
-
-                if (isPremium) {
-                    const cable = findPart(['cáp chân sạc', 'chân sạc', 'phím nguồn', 'nguồn']) ||
-                                  allParts.find(p => p.maLK === 'LK48') || allParts.find(p => p.maLK === 'LK98');
-                    if (cable && !matched.some(m => m.maLK === cable.maLK)) {
-                        matched.push({ ...cable, soLuong: 1 });
-                    }
-                }
-            }
-
-            // 2. Sự cố MÀN HÌNH
-            const isScreen = sLower.includes('màn') || sLower.includes('vỡ') || sLower.includes('nứt') || sLower.includes('sọc') || sLower.includes('cảm ứng') || sLower.includes('liệt');
-            if (isScreen) {
-                const sc = findPart(['màn hình', 'màn'], isPremium);
-                if (sc) matched.push({ ...sc, soLuong: 1 });
-                const ron = allParts.find(p => p.maLK === 'VT04' || p.tenLK.toLowerCase().includes('ron chống nước'));
-                if (ron && !matched.some(m => m.maLK === ron.maLK)) matched.push({ ...ron, soLuong: 1 });
-            }
-
-            // 3. Sự cố PIN
-            const isBattery = sLower.includes('pin') || sLower.includes('chai') || sLower.includes('phồng') || sLower.includes('sập nguồn') || sLower.includes('nhanh hết') || (sLower.includes('nóng máy') && !isWater);
-            if (isBattery) {
-                const bt = findPart(['pin'], isPremium);
-                if (bt) matched.push({ ...bt, soLuong: 1 });
-                const tape = allParts.find(p => p.maLK === 'VT03' || p.tenLK.toLowerCase().includes('dán pin'));
-                if (tape && !matched.some(m => m.maLK === tape.maLK)) matched.push({ ...tape, soLuong: 1 });
-            }
-
-            // 4. Sự cố CỔNG SẠC
-            const isCharging = (sLower.includes('chân sạc') || sLower.includes('cổng sạc') || (sLower.includes('sạc') && !sLower.includes('sạc chậm do pin'))) && !isWater && !isBattery;
-            if (isCharging) {
-                const charge = findPart(['cáp chân sạc', 'chân sạc', 'bo sạc']);
-                if (charge && !matched.some(m => m.maLK === charge.maLK)) matched.push({ ...charge, soLuong: 1 });
-            }
-
-            // 5. Sự cố LOA / MIC
-            const isSpeaker = sLower.includes('loa') || sLower.includes('mic') || sLower.includes('chuông') || sLower.includes('rè');
-            if (isSpeaker) {
-                const spk = findPart(['loa', 'mic']);
-                if (spk && !matched.some(m => m.maLK === spk.maLK)) matched.push({ ...spk, soLuong: 1 });
-            }
-
-            // 6. Sự cố MẶT KÍNH LƯNG
-            const isBack = sLower.includes('kính lưng') || sLower.includes('nắp lưng') || sLower.includes('mặt lưng');
-            if (isBack) {
-                const bk = findPart(['mặt kính lưng', 'kính lưng', 'nắp lưng']);
-                if (bk && !matched.some(m => m.maLK === bk.maLK)) matched.push({ ...bk, soLuong: 1 });
-                const glue = allParts.find(p => p.maLK === 'VT02' || p.tenLK.toLowerCase().includes('t7000'));
-                if (glue && !matched.some(m => m.maLK === glue.maLK)) matched.push({ ...glue, soLuong: 1 });
-            }
-
-            // 7. Sự cố CAMERA
-            const isCam = sLower.includes('camera') || sLower.includes('cam ') || sLower.includes('kính bảo vệ');
-            if (isCam) {
-                const cam = findPart(['camera', 'kính bảo vệ cụm camera', 'kính camera']);
-                if (cam && !matched.some(m => m.maLK === cam.maLK)) matched.push({ ...cam, soLuong: 1 });
-            }
-
-            return matched;
-        }
-
-        function autoAssignInventoryParts(symptoms, device, packageIdx = selectedPackageIndex, force = false, showToastMsg = false, suggestedCodes = []) {
-            if (!force && window._userCustomizedParts && selectedInventoryParts.length > 0) {
-                return;
-            }
-
-            let matched = [];
-            if (suggestedCodes && suggestedCodes.length > 0 && allParts.length > 0) {
-                suggestedCodes.forEach(code => {
-                    const p = allParts.find(part => part.maLK === code);
-                    if (p && !matched.some(m => m.maLK === p.maLK)) {
-                        matched.push({ ...p, soLuong: 1 });
-                    }
-                });
-            }
-
-            if (matched.length === 0) {
-                matched = autoMatchWarehouseParts(device, symptoms, packageIdx);
-            }
-
-            if (matched.length > 0) {
-                selectedInventoryParts = matched.map(p => ({
-                    maLK: p.maLK,
-                    tenLK: p.tenLK,
-                    giaBan: p.giaBan,
-                    soLuong: p.soLuong || 1,
-                    thoiHan: "12 Tháng"
-                }));
-                selectedInventoryPartCode = selectedInventoryParts[0].maLK;
-                window._userCustomizedParts = false;
-                renderSelectedPartsList();
-                applySelectedPartsToPackage();
-                if (showToastMsg) {
-                    showToast(`✨ Đã tự động gán ${selectedInventoryParts.length} linh kiện kho phù hợp với thiết bị!`, 'success');
-                }
-            } else {
-                renderSelectedPartsList();
-            }
-        }
-
-        function triggerAutoAssignParts(showToastMsg = true) {
-            const device = document.getElementById('ai-diag-device')?.value?.trim() || 'Điện thoại';
-            const symptoms = document.getElementById('ai-diag-symptoms')?.value?.trim() || '';
-            if (!symptoms) {
-                showToast("Vui lòng nhập hoặc chọn phiếu có mô tả sự cố để gán linh kiện!", "warning");
-                return;
-            }
-            autoAssignInventoryParts(symptoms, device, selectedPackageIndex, true, showToastMsg);
-        }
-
+        // LỖI 1: Gợi ý đa lỗi (Màn hình & Pin) - Chỉ lấy LK, VT. Không DC, PK. Khớp dòng máy. Ẩn linh kiện đã gán.
         function checkAndShowCompoundSuggestions(symptoms, device) {
             const s = (symptoms || '').toLowerCase();
             const hasPin = s.includes('pin') || s.includes('nóng') || s.includes('sập nguồn') || s.includes('tụt') || s.includes('chai') || s.includes('phồng');
@@ -1578,80 +1657,107 @@
 
             const box = document.getElementById('compound-parts-suggestions');
             const chips = document.getElementById('compound-suggestions-chips');
+            const btnBoth = document.querySelector('#compound-parts-suggestions button[onclick="autoAddCompoundParts()"]');
             if (!box || !chips) return;
 
             if (hasMan && hasPin && allParts.length > 0) {
-                const dLower = (device || '').toLowerCase();
-                // Tìm linh kiện màn hình tương thích
-                let screenPart = allParts.find(p => p.tenLK.toLowerCase().includes('màn') && (dLower.includes('13') ? p.tenLK.toLowerCase().includes('13') : true)) ||
-                                 allParts.find(p => p.tenLK.toLowerCase().includes('màn'));
-                // Tìm linh kiện pin tương thích
-                let batteryPart = allParts.find(p => p.tenLK.toLowerCase().includes('pin') && (dLower.includes('13') ? p.tenLK.toLowerCase().includes('13') : true)) ||
-                                  allParts.find(p => p.tenLK.toLowerCase().includes('pin'));
+                // Khớp dòng máy trước, sau đó khớp loại lỗi. Chỉ lấy mã LK
+                const screenPart = findMatchingWarehousePart(device, ['màn hình', 'màn']);
+                const batteryPart = findMatchingWarehousePart(device, ['pin']);
 
                 if (screenPart || batteryPart) {
+                    const isScreenAssigned = screenPart ? selectedInventoryParts.some(p => p.maLK === screenPart.maLK) : true;
+                    const isBatteryAssigned = batteryPart ? selectedInventoryParts.some(p => p.maLK === batteryPart.maLK) : true;
+
+                    // Nếu cả hai linh kiện đều đã được gán vào phiếu -> Ẩn toàn bộ khối gợi ý
+                    if (isScreenAssigned && isBatteryAssigned) {
+                        box.classList.add('hidden');
+                        return;
+                    }
+
                     box.classList.remove('hidden');
                     let chipHtml = '';
-                    if (screenPart) {
+
+                    // Chỉ hiện gợi ý của linh kiện CHƯA được gán
+                    if (screenPart && !isScreenAssigned) {
+                        const tonScreen = screenPart.soLuongTon || 0;
+                        const tonBadge = tonScreen > 0 ? `Tồn: ${tonScreen}` : 'Hết hàng';
                         chipHtml += `
                             <button type="button" onclick="addSelectedInventoryPart('${screenPart.maLK}')" class="px-2.5 py-1 rounded-lg bg-white border border-amber-300 hover:bg-amber-100 text-amber-900 font-bold text-[11px] flex items-center gap-1 transition shadow-xs cursor-pointer">
-                                <i class="fa-solid fa-plus text-amber-600"></i> ${screenPart.tenLK} (${screenPart.giaBan.toLocaleString('vi-VN')} đ)
+                                <i class="fa-solid fa-plus text-amber-600"></i> ${screenPart.tenLK} (${screenPart.giaBan.toLocaleString('vi-VN')} đ - <span class="${tonScreen > 0 ? 'text-emerald-700' : 'text-rose-600'}">${tonBadge}</span>)
                             </button>
                         `;
                     }
-                    if (batteryPart) {
+
+                    if (batteryPart && !isBatteryAssigned) {
+                        const tonBattery = batteryPart.soLuongTon || 0;
+                        const tonBadge = tonBattery > 0 ? `Tồn: ${tonBattery}` : 'Hết hàng';
                         chipHtml += `
                             <button type="button" onclick="addSelectedInventoryPart('${batteryPart.maLK}')" class="px-2.5 py-1 rounded-lg bg-white border border-amber-300 hover:bg-amber-100 text-amber-900 font-bold text-[11px] flex items-center gap-1 transition shadow-xs cursor-pointer">
-                                <i class="fa-solid fa-plus text-amber-600"></i> ${batteryPart.tenLK} (${batteryPart.giaBan.toLocaleString('vi-VN')} đ)
+                                <i class="fa-solid fa-plus text-amber-600"></i> ${batteryPart.tenLK} (${batteryPart.giaBan.toLocaleString('vi-VN')} đ - <span class="${tonBattery > 0 ? 'text-emerald-700' : 'text-rose-600'}">${tonBadge}</span>)
                             </button>
                         `;
                     }
+
                     chips.innerHTML = chipHtml;
-                    window._compoundScreenPart = screenPart ? screenPart.maLK : null;
-                    window._compoundBatteryPart = batteryPart ? batteryPart.maLK : null;
+                    window._compoundScreenPart = (!isScreenAssigned && screenPart) ? screenPart.maLK : null;
+                    window._compoundBatteryPart = (!isBatteryAssigned && batteryPart) ? batteryPart.maLK : null;
+
+                    // Chỉ hiện nút "Thêm cả 2 linh kiện" nếu CẢ HAI đều chưa gán
+                    if (btnBoth) {
+                        if (!isScreenAssigned && !isBatteryAssigned && screenPart && batteryPart) {
+                            btnBoth.classList.remove('hidden');
+                        } else {
+                            btnBoth.classList.add('hidden');
+                        }
+                    }
+
                     return;
                 }
             }
             box.classList.add('hidden');
         }
 
-        // Thêm cả 2 linh kiện đa lỗi vào đơn trong 1 click
-        function autoAddCompoundParts() {
-            if (window._compoundScreenPart) {
-                addSelectedInventoryPart(window._compoundScreenPart);
+        async function autoAddCompoundParts() {
+            if (window._compoundScreenPart && !selectedInventoryParts.some(p => p.maLK === window._compoundScreenPart)) {
+                await addSelectedInventoryPart(window._compoundScreenPart);
             }
-            if (window._compoundBatteryPart) {
-                addSelectedInventoryPart(window._compoundBatteryPart);
+            if (window._compoundBatteryPart && !selectedInventoryParts.some(p => p.maLK === window._compoundBatteryPart)) {
+                await addSelectedInventoryPart(window._compoundBatteryPart);
             }
-            showToast("✨ Đã tự động thêm cả Màn hình & Pin vào danh sách thay thế!", "success");
+        }
+
+        // Nút "AI Gán Kho" chỉ GỢI Ý. Không tự ý trừ tồn kho.
+        function triggerAutoAssignParts(showToastMsg = true) {
+            const device = document.getElementById('ai-diag-device')?.value?.trim() || 'Điện thoại';
+            const symptoms = document.getElementById('ai-diag-symptoms')?.value?.trim() || '';
+            if (!symptoms) {
+                showToast("Vui lòng nhập hoặc chọn phiếu có mô tả sự cố để xem gợi ý linh kiện!", "warning");
+                return;
+            }
+
+            checkAndShowCompoundSuggestions(symptoms, device);
+            calculateAndSyncPackages();
+
+            const sc = findMatchingWarehousePart(device, ['màn hình', 'màn']);
+            const bt = findMatchingWarehousePart(device, ['pin']);
+            const targetPart = sc || bt;
+
+            if (targetPart) {
+                const sel = document.getElementById('diag-select-inventory-part');
+                if (sel) sel.value = targetPart.maLK;
+                showToast(`✨ AI gợi ý: ${targetPart.tenLK}. Vui lòng bấm 'Thêm' hoặc 'Thêm cả 2 linh kiện' để gán vào phiếu!`, 'info');
+            } else {
+                showToast("Chưa tìm thấy linh kiện tương thích trong kho cho thiết bị này.", "info");
+            }
         }
 
         function syncPricePackageDisplay() {
-            if (currentAiOptions && currentAiOptions.length >= 2) {
-                const opt0 = currentAiOptions[0];
-                const opt1 = currentAiOptions[1];
-
-                const name0 = document.getElementById('opt-name-0');
-                const price0 = document.getElementById('opt-price-0');
-                const war0 = document.getElementById('opt-warranty-0');
-
-                const name1 = document.getElementById('opt-name-1');
-                const price1 = document.getElementById('opt-price-1');
-                const war1 = document.getElementById('opt-warranty-1');
-
-                if (name0) name0.innerText = opt0.partName || "Linh kiện thay thế tiêu chuẩn";
-                if (price0) price0.value = opt0.price || 380000;
-                if (war0) war0.innerText = `BH ${opt0.warranty || '6T'}`;
-
-                if (name1) name1.innerText = opt1.partName || "Linh kiện Zin chính hãng cao cấp";
-                if (price1) price1.value = opt1.price || 1250000;
-                if (war1) war1.innerText = `BH ${opt1.warranty || '12T'}`;
-            }
-            choosePricePackage(selectedPackageIndex);
+            calculateAndSyncPackages();
         }
 
         // ==========================================
-        // CHỨC NĂNG CHẨN ĐOÁN AI (ĐA TẦNG FALLBACK - KHÔNG BAO GIỜ NOT FOUND)
+        // CHỨC NĂNG CHẨN ĐOÁN AI (CHUẨN HÓA AI DRAFT - KHÔNG MOCK GIẢ KHI LỖI)
         // ==========================================
         async function handleAIDiagnose() {
             const device = document.getElementById('ai-diag-device').value.trim() || 'Điện thoại';
@@ -1667,7 +1773,7 @@
 
             const btn = document.getElementById('btn-run-ai-diag');
             btn.disabled = true;
-            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Đang phân tích AI & Báo giá...';
+            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Đang phân tích AI...';
             if (errorBox) errorBox.classList.add('hidden');
 
             let diagData = null;
@@ -1696,47 +1802,236 @@
                 }
             }
 
-            // 2. Fallback nếu toàn bộ server offline: Engine chẩn đoán cục bộ chuyên gia PhoneCare
+            // BƯỚC 4: TUYỆT ĐỐI không tự điền kết quả giả khi API lỗi, timeout hoặc sai key.
             if (!diagData) {
-                diagData = generateLocalExpertDiagnosis(device, symptoms);
+                document.getElementById('ai-res-diagnosis').value = '';
+                document.getElementById('ai-res-action').value = '';
+                const riskInput = document.getElementById('ai-res-risk');
+                if (riskInput) riskInput.value = '';
+                const riskBox = document.getElementById('ai-res-risk-box');
+                if (riskBox) riskBox.classList.add('hidden');
+
+                const badge = document.getElementById('ai-confidence-badge');
+                if (badge) {
+                    badge.className = "px-2 py-0.5 rounded-full text-[10px] font-black bg-slate-100 text-slate-700 border border-slate-300 font-bold";
+                    badge.innerText = "KTV tự nhập";
+                }
+
+                const msg = "Không thể kết nối dịch vụ AI lúc này, vui lòng nhập thủ công";
+                if (errorBox) {
+                    errorBox.classList.remove('hidden');
+                    const errP = errorBox.querySelector('p');
+                    if (errP) errP.innerText = msg;
+                }
+                showToast(msg, "warning");
+                document.getElementById('ai-res-diagnosis').focus();
+
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fa-solid fa-wand-magic-sparkles"></i> Phân Tích AI';
+                return;
             }
 
-            // 3. Hiển thị kết quả & Đảm bảo Phần Báo Giá Luôn Mở Sáng
+            // BƯỚC 5: Đổ kết quả AI chuẩn vào các ô
             try {
-                const diagText = diagData.chuanDoan || diagData.diagnosis || `Kiểm tra chẩn đoán kỹ thuật cho thiết bị ${device}: Phát hiện bất thường linh kiện.`;
-                const actionText = diagData.deXuat || (diagData.options && diagData.options[0]?.partName) || 'Đo kiểm socket tiếp xúc bo mạch và thay thế linh kiện lỗi';
-                const confText = diagData.confidence || '95% (Độ chính xác cao)';
+                const diagText = diagData.chuan_doan || diagData.chuanDoan || '';
+                const deXuatArr = diagData.de_xuat_xu_ly || [];
+                const actionText = Array.isArray(deXuatArr) ? deXuatArr.join('\n') : (diagData.deXuat || '');
+                const riskText = (diagData.canh_bao_rui_ro || '').trim();
 
                 document.getElementById('ai-res-diagnosis').value = diagText;
                 document.getElementById('ai-res-action').value = actionText;
-                document.getElementById('ai-confidence-badge').innerText = `Độ tin cậy: ${confText}`;
 
-                // Cập nhật 2 gói báo giá linh kiện từ kết quả AI
-                if (diagData.options && diagData.options.length >= 2) {
-                    currentAiOptions = diagData.options;
-                } else if (diagData.options && diagData.options.length === 1) {
-                    currentAiOptions[0] = diagData.options[0];
+                const riskInput = document.getElementById('ai-res-risk');
+                const riskBox = document.getElementById('ai-res-risk-box');
+                if (riskInput) riskInput.value = riskText;
+                if (riskBox) {
+                    if (riskText) {
+                        riskBox.classList.remove('hidden');
+                    } else {
+                        riskBox.classList.add('hidden');
+                    }
                 }
-                syncPricePackageDisplay();
+
+                const badge = document.getElementById('ai-confidence-badge');
+                if (badge) {
+                    badge.className = "px-2 py-0.5 rounded-full text-[10px] font-black bg-amber-100 text-amber-800 border border-amber-200 font-bold";
+                    badge.innerText = "AI DRAFT – chờ kỹ thuật viên duyệt";
+                }
 
                 if (statusPill) {
-                    statusPill.className = "px-2.5 py-0.5 rounded-full text-[10px] font-black bg-purple-500/20 text-purple-300 border border-purple-500/40";
-                    statusPill.innerText = "AI: Đã phân tích & báo giá";
+                    statusPill.className = "px-2.5 py-0.5 rounded-full text-[10px] font-black bg-purple-50 text-purple-700 border border-purple-200";
+                    statusPill.innerText = "AI: Đã phân tích (Bản nháp)";
                 }
 
                 checkAndShowCompoundSuggestions(symptoms, device);
+                calculateAndSyncPackages();
 
-                // Tự động gán linh kiện từ kho khớp với chẩn đoán
-                const suggestedCodes = (diagData && diagData.suggestedParts) || (diagData && diagData.options && diagData.options[selectedPackageIndex]?.suggestedParts) || [];
-                autoAssignInventoryParts(symptoms, device, selectedPackageIndex, true, false, suggestedCodes);
-
-                showToast("✨ AI đã phân tích & tự động gán linh kiện kho tương ứng!", "success");
+                showToast("✨ AI đã phân tích bản nháp thành công! KTV vui lòng kiểm tra và duyệt.", "success");
 
             } catch (err) {
                 console.error("Render error:", err);
             } finally {
                 btn.disabled = false;
                 btn.innerHTML = '<i class="fa-solid fa-wand-magic-sparkles"></i> Phân Tích AI';
+            }
+        }
+
+        // ==========================================
+        // CÁC HÀM THAO TÁC BẢN NHÁP AI: SỬA, BÁC BỎ, DUYỆT CHẨN ĐOÁN
+        // ==========================================
+        function handleEditAIDraft() {
+            const diagInput = document.getElementById('ai-res-diagnosis');
+            if (diagInput) {
+                diagInput.focus();
+                showToast("Bạn có thể chỉnh sửa trực tiếp nội dung chẩn đoán và đề xuất xử lý.", "info");
+            }
+        }
+
+        async function handleRejectAIDraft() {
+            const selTicket = document.getElementById('ai-diag-select-ticket').value;
+            if (selTicket && selectedInventoryParts.length > 0) {
+                const cleanId = selTicket.replace(/^#+/, '');
+                for (const p of [...selectedInventoryParts]) {
+                    try {
+                        await fetch(`${API_BASE}/bao-hanh-chi-tiet/${encodeURIComponent(cleanId)}/${encodeURIComponent(p.maLK)}`, {
+                            method: 'DELETE'
+                        });
+                    } catch (e) {}
+                }
+                await loadPartsInventory();
+                await loadAllTickets();
+            }
+
+            selectedInventoryParts = [];
+            renderSelectedPartsList();
+            calculateAndSyncPackages();
+            checkAndShowCompoundSuggestions(
+                document.getElementById('ai-diag-symptoms')?.value,
+                document.getElementById('ai-diag-device')?.value
+            );
+
+            document.getElementById('ai-res-diagnosis').value = '';
+            document.getElementById('ai-res-action').value = '';
+            const riskInput = document.getElementById('ai-res-risk');
+            if (riskInput) riskInput.value = '';
+            const riskBox = document.getElementById('ai-res-risk-box');
+            if (riskBox) riskBox.classList.add('hidden');
+
+            const badge = document.getElementById('ai-confidence-badge');
+            if (badge) {
+                badge.className = "px-2 py-0.5 rounded-full text-[10px] font-black bg-slate-100 text-slate-700 border border-slate-300 font-bold";
+                badge.innerText = "Đã bác bỏ bản nháp";
+            }
+
+            if (selTicket) {
+                const cleanId = selTicket.replace(/^#+/, '');
+                const tObj = allTickets.find(t => (t.maPhieu || '').replace(/^#+/, '') === cleanId);
+                if (tObj) {
+                    tObj.daDuyetChuanDoan = false;
+                }
+            }
+            populateInventoryDropdown();
+            renderTicketList();
+            showToast("Đã bác bỏ bản nháp AI và hoàn lại toàn bộ linh kiện vào kho.", "info");
+        }
+
+        async function handleApproveAIDraft() {
+            const selTicket = document.getElementById('ai-diag-select-ticket').value;
+            if (!selTicket) {
+                showToast("Vui lòng chọn phiếu sửa chữa cần duyệt chẩn đoán!", "warning");
+                document.getElementById('ai-diag-select-ticket').focus();
+                return;
+            }
+
+            const diagVal = document.getElementById('ai-res-diagnosis').value.trim();
+            const actionVal = document.getElementById('ai-res-action').value.trim();
+            const riskInput = document.getElementById('ai-res-risk');
+            const riskVal = riskInput ? riskInput.value.trim() : '';
+
+            if (!diagVal) {
+                showToast("Vui lòng nhập hoặc chạy phân tích AI trước khi duyệt chẩn đoán!", "warning");
+                document.getElementById('ai-res-diagnosis').focus();
+                return;
+            }
+
+            const btn = document.getElementById('btn-approve-ai-draft');
+            if (btn) {
+                btn.disabled = true;
+                btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Đang duyệt...';
+            }
+
+            const cleanId = selTicket.replace(/^#+/, '');
+            const activeKtv = getActiveKtv();
+            const ktvMa = (activeKtv && activeKtv !== 'ALL') ? activeKtv : null;
+            const ktvTen = ktvMa ? getKtvName(ktvMa) : 'Kỹ thuật viên';
+
+            const targetUrls = [
+                `${API_BASE}/api/ktv/duyet-chuan-doan/${encodeURIComponent(cleanId)}`,
+                `/api/ktv/duyet-chuan-doan/${encodeURIComponent(cleanId)}`,
+                `http://127.0.0.1:8000/api/ktv/duyet-chuan-doan/${encodeURIComponent(cleanId)}`
+            ];
+
+            let success = false;
+            let resultData = null;
+
+            for (const url of targetUrls) {
+                try {
+                    const res = await fetch(url, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            maPhieu: cleanId,
+                            nguyenNhan: diagVal,
+                            phuongAnDeXuat: actionVal,
+                            ruiRoTiemAn: riskVal,
+                            maKTV: ktvMa,
+                            tenKTV: ktvTen
+                        })
+                    });
+                    if (res.ok) {
+                        resultData = await res.json();
+                        if (resultData && resultData.success !== false) {
+                            success = true;
+                            break;
+                        }
+                    }
+                } catch (e) {
+                    console.error("Lỗi khi gửi yêu cầu duyệt chẩn đoán đến:", url, e);
+                }
+            }
+
+            if (btn) {
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fa-solid fa-circle-check"></i> Duyệt chẩn đoán';
+            }
+
+            if (success) {
+                const tObj = allTickets.find(t => (t.maPhieu || '').replace(/^#+/, '') === cleanId);
+                if (tObj) {
+                    tObj.daDuyetChuanDoan = true;
+                    tObj.chuanDoanKTV = (resultData && resultData.chuanDoanKTV) ? resultData.chuanDoanKTV : diagVal;
+                    if (ktvMa && !tObj.maKTV) {
+                        tObj.maKTV = ktvMa;
+                    }
+                }
+
+                const badge = document.getElementById('ai-confidence-badge');
+                if (badge) {
+                    badge.className = "px-2 py-0.5 rounded-full text-[10px] font-black bg-emerald-100 text-emerald-800 border border-emerald-200 font-bold";
+                    badge.innerText = "ĐÃ DUYỆT";
+                }
+
+                const statusPill = document.getElementById('ai-status-pill');
+                if (statusPill) {
+                    statusPill.className = "px-2.5 py-0.5 rounded-full text-[10px] font-black bg-emerald-100 text-emerald-800 border border-emerald-200 font-bold";
+                    statusPill.innerText = "Trạng thái: Đã chẩn đoán";
+                }
+
+                showToast(`✅ Đã duyệt chẩn đoán phiếu #${cleanId}! Khách hàng & Chatbot đã có thể xem nguyên nhân.`, 'success');
+                await loadAllTickets();
+                renderTicketList();
+            } else {
+                showToast("Không thể gửi yêu cầu duyệt chẩn đoán đến máy chủ. Vui lòng thử lại!", "error");
             }
         }
 
@@ -1935,24 +2230,8 @@
                 } catch (e) {}
             }
 
-            // Gán từng linh kiện vào chi tiết sửa chữa qua API phụ trợ
-            if (selectedInventoryParts.length > 0) {
-                for (const p of selectedInventoryParts) {
-                    try {
-                        await fetch(`${API_BASE}/bao-hanh-chi-tiet/`, {
-                            method: 'POST',
-                            headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify({
-                                maPhieu: selTicket,
-                                maLK: p.maLK,
-                                soLuong: p.soLuong || 1,
-                                donGia: p.giaBan || 0,
-                                thoiGianBaoHanh: p.thoiHan || thoiHan
-                            })
-                        });
-                    } catch (e) {}
-                }
-            }
+            await loadPartsInventory();
+            await loadAllTickets();
 
             btn.disabled = false;
             btn.innerHTML = '<i class="fa-solid fa-floppy-disk"></i> Lưu Thông Tin Bảo Hành & Báo Giá';

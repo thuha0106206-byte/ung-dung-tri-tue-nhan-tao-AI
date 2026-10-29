@@ -276,11 +276,18 @@ def api_thanh_toan(req: ThanhToanRequest, db: Session = Depends(get_db)):
     )
     db.add(hoa_don)
 
-    # Cập nhật thông số ca làm việc đang mở của thu ngân (nếu có)
+    # Cập nhật thông số ca làm việc đang mở của quầy thu ngân (nếu có)
     ca_open = db.query(models.CaLamViec).filter(
-        models.CaLamViec.maNV == ma_tn,
         models.CaLamViec.trangThai == "DANG_MO"
-    ).order_by(desc(models.CaLamViec.thoiGianMoCa)).first()
+    )
+    if ma_tn:
+        ca_personal = ca_open.filter(models.CaLamViec.maNV == ma_tn).order_by(desc(models.CaLamViec.thoiGianMoCa)).first()
+        if ca_personal:
+            ca_open = ca_personal
+        else:
+            ca_open = ca_open.order_by(desc(models.CaLamViec.thoiGianMoCa)).first()
+    else:
+        ca_open = ca_open.order_by(desc(models.CaLamViec.thoiGianMoCa)).first()
 
     if ca_open:
         ca_open.soDonThanhToan += 1
@@ -315,23 +322,24 @@ def api_thanh_toan(req: ThanhToanRequest, db: Session = Depends(get_db)):
 @router.get("/thu-ngan/giao-dich-hien-tai", summary="Tương thích ngược giao dịch ca hiện tại")
 def get_ca_hien_tai(maThuNgan: Optional[str] = Query(None), db: Session = Depends(get_db)):
     """Kiểm tra ca trực hiện tại trong MySQL và tổng hợp doanh thu trực tiếp từ bảng hoa_don."""
-    ma_nv = maThuNgan or "NV04"
+    # 1. Tìm ca làm việc đang mở gần nhất (ca trực của quầy thu ngân)
+    ca_active = None
+    if maThuNgan and maThuNgan not in ["ALL", "NV01"]:
+        ca_active = db.query(models.CaLamViec).filter(
+            models.CaLamViec.maNV == maThuNgan,
+            models.CaLamViec.trangThai == "DANG_MO"
+        ).order_by(desc(models.CaLamViec.thoiGianMoCa)).first()
 
-    # Lấy ca đang mở gần nhất của nhân viên hoặc chung
-    ca_open = db.query(models.CaLamViec).filter(
-        models.CaLamViec.trangThai == "DANG_MO"
-    )
-    if maThuNgan:
-        ca_open = ca_open.filter(models.CaLamViec.maNV == ma_nv)
-    ca_active = ca_open.order_by(desc(models.CaLamViec.thoiGianMoCa)).first()
+    if not ca_active:
+        ca_active = db.query(models.CaLamViec).filter(
+            models.CaLamViec.trangThai == "DANG_MO"
+        ).order_by(desc(models.CaLamViec.thoiGianMoCa)).first()
 
-    thoi_gian_bat_dau = ca_active.thoiGianMoCa if ca_active else datetime.now().replace(hour=8, minute=0, second=0)
+    today_start = datetime.now().replace(hour=0, minute=0, second=0, microsecond=0)
+    thoi_gian_bat_dau = ca_active.thoiGianMoCa if ca_active else today_start
 
-    # Lấy tất cả hóa đơn thanh toán từ lúc mở ca tới nay
+    # Lấy tất cả hóa đơn thanh toán trong ca (từ lúc mở ca hoặc đầu ngày tới nay)
     query_hd = db.query(models.HoaDon).filter(models.HoaDon.ngayThanhToan >= thoi_gian_bat_dau)
-    if maThuNgan:
-        query_hd = query_hd.filter(models.HoaDon.maThuNgan == ma_nv)
-    
     hoa_dons = query_hd.order_by(desc(models.HoaDon.ngayThanhToan)).all()
 
     ds_giao_dich = []
@@ -366,6 +374,14 @@ def get_ca_hien_tai(maThuNgan: Optional[str] = Query(None), db: Session = Depend
         })
 
     tong_doanh_thu = tong_tien_mat + tong_chuyen_khoan
+
+    # Đồng bộ số liệu thực tế từ hoa_don vào ca_active
+    if ca_active:
+        ca_active.tongDoanhThu = tong_doanh_thu
+        ca_active.tongTienMat = tong_tien_mat
+        ca_active.tongChuyenKhoan = tong_chuyen_khoan
+        ca_active.soDonThanhToan = len(ds_giao_dich)
+        db.commit()
 
     return {
         "coCaMo": ca_active is not None,

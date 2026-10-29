@@ -187,17 +187,29 @@
                 visibility: hidden;
             }
 
+            #modal-receipt,
+            #modal-receipt *,
             #print-area,
             #print-area * {
-                visibility: visible;
+                visibility: visible !important;
+            }
+
+            #modal-receipt {
+                position: absolute !important;
+                left: 0 !important;
+                top: 0 !important;
+                width: 100% !important;
+                background: white !important;
+                display: block !important;
+                padding: 0 !important;
             }
 
             #print-area {
-                position: absolute;
-                left: 0;
-                top: 0;
-                width: 100%;
-                background: white;
+                width: 100% !important;
+                max-width: 100% !important;
+                box-shadow: none !important;
+                border: none !important;
+                padding: 20px !important;
             }
 
             .no-print {
@@ -231,18 +243,6 @@
                     <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
                     <span>Ca Trực: <strong id="current-user-name">Trần Thị Bình (Lễ Tân)</strong></span>
                 </div>
-                <a href="/admin" target="_blank"
-                    class="cross-portal-link px-3 py-1.5 rounded-xl border border-purple-200 bg-purple-50 hover:bg-purple-100 text-xs font-bold text-purple-800 transition flex items-center gap-1.5">
-                    <i class="fa-solid fa-crown text-purple-600"></i> Admin
-                </a>
-                <a href="/ky-thuat-vien" target="_blank"
-                    class="cross-portal-link px-3 py-1.5 rounded-xl border border-sky-200 bg-sky-50 hover:bg-sky-100 text-xs font-bold text-sky-800 transition flex items-center gap-1.5">
-                    <i class="fa-solid fa-screwdriver-wrench text-sky-600"></i> Bàn KTV
-                </a>
-                <a href="/thu-ngan" target="_blank"
-                    class="cross-portal-link px-3 py-1.5 rounded-xl border border-emerald-200 bg-emerald-50 hover:bg-emerald-100 text-xs font-bold text-emerald-800 transition flex items-center gap-1.5">
-                    <i class="fa-solid fa-cash-register"></i> Thu Ngân
-                </a>
                 <button onclick="AuthGuard.handleLogout()" title="Đăng xuất tài khoản" class="px-3 py-1.5 rounded-xl border border-rose-200 bg-rose-50 hover:bg-rose-100 text-xs font-bold text-rose-700 transition flex items-center gap-1.5 cursor-pointer">
                     <i class="fa-solid fa-arrow-right-from-bracket"></i> <span class="hidden sm:inline">Đăng Xuất</span>
                 </button>
@@ -350,18 +350,18 @@
                         </div>
                     </div>
                 </div>
-                <form id="reception-form" onsubmit="handleCreateTicket(event)" class="space-y-3">
+                <form id="reception-form" onsubmit="handleCreateTicket(event)" autocomplete="off" class="space-y-3">
                     <div class="grid grid-cols-2 gap-3">
                         <div>
                             <label class="block text-xs font-bold text-slate-700 mb-1">Mã Phiếu <span
                                     class="text-rose-500">*</span></label>
                             <div class="relative flex items-center">
-                                <input id="recept-maphieu" type="text" required
-                                    class="w-full bg-slate-50 border border-slate-200 pl-3 pr-8 py-2 rounded-xl text-xs font-bold text-slate-900 placeholder:text-slate-400 focus:bg-white focus:outline-none focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 transition shadow-2xs"
+                                <input id="recept-maphieu" type="text" required autocomplete="off"
+                                    class="w-full bg-slate-50 border border-slate-200 px-3 py-2 pr-8 rounded-xl text-xs font-bold text-slate-900 placeholder:text-slate-400 focus:bg-white focus:outline-none focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 transition shadow-2xs"
                                     placeholder="PSxxxxxx">
                                 <button type="button" onclick="autoGenTicketCode()"
                                     class="absolute right-1 w-6 h-6 flex items-center justify-center text-slate-400 hover:text-brand-600 hover:bg-brand-50 rounded-lg text-xs transition cursor-pointer"
-                                    title="Tự sinh mã ngẫu nhiên">
+                                    title="Tự sinh mã phiếu ngẫu nhiên nhanh">
                                     <i class="fa-solid fa-rotate text-xs"></i>
                                 </button>
                             </div>
@@ -369,62 +369,126 @@
                         <div>
                             <label class="block text-xs font-bold text-slate-700 mb-1">Mã / ID Khách <span
                                     class="text-rose-500">*</span></label>
-                            <div class="relative flex items-center">
-                                <input id="recept-makh" type="text" required
-                                    class="w-full bg-slate-50 border border-slate-200 px-3 py-2 pr-8 rounded-xl text-xs font-bold text-slate-900 placeholder:text-slate-400 focus:bg-white focus:outline-none focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 transition shadow-2xs"
-                                    placeholder="KH046">
-                                <button type="button" onclick="autoGenCustomerCode()"
-                                    class="absolute right-1 w-6 h-6 flex items-center justify-center text-slate-400 hover:text-brand-600 hover:bg-brand-50 rounded-lg text-xs transition cursor-pointer"
-                                    title="Tự sinh mã khách hàng mới không trùng">
-                                    <i class="fa-solid fa-rotate text-xs"></i>
-                                </button>
-                            </div>
+                            <input id="recept-makh" type="text" required autocomplete="off"
+                                class="w-full bg-slate-50 border border-slate-200 px-3 py-2 rounded-xl text-xs font-bold text-slate-900 placeholder:text-slate-400 focus:bg-white focus:outline-none focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 transition shadow-2xs"
+                                placeholder="Nhập mã khách (VD: KH046)">
                         </div>
                     </div>
                     <div class="grid grid-cols-2 gap-3">
                         <div>
                             <label class="block text-xs font-bold text-slate-700 mb-1">Họ Tên Khách</label>
-                            <input id="recept-hoten" type="text"
+                            <input id="recept-hoten" type="text" autocomplete="off"
                                 class="w-full bg-slate-50 border border-slate-200 px-3 py-2 rounded-xl text-xs font-semibold text-slate-900 placeholder:text-slate-400 focus:bg-white focus:outline-none focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 transition shadow-2xs"
                                 placeholder="VD: Anh Tuấn">
                         </div>
                         <div>
                             <label class="block text-xs font-bold text-slate-700 mb-1">SĐT Khách</label>
-                            <input id="recept-sdt" type="tel"
+                            <input id="recept-sdt" type="tel" autocomplete="off"
                                 class="w-full bg-slate-50 border border-slate-200 px-3 py-2 rounded-xl text-xs font-semibold text-slate-900 placeholder:text-slate-400 focus:bg-white focus:outline-none focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 transition shadow-2xs"
                                 placeholder="0912 345 678">
                         </div>
                     </div>
                     <div>
-                        <label class="block text-xs font-bold text-slate-700 mb-1 flex items-center justify-between">
-                            <span><i class="fa-solid fa-envelope text-brand-600 mr-1"></i> Email Khách Hàng <span
-                                    class="text-rose-500">*</span></span>
-                            <div class="flex items-center gap-1.5">
-                                <button type="button" onclick="fillTestAccount()"
-                                    class="text-[10px] font-bold text-brand-600 bg-brand-50 hover:bg-brand-100 px-2 py-0.5 rounded-full border border-brand-200 transition cursor-pointer"
-                                    title="Điền tự động thuha0106206@gmail.com">⚡ Điền thuha0106206@gmail.com</button>
-                                <span
-                                    class="text-[10px] font-bold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200">Gửi
-                                    mail & SMS</span>
-                            </div>
+                        <label class="block text-xs font-bold text-slate-700 mb-1">
+                            <i class="fa-solid fa-envelope text-brand-600 mr-1"></i> Email Khách Hàng <span class="text-rose-500">*</span>
                         </label>
-                        <input id="recept-email" type="email" required
+                        <input id="recept-email" type="email" required autocomplete="off"
                             class="w-full bg-slate-50 border border-slate-200 px-3 py-2 rounded-xl text-xs font-bold text-slate-900 placeholder:text-slate-400 placeholder:font-normal focus:bg-white focus:outline-none focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 transition shadow-2xs"
-                            placeholder="VD: thuha0106206@gmail.com">
+                            placeholder="VD: khachhang@gmail.com">
+                    </div>
+                    <div class="grid grid-cols-2 gap-3">
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 mb-1">
+                                <i class="fa-solid fa-mobile-screen-button text-brand-600 mr-1"></i> Dòng Máy iPhone <span class="text-rose-500">*</span>
+                            </label>
+                            <select id="recept-iphone-model" required
+                                class="w-full bg-slate-50 border border-slate-200 px-3 py-2 rounded-xl text-xs font-bold text-slate-900 focus:bg-white focus:outline-none focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 transition shadow-2xs cursor-pointer">
+                                <option value="">-- Chọn dòng iPhone --</option>
+                                <optgroup label="🌟 iPhone 18 Series">
+                                    <option value="iPhone 18 Pro Max">iPhone 18 Pro Max</option>
+                                    <option value="iPhone 18 Pro">iPhone 18 Pro</option>
+                                </optgroup>
+                                <optgroup label="🔥 iPhone 17 Series">
+                                    <option value="iPhone 17 Pro Max">iPhone 17 Pro Max</option>
+                                    <option value="iPhone 17 Pro">iPhone 17 Pro</option>
+                                    <option value="iPhone Air">iPhone Air</option>
+                                    <option value="iPhone 17">iPhone 17</option>
+                                    <option value="iPhone 17e">iPhone 17e</option>
+                                </optgroup>
+                                <optgroup label="⚡ iPhone 16 Series">
+                                    <option value="iPhone 16 Pro Max">iPhone 16 Pro Max</option>
+                                    <option value="iPhone 16 Pro">iPhone 16 Pro</option>
+                                    <option value="iPhone 16 Plus">iPhone 16 Plus</option>
+                                    <option value="iPhone 16">iPhone 16</option>
+                                    <option value="iPhone 16e">iPhone 16e</option>
+                                </optgroup>
+                                <optgroup label="📱 iPhone 15 Series">
+                                    <option value="iPhone 15 Pro Max">iPhone 15 Pro Max</option>
+                                    <option value="iPhone 15 Pro">iPhone 15 Pro</option>
+                                    <option value="iPhone 15 Plus">iPhone 15 Plus</option>
+                                    <option value="iPhone 15">iPhone 15</option>
+                                </optgroup>
+                                <optgroup label="📱 iPhone 14 Series">
+                                    <option value="iPhone 14 Pro Max">iPhone 14 Pro Max</option>
+                                    <option value="iPhone 14 Pro">iPhone 14 Pro</option>
+                                    <option value="iPhone 14 Plus">iPhone 14 Plus</option>
+                                    <option value="iPhone 14">iPhone 14</option>
+                                </optgroup>
+                                <optgroup label="📱 iPhone 13 Series">
+                                    <option value="iPhone 13 Pro Max">iPhone 13 Pro Max</option>
+                                    <option value="iPhone 13 Pro">iPhone 13 Pro</option>
+                                    <option value="iPhone 13">iPhone 13</option>
+                                    <option value="iPhone 13 mini">iPhone 13 mini</option>
+                                </optgroup>
+                                <optgroup label="📱 iPhone 12 Series">
+                                    <option value="iPhone 12 Pro Max">iPhone 12 Pro Max</option>
+                                    <option value="iPhone 12 Pro">iPhone 12 Pro</option>
+                                    <option value="iPhone 12">iPhone 12</option>
+                                    <option value="iPhone 12 mini">iPhone 12 mini</option>
+                                </optgroup>
+                                <optgroup label="📱 iPhone 11 Series">
+                                    <option value="iPhone 11 Pro Max">iPhone 11 Pro Max</option>
+                                    <option value="iPhone 11 Pro">iPhone 11 Pro</option>
+                                    <option value="iPhone 11">iPhone 11</option>
+                                </optgroup>
+                                <optgroup label="📱 iPhone X / XS / XR">
+                                    <option value="iPhone XS Max">iPhone XS Max</option>
+                                    <option value="iPhone XS">iPhone XS</option>
+                                    <option value="iPhone XR">iPhone XR</option>
+                                    <option value="iPhone X">iPhone X</option>
+                                </optgroup>
+                                <optgroup label="📱 iPhone 8 Series">
+                                    <option value="iPhone 8 Plus">iPhone 8 Plus</option>
+                                    <option value="iPhone 8">iPhone 8</option>
+                                </optgroup>
+                                <optgroup label="📱 iPhone 7 Series">
+                                    <option value="iPhone 7 Plus">iPhone 7 Plus</option>
+                                    <option value="iPhone 7">iPhone 7</option>
+                                </optgroup>
+                                <optgroup label="📱 iPhone 6 Series">
+                                    <option value="iPhone 6s Plus">iPhone 6s Plus</option>
+                                    <option value="iPhone 6s">iPhone 6s</option>
+                                    <option value="iPhone 6 Plus">iPhone 6 Plus</option>
+                                    <option value="iPhone 6">iPhone 6</option>
+                                </optgroup>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 mb-1">
+                                <i class="fa-solid fa-user-gear text-brand-600 mr-1"></i> Phân Công KTV
+                            </label>
+                            <select id="recept-maktv"
+                                class="w-full bg-slate-50 border border-slate-200 px-3 py-2 rounded-xl text-xs font-semibold text-slate-900 focus:bg-white focus:outline-none focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 transition shadow-2xs cursor-pointer">
+                                <option value="">-- Chưa chỉ định (KTV nhận sau) --</option>
+                            </select>
+                        </div>
                     </div>
                     <div>
-                        <label class="block text-xs font-bold text-slate-700 mb-1">Phân Công KTV</label>
-                        <select id="recept-maktv"
-                            class="w-full bg-slate-50 border border-slate-200 px-3 py-2 rounded-xl text-xs font-semibold text-slate-900 focus:bg-white focus:outline-none focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 transition shadow-2xs cursor-pointer">
-                            <option value="">-- Chưa chỉ định (KTV nhận sau) --</option>
-                        </select>
-                    </div>
-                    <div>
-                        <label class="block text-xs font-bold text-slate-700 mb-1">Mô Tả Lỗi & Ngoại Quan <span
+                        <label class="block text-xs font-bold text-slate-700 mb-1">Mô Tả Lỗi & Ngoại Quan (Điền tay) <span
                                 class="text-rose-500">*</span></label>
                         <textarea id="recept-mota" required rows="3"
                             class="w-full bg-slate-50 border border-slate-200 p-3 rounded-xl text-xs font-medium text-slate-900 resize-none focus:bg-white focus:outline-none focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 transition shadow-2xs"
-                            placeholder="VD: iPhone 13 Pro vỡ màn, sọc dọc, pin 78%..."></textarea>
+                            placeholder="VD: Vỡ màn hình hiển thị, sọc dọc, pin chai 78%, nứt kính lưng..."></textarea>
                     </div>
                     <button type="submit" id="btn-submit-ticket"
                         class="w-full py-2.5 bg-brand-600 hover:bg-brand-700 text-white font-bold rounded-xl shadow-sm hover:shadow text-xs flex items-center justify-center gap-2 transition active:scale-[0.99] cursor-pointer">
@@ -522,22 +586,16 @@
                     <!-- KHÁCH HÀNG NHẬN TIN (ĐẦY ĐỦ GMAIL & SMS) -->
                     <div id="ai-recipient-box"
                         class="p-3 rounded-2xl bg-purple-950/90 border border-purple-400/40 text-xs text-purple-100 shadow-inner space-y-2.5">
-                        <div class="flex items-center justify-between gap-2 border-b border-purple-800/50 pb-2">
-                            <div class="flex items-center gap-2">
-                                <span
-                                    class="w-6 h-6 rounded-lg bg-emerald-500/20 text-emerald-300 flex items-center justify-center text-xs"><i
-                                        class="fa-solid fa-user-check"></i></span>
-                                <div>
-                                    <span class="text-[10px] text-purple-300 font-bold uppercase tracking-wider">Người
-                                        Nhận Tin:</span>
-                                    <strong id="ai-recipient-name"
-                                        class="text-white text-xs ml-1 font-black">---</strong>
-                                </div>
+                        <div class="flex items-center gap-2 border-b border-purple-800/50 pb-2">
+                            <span
+                                class="w-6 h-6 rounded-lg bg-emerald-500/20 text-emerald-300 flex items-center justify-center text-xs"><i
+                                    class="fa-solid fa-user-check"></i></span>
+                            <div>
+                                <span class="text-[10px] text-purple-300 font-bold uppercase tracking-wider">Người
+                                    Nhận Tin:</span>
+                                <strong id="ai-recipient-name"
+                                    class="text-white text-xs ml-1 font-black">---</strong>
                             </div>
-                            <button type="button" onclick="setQuickTestEmail('thuha0106206@gmail.com')"
-                                class="text-[10px] font-bold text-amber-200 bg-amber-950/80 hover:bg-amber-900 px-2 py-1 rounded-lg border border-amber-500/40 transition cursor-pointer flex items-center gap-1">
-                                <i class="fa-solid fa-bolt text-amber-400"></i> Dùng thuha0106206@gmail.com
-                            </button>
                         </div>
 
                         <div class="grid grid-cols-2 gap-2">
@@ -545,8 +603,8 @@
                                 <label class="block text-[10px] font-bold text-purple-300 mb-1 flex items-center gap-1">
                                     <i class="fa-solid fa-envelope text-purple-400"></i> Email Khách (Gmail):
                                 </label>
-                                <input id="ai-recipient-email-input" type="email"
-                                    placeholder="VD: thuha0106206@gmail.com"
+                                <input id="ai-recipient-email-input" type="email" autocomplete="off"
+                                    placeholder="VD: khachhang@gmail.com"
                                     class="w-full bg-slate-900 border border-purple-400/40 rounded-xl px-2.5 py-1.5 text-xs text-white font-mono placeholder:text-slate-500 focus:outline-none focus:ring-1 focus:ring-purple-400 font-bold">
                             </div>
                             <div>
@@ -554,7 +612,7 @@
                                     class="block text-[10px] font-bold text-emerald-300 mb-1 flex items-center gap-1">
                                     <i class="fa-solid fa-phone text-emerald-400"></i> SĐT Khách (SMS):
                                 </label>
-                                <input id="ai-recipient-phone-input" type="tel" placeholder="VD: 0912 345 678"
+                                <input id="ai-recipient-phone-input" type="tel" autocomplete="off" placeholder="VD: 0912 345 678"
                                     class="w-full bg-slate-900 border border-emerald-500/40 rounded-xl px-2.5 py-1.5 text-xs text-emerald-300 font-mono placeholder:text-slate-500 focus:outline-none focus:ring-1 focus:ring-emerald-400 font-bold">
                             </div>
                         </div>
@@ -740,7 +798,7 @@
     </main>
 
     <!-- MODAL: In Biên Nhận Tiếp Nhận -->
-    <div id="modal-receipt" class="modal-overlay hidden no-print">
+    <div id="modal-receipt" class="modal-overlay hidden">
         <div id="print-area" class="bg-white rounded-3xl max-w-lg w-full p-6 shadow-2xl border border-slate-200">
             <div class="text-center border-b pb-4 space-y-1">
                 <h3 class="text-lg font-black text-slate-900">TRUNG TÂM SỬA CHỮA FROGHIPPO PHONE</h3>
@@ -1123,7 +1181,7 @@
                     <span class="text-purple-300 font-semibold flex items-center gap-1">
                         <i class="fa-solid fa-envelope text-purple-400"></i> Email Khách (Gmail):
                     </span>
-                    <input id="ai-draft-email" type="email" placeholder="VD: thuha0106206@gmail.com"
+                    <input id="ai-draft-email" type="email" placeholder="VD: khachhang@gmail.com"
                         class="bg-slate-900 border border-purple-400/40 rounded-xl px-2.5 py-1 text-white font-mono text-xs w-60 focus:outline-none focus:ring-1 focus:ring-purple-400 font-semibold">
                 </div>
             </div>
@@ -1322,7 +1380,21 @@
             'DaThanhToan': { label: 'Đã Hoàn Tất', cls: 'bg-purple-100 text-purple-800 border-purple-200' }
         };
 
+        
+        // Tắt gợi ý autofill / popup lịch sử của trình duyệt trên form tiếp nhận
+        function disableFormAutofill() {
+            const inputs = document.querySelectorAll('#reception-form input, #reception-form textarea, #ai-recipient-box input');
+            inputs.forEach(inp => {
+                inp.setAttribute('autocomplete', 'off');
+                inp.setAttribute('autocorrect', 'off');
+                inp.setAttribute('autocapitalize', 'off');
+                inp.setAttribute('spellcheck', 'false');
+            });
+        }
+        document.addEventListener('DOMContentLoaded', disableFormAutofill);
+
         window.addEventListener('DOMContentLoaded', async () => {
+            disableFormAutofill();
             autoGenTicketCode();
             autoGenCustomerCode();
             await loadTechnicians();
@@ -1549,6 +1621,21 @@
             });
         }
 
+        // ========== XỬ LÝ CHỌN DÒNG MÁY IPHONE ==========
+        function handleIphoneModelChange(val) {
+            const customInp = document.getElementById('recept-custom-model');
+            if (!customInp) return;
+            if (val === 'KHAC') {
+                customInp.classList.remove('hidden');
+                customInp.required = true;
+                customInp.focus();
+            } else {
+                customInp.classList.add('hidden');
+                customInp.required = false;
+                customInp.value = '';
+            }
+        }
+
         // ========== FORM TẠO PHIẾU ==========
         async function handleCreateTicket(e) {
             e.preventDefault();
@@ -1558,7 +1645,28 @@
             const sdt = document.getElementById('recept-sdt').value.trim();
             const email = document.getElementById('recept-email') ? document.getElementById('recept-email').value.trim() : '';
             const maKTV = document.getElementById('recept-maktv').value;
-            const moTaLoi = document.getElementById('recept-mota').value.trim();
+
+            // Xử lý dòng máy iPhone từ dropdown
+            const selectedModel = document.getElementById('recept-iphone-model') ? document.getElementById('recept-iphone-model').value.trim() : '';
+
+            if (!selectedModel) {
+                showToast('Vui lòng chọn dòng máy iPhone!', 'warning');
+                document.getElementById('recept-iphone-model')?.focus();
+                return;
+            }
+
+            const rawMoTa = document.getElementById('recept-mota').value.trim();
+            if (!rawMoTa) {
+                showToast('Vui lòng điền mô tả lỗi thiết bị!', 'warning');
+                document.getElementById('recept-mota')?.focus();
+                return;
+            }
+
+            // Ghép dòng máy đã chọn và mô tả lỗi điền tay
+            let moTaLoi = rawMoTa;
+            if (!rawMoTa.toLowerCase().includes(selectedModel.toLowerCase())) {
+                moTaLoi = `[${selectedModel}] ${rawMoTa}`;
+            }
 
             if (!email) {
                 showToast('Vui lòng nhập Email để nhận thông báo khi sửa xong!', 'warning');
@@ -1595,10 +1703,24 @@
                 document.getElementById('recept-hoten').value = '';
                 document.getElementById('recept-sdt').value = '';
                 if (document.getElementById('recept-email')) document.getElementById('recept-email').value = '';
+                if (document.getElementById('recept-iphone-model')) document.getElementById('recept-iphone-model').value = '';
+                if (document.getElementById('recept-custom-model')) {
+                    document.getElementById('recept-custom-model').value = '';
+                    document.getElementById('recept-custom-model').classList.add('hidden');
+                }
                 document.getElementById('recept-mota').value = '';
 
+                const createdFallback = {
+                    maPhieu: maPhieu,
+                    maKH: (data && data.phieu && data.phieu.maKH) ? data.phieu.maKH : maKH,
+                    tenKH: (data && data.phieu && data.phieu.tenKH) ? data.phieu.tenKH : (hoTen || maKH),
+                    sdtKH: (data && data.phieu && data.phieu.sdtKH) ? data.phieu.sdtKH : sdt,
+                    maKTV: maKTV,
+                    moTaLoi: moTaLoi
+                };
+
                 if (confirm(`Đã lập phiếu #${noHash(maPhieu)}. Bạn có muốn in biên nhận bàn giao cho khách không?`)) {
-                    openReceiptModal(maPhieu, 'tiep_nhan');
+                    openReceiptModal(maPhieu, 'tiep_nhan', createdFallback);
                 }
             } catch (err) {
                 showToast(err.message, 'error');
@@ -1755,9 +1877,9 @@
 
         // ========== CÁC HÀM TIỆN ÍCH TÀI KHOẢN MẪU & KÊNH GMAIL / SMS ==========
         function fillTestAccount() {
-            document.getElementById('recept-email').value = 'thuha0106206@gmail.com';
+            document.getElementById('recept-email').value = 'khachhang@gmail.com';
             if (!document.getElementById('recept-hoten').value) {
-                document.getElementById('recept-hoten').value = 'Chị Thu Hà';
+                document.getElementById('recept-hoten').value = 'Nguyễn Văn Nam';
             }
             if (!document.getElementById('recept-sdt').value) {
                 document.getElementById('recept-sdt').value = '0987654321';
@@ -1765,10 +1887,10 @@
             if (!document.getElementById('recept-mota').value) {
                 document.getElementById('recept-mota').value = 'iPhone 13 Pro vỡ màn hình, sọc hiển thị, pin chai 76%';
             }
-            showToast('Đã điền email và thông tin mẫu: thuha0106206@gmail.com', 'info');
+            showToast('Đã điền email và thông tin mẫu: khachhang@gmail.com', 'info');
         }
 
-        function setQuickTestEmail(email = 'thuha0106206@gmail.com') {
+        function setQuickTestEmail(email = 'khachhang@gmail.com') {
             const emailInput = document.getElementById('ai-recipient-email-input');
             if (emailInput) {
                 emailInput.value = email;
@@ -1885,7 +2007,7 @@
             const ticket = allTickets.find(t => t.maPhieu === maPhieu || noHash(t.maPhieu) === noHash(maPhieu));
             const recipientName = ticket ? (ticket.tenKH || ticket.maKH) : 'Khách hàng';
             const recipientPhone = ticket ? (ticket.sdtKH || ticket.sdt || '0987654321') : '0987654321';
-            const recipientEmail = (ticket && (ticket.emailKH || ticket.email)) ? (ticket.emailKH || ticket.email) : 'thuha0106206@gmail.com';
+            const recipientEmail = (ticket && (ticket.emailKH || ticket.email)) ? (ticket.emailKH || ticket.email) : '';
 
             const nameEl = document.getElementById('ai-recipient-name');
             const emailInp = document.getElementById('ai-recipient-email-input');
@@ -1915,7 +2037,7 @@
             if (inputVal) return inputVal;
             const maPhieu = document.getElementById('ai-msg-select-ticket').value;
             const ticket = allTickets.find(t => t.maPhieu === maPhieu || noHash(t.maPhieu) === noHash(maPhieu));
-            return (ticket && (ticket.email || ticket.emailKH)) ? (ticket.email || ticket.emailKH) : 'thuha0106206@gmail.com';
+            return (ticket && (ticket.email || ticket.emailKH)) ? (ticket.email || ticket.emailKH) : '';
         }
 
         function openNativeMail() {
@@ -1989,7 +2111,7 @@
             const noiDung = document.getElementById('ai-msg-editor').value.trim();
             const channel = document.querySelector('input[name="ai-channel"]:checked')?.value || 'Gmail';
             const isChecked = document.getElementById('ai-confirm-check').checked;
-            const emailKhach = (document.getElementById('ai-recipient-email-input')?.value || 'thuha0106206@gmail.com').trim();
+            const emailKhach = (document.getElementById('ai-recipient-email-input')?.value || '').trim();
             const sdtKhach = (document.getElementById('ai-recipient-phone-input')?.value || '0987654321').trim();
 
             if (!maPhieu) { showToast('Chọn phiếu trước!', 'warning'); return; }
@@ -2085,22 +2207,38 @@
         }
 
         // ========== IN BIÊN NHẬN ==========
-        function openReceiptModal(maPhieu, loai = 'tiep_nhan') {
-            const ticket = allTickets.find(t => t.maPhieu === maPhieu);
-            if (!ticket) return;
+        async function openReceiptModal(maPhieu, loai = 'tiep_nhan', fallbackData = null) {
+            let ticket = allTickets.find(t => noHash(t.maPhieu) === noHash(maPhieu)) || allTickets.find(t => t.maPhieu === maPhieu);
+            if (!ticket && fallbackData) {
+                ticket = fallbackData;
+            }
+            if (!ticket) {
+                try {
+                    const res = await fetch(`/phieu-sua/${pid(maPhieu)}`);
+                    if (res.ok) ticket = await res.json();
+                } catch(e) {}
+            }
+            if (!ticket) {
+                showToast('Không tìm thấy thông tin phiếu #' + noHash(maPhieu), 'warning');
+                return;
+            }
+
             const ktv = allTechnicians.find(k => k.maNV === ticket.maKTV);
-            const ktvName = ktv ? ktv.hoTen : 'KTV Trực Ca';
+            const ktvName = ktv ? ktv.hoTen : (ticket.tenKTV || 'KTV Trực Ca');
             const now = new Date().toLocaleString('vi-VN');
 
             const badge = document.getElementById('receipt-type-badge');
             badge.textContent = loai === 'quyet_toan' ? 'HÓA ĐƠN QUYẾT TOÁN & BÀN GIAO' : 'BIÊN NHẬN TIẾP NHẬN THIẾT BỊ';
             badge.className = `inline-block px-3 py-1 rounded-full font-black text-xs border ${loai === 'quyet_toan' ? 'bg-emerald-50 text-emerald-700 border-emerald-200' : 'bg-brand-50 text-brand-700 border-brand-200'}`;
 
+            const customerDisplay = ticket.tenKH || ticket.hoTenKH || ticket.maKH || 'Khách hàng';
+            const phoneDisplay = ticket.sdtKH || ticket.sdt ? ` (${ticket.sdtKH || ticket.sdt})` : '';
+
             document.getElementById('receipt-content').innerHTML = `
         <div class="grid grid-cols-2 gap-2 bg-slate-50 p-3 rounded-xl border border-slate-200">
             <div><span class="text-slate-500">Mã Phiếu:</span> <strong class="text-brand-600">#${noHash(ticket.maPhieu)}</strong></div>
             <div><span class="text-slate-500">Thời gian:</span> <strong>${now}</strong></div>
-            <div><span class="text-slate-500">Khách hàng:</span> <strong>${ticket.maKH}</strong></div>
+            <div><span class="text-slate-500">Khách hàng:</span> <strong>${customerDisplay}${phoneDisplay}</strong></div>
             <div><span class="text-slate-500">KTV phụ trách:</span> <strong>${ktvName}</strong></div>
         </div>
         <div class="p-3 bg-slate-50 rounded-xl border border-slate-200">
@@ -2553,7 +2691,7 @@
                 document.getElementById('ai-draft-code').innerText = data.maLH;
                 const emailInp = document.getElementById('ai-draft-email');
                 if (emailInp) {
-                    emailInp.value = data.emailKhach || 'thuha0106206@gmail.com';
+                    emailInp.value = data.emailKhach || '';
                 }
                 document.getElementById('ai-draft-text').value = data.tinNhan;
 
@@ -2570,7 +2708,7 @@
             const maLH = currentAiDraftData.maLH;
             const noiDung = (document.getElementById('ai-draft-text')?.value || '').trim();
             const sdtKhach = (currentAiDraftData.sdtKhach || '').trim();
-            const emailKhach = (document.getElementById('ai-draft-email')?.value || currentAiDraftData.emailKhach || 'thuha0106206@gmail.com').trim();
+            const emailKhach = (document.getElementById('ai-draft-email')?.value || currentAiDraftData.emailKhach || '').trim();
 
             if (!noiDung) {
                 showToast("Nội dung tin nhắn trống!", "warning");
