@@ -84,6 +84,7 @@ class NhanVienAdminUpdate(BaseModel):
     chucVu: Optional[str] = None
     vaiTro: Optional[str] = None
     sdt: Optional[str] = None
+    tenDangNhap: Optional[str] = None
     matKhau: Optional[str] = None
     quyenTruyCap: Optional[List[str]] = None
 
@@ -281,6 +282,22 @@ def admin_update_nhan_vien(ma_nv: str, data: NhanVienAdminUpdate, db: Session = 
         nv.vaiTro = data.vaiTro.strip()
     if data.sdt is not None:
         nv.sdt = data.sdt.strip()
+    if data.tenDangNhap is not None and data.tenDangNhap.strip():
+        new_u = data.tenDangNhap.strip()
+        existing = db.query(models.NhanVien).filter(
+            func.lower(models.NhanVien.tenDangNhap) == new_u.lower(),
+            models.NhanVien.maNV != ma_nv
+        ).first()
+        if existing:
+            c = 2
+            base = new_u
+            while db.query(models.NhanVien).filter(
+                func.lower(models.NhanVien.tenDangNhap) == f"{base}{c:02d}".lower(),
+                models.NhanVien.maNV != ma_nv
+            ).first():
+                c += 1
+            new_u = f"{base}{c:02d}"
+        nv.tenDangNhap = new_u
     if data.matKhau is not None and data.matKhau.strip():
         nv.matKhau = data.matKhau.strip()
     if data.quyenTruyCap is not None:

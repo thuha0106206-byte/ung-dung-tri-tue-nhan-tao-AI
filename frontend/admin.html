@@ -584,15 +584,16 @@
 
                 <div class="grid grid-cols-2 gap-3">
                     <div>
-                        <label class="block font-bold text-slate-800 text-xs mb-1 flex items-center justify-between">
-                            <span>Tên Đăng Nhập <span class="text-rose-500">*</span></span>
-                            <span class="text-[10px] text-purple-700 font-bold">(Tự động theo vai trò)</span>
+                        <label class="block font-bold text-slate-800 text-xs mb-1">
+                            Tên Đăng Nhập <span class="text-rose-500">*</span>
                         </label>
-                        <input id="form-staff-username" type="text" required placeholder="Tự động sinh..." class="w-full bg-purple-50/50 border-2 border-purple-200 text-purple-900 font-mono font-bold p-2.5 rounded-xl focus:border-purple-600 focus:bg-white outline-none shadow-2xs">
+                        <input id="form-staff-username" type="text" required placeholder="Tự nhảy theo vai trò..." class="w-full bg-slate-50 border-2 border-slate-300 text-slate-900 font-mono font-bold p-2.5 rounded-xl focus:border-purple-600 focus:bg-white outline-none">
                     </div>
                     <div>
-                        <label class="block font-bold text-slate-800 text-xs mb-1">Mật Khẩu (Mặc định: 123)</label>
-                        <input id="form-staff-password" type="text" value="123" placeholder="Mặc định: 123" class="w-full bg-slate-50 border-2 border-slate-300 text-slate-900 font-mono font-bold p-2.5 rounded-xl focus:border-purple-600 focus:bg-white outline-none shadow-2xs">
+                        <label class="block font-bold text-slate-800 text-xs mb-1">
+                            Mật Khẩu
+                        </label>
+                        <input id="form-staff-password" type="text" value="123" placeholder="123" class="w-full bg-slate-50 border-2 border-slate-300 text-slate-900 font-mono font-bold p-2.5 rounded-xl focus:border-purple-600 focus:bg-white outline-none">
                     </div>
                 </div>
 
@@ -1123,8 +1124,8 @@
             }
         }
 
-                // --- HELPER SINH MÃ NV VÀ TÊN ĐĂNG NHẬP THÔNG MINH (KHÔNG BAO GIỜ TRÙNG) ---
-        function generateUniqueUsername(vaiTro) {
+                // --- HELPER SINH MÃ NV VÀ TÊN ĐĂNG NHẬP THÔNG MINH (TỰ ĐỔI KHI CHỌN VAI TRÒ) ---
+        function generateUniqueUsername(vaiTro, excludeMaNV = null) {
             const prefixMap = {
                 "Admin": "admin",
                 "LeTan": "letan",
@@ -1133,7 +1134,9 @@
             };
             const prefix = prefixMap[vaiTro] || "nv";
             const existingUsers = new Set(
-                (currentStaffList || []).map(s => (s.tenDangNhap || "").toLowerCase().trim())
+                (currentStaffList || [])
+                    .filter(s => !excludeMaNV || s.maNV !== excludeMaNV)
+                    .map(s => (s.tenDangNhap || "").toLowerCase().trim())
             );
 
             // Kiểm tra tên gốc
@@ -1190,7 +1193,7 @@
             document.getElementById("form-staff-hoten").value = s.hoTen;
             document.getElementById("form-staff-sdt").value = s.sdt || "";
             document.getElementById("form-staff-username").value = s.tenDangNhap;
-            document.getElementById("form-staff-password").value = "";
+            document.getElementById("form-staff-password").value = "123";
             document.getElementById("form-staff-vaitro").value = s.vaiTro || "KyThuatVien";
             document.getElementById("form-staff-chucvu").value = s.chucVu;
             openModal("modal-staff");
@@ -1207,12 +1210,12 @@
             };
             cvInput.value = names[vt] || vt;
 
-            // Nếu đang ở chế độ Thêm mới (Mã NV không readOnly): Tự động điền Tên đăng nhập theo vai trò
+            // Bất kể đang Thêm mới hay Sửa: khi ấn dropdown đổi vai trò là Tên đăng nhập nảy theo luôn
+            const maNV = document.getElementById("form-staff-manv").value.trim();
             const isEdit = document.getElementById("form-staff-manv").readOnly;
-            if (!isEdit) {
-                const autoUsername = generateUniqueUsername(vt);
-                document.getElementById("form-staff-username").value = autoUsername;
-            }
+            const newUsername = generateUniqueUsername(vt, isEdit ? maNV : null);
+            document.getElementById("form-staff-username").value = newUsername;
+        }
 
         async function handleStaffFormSubmit() {
             const maNV = document.getElementById("form-staff-manv").value.trim();
@@ -1220,20 +1223,21 @@
             const vt = document.getElementById("form-staff-vaitro").value;
 
             let uName = document.getElementById("form-staff-username").value.trim();
-            if (!uName && !isEdit) {
-                uName = generateUniqueUsername(vt);
+            if (!uName) {
+                uName = generateUniqueUsername(vt, isEdit ? maNV : null);
                 document.getElementById("form-staff-username").value = uName;
             }
+
+            const pwd = document.getElementById("form-staff-password").value.trim() || "123";
 
             const payload = {
                 hoTen: document.getElementById("form-staff-hoten").value.trim(),
                 chucVu: document.getElementById("form-staff-chucvu").value.trim(),
                 vaiTro: vt,
                 sdt: document.getElementById("form-staff-sdt").value.trim(),
+                tenDangNhap: uName,
+                matKhau: pwd
             };
-
-            const pwd = document.getElementById("form-staff-password").value.trim();
-            if (pwd) payload.matKhau = pwd;
 
             try {
                 let res;
@@ -1245,8 +1249,6 @@
                     });
                 } else {
                     payload.maNV = maNV || generateNextStaffCode();
-                    payload.tenDangNhap = uName;
-                    payload.matKhau = pwd || "123";
                     res = await fetch(`${API_BASE}/api/admin/nhan-vien`, {
                         method: "POST",
                         headers: { "Content-Type": "application/json" },
@@ -1265,7 +1267,6 @@
             } catch(e) {
                 showToast("Lỗi kết nối máy chủ!", "error");
             }
-        }
         }
 
         // --- MA TRẬN VAI TRÒ VÀ GÁN QUYỀN TRUY CẬP ---
