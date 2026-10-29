@@ -207,28 +207,65 @@ def admin_get_nhan_vien(db: Session = Depends(get_db)):
 
 @router.post("/api/admin/nhan-vien", summary="Tạo mới nhân viên (Admin)")
 def admin_create_nhan_vien(data: NhanVienAdminCreate, db: Session = Depends(get_db)):
-    if db.query(models.NhanVien).filter(models.NhanVien.maNV == data.maNV.strip()).first():
-        raise HTTPException(status_code=400, detail="Mã nhân viên đã tồn tại!")
-    if db.query(models.NhanVien).filter(models.NhanVien.tenDangNhap == data.tenDangNhap.strip()).first():
-        raise HTTPException(status_code=400, detail="Tên đăng nhập đã tồn tại!")
+    import re
+    ma_nv = data.maNV.strip()
+    ten_dang_nhap = data.tenDangNhap.strip()
+
+    # Tự sinh tên đăng nhập theo vai trò nếu để trống
+    if not ten_dang_nhap:
+        prefix_map = {
+            "Admin": "admin",
+            "QuanLy": "quanly",
+            "KyThuatVien": "ktv",
+            "LeTan": "letan",
+            "ThuNgan": "thungan"
+        }
+        prefix = prefix_map.get(data.vaiTro, "nv")
+        counter = 2
+        cand = prefix
+        while db.query(models.NhanVien).filter(func.lower(models.NhanVien.tenDangNhap) == cand.lower()).first():
+            cand = f"{prefix}{counter:02d}"
+            counter += 1
+        ten_dang_nhap = cand
+
+    # Nếu mã NV đã tồn tại, tự động lấy mã tiếp theo chưa bị trùng
+    if db.query(models.NhanVien).filter(models.NhanVien.maNV == ma_nv).first():
+        all_staffs = db.query(models.NhanVien.maNV).all()
+        max_num = 0
+        for s in all_staffs:
+            nums = re.findall(r'\d+', s[0])
+            if nums:
+                n = int(nums[0])
+                if n > max_num: max_num = n
+        ma_nv = f"NV{max_num + 1:02d}"
+
+    # Nếu tên đăng nhập đã tồn tại, tự động tăng hậu tố số để không bị chặn
+    existing_user = db.query(models.NhanVien).filter(func.lower(models.NhanVien.tenDangNhap) == ten_dang_nhap.lower()).first()
+    if existing_user:
+        base = ten_dang_nhap
+        counter = 2
+        while db.query(models.NhanVien).filter(func.lower(models.NhanVien.tenDangNhap) == f"{base}{counter:02d}".lower()).first():
+            counter += 1
+        ten_dang_nhap = f"{base}{counter:02d}"
 
     quyens_json = json.dumps(data.quyenTruyCap or [], ensure_ascii=False)
+    mat_khau = (data.matKhau or "").strip() or "123"
 
     nv = models.NhanVien(
-        maNV=data.maNV.strip(),
+        maNV=ma_nv,
         hoTen=data.hoTen.strip(),
         chucVu=data.chucVu.strip(),
         vaiTro=data.vaiTro.strip() if data.vaiTro else data.chucVu.strip(),
         sdt=data.sdt.strip() if data.sdt else "",
-        tenDangNhap=data.tenDangNhap.strip(),
-        matKhau=data.matKhau.strip(),
+        tenDangNhap=ten_dang_nhap,
+        matKhau=mat_khau,
         trangThai="HOAT_DONG",
         quyenTruyCap=quyens_json
     )
     db.add(nv)
     db.commit()
     db.refresh(nv)
-    return {"success": True, "message": f"Tạo nhân viên {nv.hoTen} ({nv.maNV}) thành công!", "nhanVien": nv}
+    return {"success": True, "message": f"Tạo nhân viên {nv.hoTen} ({nv.maNV} - @{nv.tenDangNhap}) thành công! Mật khẩu mặc định: {nv.matKhau}", "nhanVien": nv}
 
 @router.put("/api/admin/nhan-vien/{ma_nv}", summary="Cập nhật thông tin nhân sự")
 def admin_update_nhan_vien(ma_nv: str, data: NhanVienAdminUpdate, db: Session = Depends(get_db)):

@@ -2,6 +2,11 @@
 <html lang="vi">
 
 <head>
+    <script src="/auth_guard.js"></script>
+    <script>
+        AuthGuard.enforcePageAccess(['Admin', 'Lễ tân'], 'Phân Hệ Lễ Tân & Tiếp Nhận');
+        AuthGuard.setupPortalHeader('Lễ tân');
+    </script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
@@ -224,12 +229,23 @@
                 <div
                     class="hidden sm:flex items-center gap-2 bg-slate-100 py-1.5 px-3 rounded-xl text-xs font-semibold text-slate-700">
                     <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-                    <span>Ca Trực: <strong id="current-user-name">Trần Thị Bình</strong></span>
+                    <span>Ca Trực: <strong id="current-user-name">Trần Thị Bình (Lễ Tân)</strong></span>
                 </div>
+                <a href="/admin" target="_blank"
+                    class="cross-portal-link px-3 py-1.5 rounded-xl border border-purple-200 bg-purple-50 hover:bg-purple-100 text-xs font-bold text-purple-800 transition flex items-center gap-1.5">
+                    <i class="fa-solid fa-crown text-purple-600"></i> Admin
+                </a>
+                <a href="/ky-thuat-vien" target="_blank"
+                    class="cross-portal-link px-3 py-1.5 rounded-xl border border-sky-200 bg-sky-50 hover:bg-sky-100 text-xs font-bold text-sky-800 transition flex items-center gap-1.5">
+                    <i class="fa-solid fa-screwdriver-wrench text-sky-600"></i> Bàn KTV
+                </a>
                 <a href="/thu-ngan" target="_blank"
-                    class="px-3 py-1.5 rounded-xl border border-emerald-200 bg-emerald-50 hover:bg-emerald-100 text-xs font-bold text-emerald-800 transition flex items-center gap-1.5">
+                    class="cross-portal-link px-3 py-1.5 rounded-xl border border-emerald-200 bg-emerald-50 hover:bg-emerald-100 text-xs font-bold text-emerald-800 transition flex items-center gap-1.5">
                     <i class="fa-solid fa-cash-register"></i> Thu Ngân
                 </a>
+                <button onclick="AuthGuard.handleLogout()" title="Đăng xuất tài khoản" class="px-3 py-1.5 rounded-xl border border-rose-200 bg-rose-50 hover:bg-rose-100 text-xs font-bold text-rose-700 transition flex items-center gap-1.5 cursor-pointer">
+                    <i class="fa-solid fa-arrow-right-from-bracket"></i> <span class="hidden sm:inline">Đăng Xuất</span>
+                </button>
                 <a href="/"
                     class="px-3 py-1.5 rounded-xl border border-slate-200 hover:bg-slate-100 text-xs font-bold text-slate-600 transition flex items-center gap-1.5">
                     <i class="fa-solid fa-house"></i> Trang Chủ
@@ -249,12 +265,12 @@
 
     <!-- THỐNG KÊ NHANH -->
     <div class="max-w-7xl mx-auto w-full px-4 pt-5 no-print">
-        <div class="grid grid-cols-2 lg:grid-cols-5 gap-3">
+        <div class="grid grid-cols-2 lg:grid-cols-6 gap-3">
             <div class="glass p-4 rounded-2xl shadow-sm flex items-center gap-3">
                 <div class="w-10 h-10 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center text-lg">
                     📋</div>
                 <div>
-                    <div class="text-xs text-slate-500">Tổng Phiếu</div>
+                    <div class="text-xs text-slate-500 font-semibold">Tổng Phiếu</div>
                     <div class="text-xl font-black text-slate-900" id="stat-total">0</div>
                 </div>
             </div>
@@ -262,7 +278,7 @@
                 <div class="w-10 h-10 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center text-lg">⏳
                 </div>
                 <div>
-                    <div class="text-xs text-slate-500">Đang Xử Lý</div>
+                    <div class="text-xs text-slate-500 font-semibold">Đang Xử Lý</div>
                     <div class="text-xl font-black text-slate-900" id="stat-pending">0</div>
                 </div>
             </div>
@@ -271,7 +287,7 @@
                     class="w-10 h-10 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center text-lg">
                     ✅</div>
                 <div>
-                    <div class="text-xs text-slate-500">Sửa Xong</div>
+                    <div class="text-xs text-slate-500 font-semibold">Sửa Xong</div>
                     <div class="text-xl font-black text-emerald-600 animate-pulse" id="stat-repaired">0</div>
                 </div>
             </div>
@@ -279,7 +295,7 @@
                 <div class="w-10 h-10 rounded-xl bg-sky-50 text-sky-600 flex items-center justify-center text-lg">🪙
                 </div>
                 <div>
-                    <div class="text-xs text-slate-500">Đã Thu Cọc</div>
+                    <div class="text-xs text-slate-500 font-semibold">Đã Thu Cọc</div>
                     <div class="text-xl font-black text-sky-600" id="stat-coc">0</div>
                 </div>
             </div>
@@ -287,8 +303,22 @@
                 <div class="w-10 h-10 rounded-xl bg-purple-50 text-purple-600 flex items-center justify-center text-lg">
                     💬</div>
                 <div>
-                    <div class="text-xs text-slate-500">Tin Đã Gửi</div>
+                    <div class="text-xs text-slate-500 font-semibold">Tin Đã Gửi</div>
                     <div class="text-xl font-black text-slate-900" id="stat-notif">0</div>
+                </div>
+            </div>
+            <!-- THẺ: LỊCH HẸN HÔM NAY (QUẢN LÝ LỊCH HẸN) -->
+            <div onclick="switchTab('appointments')" class="glass p-4 rounded-2xl shadow-sm flex items-center gap-3 border border-amber-300 bg-amber-50/50 hover:bg-amber-100/60 transition cursor-pointer group">
+                <div class="w-10 h-10 rounded-xl bg-amber-500 text-slate-950 flex items-center justify-center text-lg font-black shadow group-hover:scale-105 transition">
+                    📅</div>
+                <div>
+                    <div class="text-xs text-amber-900 font-bold flex items-center gap-1">
+                        <span>Lịch Hẹn Hôm Nay</span>
+                    </div>
+                    <div class="text-xl font-black text-amber-600 flex items-center gap-1.5">
+                        <span id="stat-lich-hen-today">0</span>
+                        <span id="stat-lich-hen-pending-badge" class="hidden text-[10px] px-1.5 py-0.5 rounded-full bg-rose-500 text-white font-extrabold animate-pulse">0 chờ</span>
+                    </div>
                 </div>
             </div>
         </div>
@@ -339,9 +369,16 @@
                         <div>
                             <label class="block text-xs font-bold text-slate-700 mb-1">Mã / ID Khách <span
                                     class="text-rose-500">*</span></label>
-                            <input id="recept-makh" type="text" required
-                                class="w-full bg-slate-50 border border-slate-200 px-3 py-2 rounded-xl text-xs font-bold text-slate-900 placeholder:text-slate-400 focus:bg-white focus:outline-none focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 transition shadow-2xs"
-                                placeholder="KH001">
+                            <div class="relative flex items-center">
+                                <input id="recept-makh" type="text" required
+                                    class="w-full bg-slate-50 border border-slate-200 px-3 py-2 pr-8 rounded-xl text-xs font-bold text-slate-900 placeholder:text-slate-400 focus:bg-white focus:outline-none focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 transition shadow-2xs"
+                                    placeholder="KH046">
+                                <button type="button" onclick="autoGenCustomerCode()"
+                                    class="absolute right-1 w-6 h-6 flex items-center justify-center text-slate-400 hover:text-brand-600 hover:bg-brand-50 rounded-lg text-xs transition cursor-pointer"
+                                    title="Tự sinh mã khách hàng mới không trùng">
+                                    <i class="fa-solid fa-rotate text-xs"></i>
+                                </button>
+                            </div>
                         </div>
                     </div>
                     <div class="grid grid-cols-2 gap-3">
@@ -568,6 +605,11 @@
                         class="px-4 py-2 rounded-xl text-xs font-bold text-slate-600 hover:bg-white/80 transition">
                         💬 Lịch Sử Thông Báo
                     </button>
+                    <button onclick="switchTab('appointments')" id="tab-appointments"
+                        class="px-4 py-2 rounded-xl text-xs font-bold text-slate-600 hover:bg-white/80 transition relative">
+                        📅 Quản Lý Lịch Hẹn (<span id="appointment-count-badge">0</span>)
+                        <span id="appointment-unread-dot" class="hidden absolute top-1 right-1 w-2.5 h-2.5 rounded-full bg-rose-500 animate-pulse"></span>
+                    </button>
                 </div>
                 <div id="filter-area" class="flex items-center gap-2">
                     <div class="relative">
@@ -639,6 +681,59 @@
                         </tr>
                     </thead>
                     <tbody id="history-list" class="divide-y divide-slate-100"></tbody>
+                </table>
+            </div>
+
+            <!-- Tab: Quản lý lịch hẹn -->
+            <div id="view-appointments" class="hidden overflow-x-auto">
+                <div class="p-3.5 bg-amber-50/50 border-b border-amber-200/60 flex flex-wrap items-center justify-between gap-3 text-xs">
+                    <div class="flex flex-wrap items-center gap-2.5">
+                        <span class="font-extrabold text-slate-800 flex items-center gap-1.5"><i class="fa-solid fa-filter text-amber-600"></i> Lọc Lịch Hẹn:</span>
+                        <div class="flex items-center gap-1.5 bg-white border border-slate-200 rounded-xl px-2.5 py-1 shadow-2xs">
+                            <span class="text-[11px] text-slate-500 font-semibold">Ngày:</span>
+                            <input type="date" id="filter-apt-date" onchange="loadAppointments()" class="bg-transparent text-xs font-bold text-slate-800 focus:outline-none cursor-pointer">
+                        </div>
+                        <select id="filter-apt-status" onchange="loadAppointments()"
+                            class="bg-white border border-slate-200 rounded-xl px-3 py-1.5 text-xs font-bold text-slate-700 focus:outline-none focus:ring-2 focus:ring-brand-500 shadow-2xs cursor-pointer">
+                            <option value="">Tất cả trạng thái</option>
+                            <option value="Chờ xác nhận">Chờ xác nhận (Cần duyệt)</option>
+                            <option value="Đã xác nhận">Đã xác nhận</option>
+                            <option value="Đã đến">Đã đến</option>
+                            <option value="Không đến">Không đến</option>
+                            <option value="Đã hủy">Đã hủy</option>
+                        </select>
+                        <button type="button" onclick="resetAptFilters()" class="px-2.5 py-1.5 text-xs font-bold text-slate-600 bg-white hover:bg-slate-100 rounded-xl border border-slate-200 transition shadow-2xs cursor-pointer">
+                            <i class="fa-solid fa-rotate-left mr-1 text-slate-400"></i>Đặt lại
+                        </button>
+                    </div>
+
+                    <div class="flex items-center gap-3">
+                        <span class="text-xs text-slate-600 font-medium">
+                            Hôm nay: <strong id="apt-stat-today-text" class="text-brand-700 font-bold">0</strong> | 
+                            Chờ duyệt: <strong id="apt-stat-pending-text" class="text-amber-600 font-black">0</strong>
+                        </span>
+                        <button type="button" onclick="loadAppointments()" class="px-3 py-1.5 bg-brand-600 hover:bg-brand-700 text-white font-bold rounded-xl text-xs transition shadow-sm active:scale-95 flex items-center gap-1 cursor-pointer">
+                            <i class="fa-solid fa-arrows-rotate"></i> Làm mới
+                        </button>
+                    </div>
+                </div>
+
+                <table class="w-full text-left text-xs">
+                    <thead>
+                        <tr class="bg-slate-50 text-slate-600 font-bold border-b border-slate-200">
+                            <th class="py-3 px-4">Mã LH</th>
+                            <th class="py-3 px-4">Khách Hàng & SĐT</th>
+                            <th class="py-3 px-4">Thiết Bị</th>
+                            <th class="py-3 px-4">Mô Tả Lỗi</th>
+                            <th class="py-3 px-4">Ngày & Giờ Hẹn</th>
+                            <th class="py-3 px-4">Trạng Thái</th>
+                            <th class="py-3 px-4">Mã Phiếu</th>
+                            <th class="py-3 px-4 text-center">Thao Tác</th>
+                        </tr>
+                    </thead>
+                    <tbody id="appointment-list" class="divide-y divide-slate-100">
+                        <!-- Loaded dynamically -->
+                    </tbody>
                 </table>
             </div>
         </div>
@@ -812,7 +907,7 @@
     </div>
 
     <!-- MODAL: HỘP THOẠI TIN NHẮN SMS & QR CODE GỬI THỰC TẾ -->
-    <div id="modal-sms-preview" class="modal-overlay hidden no-print">
+    <div id="modal-sms-preview" class="modal-overlay hidden no-print !z-[60]" style="z-index: 60;">
         <div class="bg-white rounded-3xl max-w-2xl w-full p-6 shadow-2xl border border-slate-200 space-y-4">
             <div class="flex items-center justify-between border-b pb-3">
                 <div class="flex items-center gap-2">
@@ -902,6 +997,155 @@
             <div class="flex justify-end pt-2 border-t">
                 <button onclick="closeModal('modal-sms-preview')"
                     class="px-5 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs font-bold transition cursor-pointer">Đóng</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL: LỄ TÂN HỦY LỊCH HẸN (BẮT BUỘC CÓ LÝ DO) -->
+    <div id="modal-cancel-appointment" class="modal-overlay hidden no-print">
+        <div class="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl border border-slate-200 space-y-4">
+            <div class="flex justify-between items-center pb-2 border-b border-slate-100">
+                <div class="flex items-center gap-2 text-rose-600">
+                    <div class="w-8 h-8 rounded-xl bg-rose-50 flex items-center justify-center font-bold">
+                        <i class="fa-solid fa-ban"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-sm font-black text-slate-900">Hủy Lịch Hẹn Sửa Chữa</h3>
+                        <p class="text-[11px] text-slate-500">Mã lịch: <strong id="cancel-apt-code-display" class="font-mono text-rose-600">---</strong></p>
+                    </div>
+                </div>
+                <button onclick="closeModal('modal-cancel-appointment')" class="w-7 h-7 rounded-full bg-slate-100 hover:bg-slate-200 flex items-center justify-center text-slate-400 font-bold cursor-pointer">×</button>
+            </div>
+
+            <div class="text-xs text-slate-600 space-y-2">
+                <p>Khách hàng: <strong id="cancel-apt-customer-display" class="text-slate-800">---</strong></p>
+                <div>
+                    <label class="block font-bold text-slate-700 mb-1">Lý do hủy lịch <span class="text-rose-500">*</span>:</label>
+                    <textarea id="cancel-apt-reason-input" rows="3" required placeholder="Nhập lý do hủy (VD: Khách bận việc xin đổi lịch, khách đã tự sửa...)"
+                        class="w-full bg-slate-50 border border-slate-200 p-2.5 rounded-xl text-xs font-medium text-slate-800 outline-none focus:ring-2 focus:ring-rose-500 focus:bg-white"></textarea>
+                </div>
+            </div>
+
+            <div class="flex justify-end gap-2 pt-1 border-t border-slate-100">
+                <button type="button" onclick="closeModal('modal-cancel-appointment')" class="px-4 py-2 bg-slate-100 text-slate-700 rounded-xl font-bold text-xs hover:bg-slate-200 transition cursor-pointer">Hủy bỏ</button>
+                <button type="button" onclick="submitCancelAppointment()" id="btn-submit-cancel-apt" class="px-4 py-2 bg-rose-600 hover:bg-rose-700 text-white rounded-xl font-black text-xs shadow transition active:scale-95 cursor-pointer">Xác Nhận Hủy Lịch</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL: LỄ TÂN TẠO PHIẾU TIẾP NHẬN TỪ LỊCH HẸN -->
+    <div id="modal-create-ticket-from-apt" class="modal-overlay hidden no-print">
+        <div class="bg-white rounded-3xl max-w-lg w-full p-6 shadow-2xl border border-slate-200 space-y-4">
+            <div class="flex justify-between items-center pb-2 border-b border-slate-100">
+                <div class="flex items-center gap-2 text-brand-600">
+                    <div class="w-8 h-8 rounded-xl bg-brand-50 flex items-center justify-center font-bold">
+                        <i class="fa-solid fa-file-circle-plus"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-sm font-black text-slate-900">Lập Phiếu Tiếp Nhận Từ Lịch Hẹn</h3>
+                        <p class="text-[11px] text-slate-500">Chuyển trạng thái sang <span class="text-sky-600 font-bold">'Đã đến'</span> & sinh mã phiếu</p>
+                    </div>
+                </div>
+                <button onclick="closeModal('modal-create-ticket-from-apt')" class="w-7 h-7 rounded-full bg-slate-100 hover:bg-slate-200 flex items-center justify-center text-slate-400 font-bold cursor-pointer">×</button>
+            </div>
+
+            <div class="p-3 bg-slate-50 rounded-2xl border border-slate-200 text-xs space-y-2">
+                <div class="grid grid-cols-2 gap-2">
+                    <div>
+                        <span class="text-slate-400 block text-[10px]">Mã lịch hẹn:</span>
+                        <strong id="from-apt-code" class="text-brand-600 font-mono text-sm">---</strong>
+                    </div>
+                    <div>
+                        <span class="text-slate-400 block text-[10px]">Khách hàng:</span>
+                        <strong id="from-apt-customer" class="text-slate-900">---</strong> (<span id="from-apt-phone" class="text-slate-600 font-mono">---</span>)
+                    </div>
+                    <div>
+                        <span class="text-slate-400 block text-[10px]">Thiết bị:</span>
+                        <strong id="from-apt-device" class="text-slate-900">---</strong>
+                    </div>
+                    <div>
+                        <span class="text-slate-400 block text-[10px]">Giờ hẹn:</span>
+                        <strong id="from-apt-time" class="text-amber-600">---</strong>
+                    </div>
+                </div>
+                <div>
+                    <span class="text-slate-400 block text-[10px]">Mô tả lỗi:</span>
+                    <p id="from-apt-fault" class="text-slate-800 font-semibold italic">---</p>
+                </div>
+            </div>
+
+            <div class="space-y-3 text-xs">
+                <div>
+                    <label class="block font-bold text-slate-700 mb-1">Phân công Kỹ thuật viên (Tùy chọn):</label>
+                    <select id="from-apt-ktv" class="w-full bg-slate-50 border border-slate-200 p-2.5 rounded-xl text-xs font-semibold text-slate-800 focus:bg-white focus:outline-none focus:ring-2 focus:ring-brand-500 cursor-pointer">
+                        <option value="">-- Chưa chỉ định (KTV nhận sau) --</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block font-bold text-slate-700 mb-1">Ghi chú thêm của Lễ tân:</label>
+                    <input id="from-apt-note" type="text" placeholder="VD: Khách mang máy đúng giờ, ngoại quan xước nhẹ góc..."
+                        class="w-full bg-slate-50 border border-slate-200 px-3 py-2 rounded-xl text-xs text-slate-800 focus:bg-white focus:outline-none focus:ring-2 focus:ring-brand-500">
+                </div>
+            </div>
+
+            <div class="flex justify-end gap-2 pt-2 border-t border-slate-100">
+                <button type="button" onclick="closeModal('modal-create-ticket-from-apt')" class="px-4 py-2 bg-slate-100 text-slate-700 rounded-xl font-bold text-xs hover:bg-slate-200 transition cursor-pointer">Đóng</button>
+                <button type="button" onclick="submitCreateTicketFromApt()" id="btn-submit-create-ticket-from-apt" class="px-5 py-2 bg-brand-600 hover:bg-brand-700 text-white rounded-xl font-black text-xs shadow-md transition active:scale-95 flex items-center gap-1.5 cursor-pointer">
+                    <i class="fa-solid fa-circle-check"></i> Xác Nhận Tạo Phiếu
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL: SOẠN TIN XÁC NHẬN LỊCH HẸN (SMS & GMAIL) -->
+    <div id="modal-ai-draft-apt" class="modal-overlay hidden no-print">
+        <div class="bg-slate-950 text-white rounded-3xl max-w-lg w-full p-6 shadow-2xl border border-purple-500/40 space-y-4">
+            <div class="flex justify-between items-center pb-2 border-b border-slate-800">
+                <div class="flex items-center gap-2">
+                    <div class="w-8 h-8 rounded-xl bg-purple-500/20 text-purple-300 flex items-center justify-center font-bold">
+                        🤖
+                    </div>
+                    <div>
+                        <h3 class="text-sm font-black text-white">Tin Nhắn Xác Nhận Lịch Hẹn</h3>
+                        <p class="text-[11px] text-purple-300/80">Kết nối gửi thông báo xác nhận lịch hẹn qua SMS & Gmail</p>
+                    </div>
+                </div>
+                <button onclick="closeModal('modal-ai-draft-apt')" class="w-7 h-7 rounded-full bg-slate-800 hover:bg-slate-700 flex items-center justify-center text-slate-400 font-bold cursor-pointer">×</button>
+            </div>
+
+            <div class="p-3 bg-purple-950/50 rounded-2xl border border-purple-400/20 text-xs space-y-2">
+                <div class="flex justify-between items-center text-[11px]">
+                    <span>Khách: <strong id="ai-draft-name" class="text-white">---</strong></span>
+                    <span>SĐT: <strong id="ai-draft-phone" class="text-emerald-400 font-mono">---</strong></span>
+                    <span>Mã LH: <strong id="ai-draft-code" class="text-amber-300 font-mono">---</strong></span>
+                </div>
+                <div class="flex items-center justify-between gap-2 pt-2 border-t border-purple-400/20 text-[11px]">
+                    <span class="text-purple-300 font-semibold flex items-center gap-1">
+                        <i class="fa-solid fa-envelope text-purple-400"></i> Email Khách (Gmail):
+                    </span>
+                    <input id="ai-draft-email" type="email" placeholder="VD: thuha0106206@gmail.com"
+                        class="bg-slate-900 border border-purple-400/40 rounded-xl px-2.5 py-1 text-white font-mono text-xs w-60 focus:outline-none focus:ring-1 focus:ring-purple-400 font-semibold">
+                </div>
+            </div>
+
+            <div class="space-y-1">
+                <div class="flex justify-between items-center text-xs">
+                    <label class="font-bold text-slate-300">Nội dung tin nhắn chuẩn bị gửi:</label>
+                    <span id="ai-draft-status-badge" class="text-[10px] text-purple-300 font-bold">Sẵn sàng gửi</span>
+                </div>
+                <textarea id="ai-draft-text" rows="5"
+                    class="w-full bg-slate-900 border border-purple-400/40 p-3 rounded-2xl text-xs text-white leading-relaxed font-medium focus:outline-none focus:ring-2 focus:ring-purple-400"></textarea>
+            </div>
+
+            <div class="flex flex-wrap items-center justify-end gap-2.5 pt-2 border-t border-slate-800">
+                <button type="button" onclick="sendAiDraftChannel('SMS')" id="btn-draft-sms"
+                    class="px-4 py-2.5 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white rounded-xl font-black text-xs shadow transition active:scale-95 flex items-center gap-1.5 cursor-pointer">
+                    <i class="fa-solid fa-comment-sms"></i> <span>Mở SMS</span>
+                </button>
+                <button type="button" onclick="sendAiDraftChannel('Gmail')" id="btn-draft-gmail"
+                    class="px-4 py-2.5 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white rounded-xl font-black text-xs shadow transition active:scale-95 flex items-center gap-1.5 cursor-pointer">
+                    <i class="fa-solid fa-envelope"></i> <span>Mở Gmail</span>
+                </button>
             </div>
         </div>
     </div>
@@ -1080,8 +1324,9 @@
 
         window.addEventListener('DOMContentLoaded', async () => {
             autoGenTicketCode();
+            autoGenCustomerCode();
             await loadTechnicians();
-            await Promise.all([loadTickets(), loadNotificationHistory()]);
+            await Promise.all([loadTickets(), loadNotificationHistory(), loadAppointments()]);
             // Gắn event input cho tiền khách đưa
             document.getElementById('coc-tien-khach-dua').addEventListener('input', calcCocChange);
             document.getElementById('qt-tien-khach').addEventListener('input', calcQTChange);
@@ -1093,6 +1338,20 @@
             const d = new Date();
             const ds = d.getFullYear().toString().slice(2) + String(d.getMonth() + 1).padStart(2, '0') + String(d.getDate()).padStart(2, '0');
             document.getElementById('recept-maphieu').value = `PS${ds}-${Math.floor(100 + Math.random() * 900)}`;
+        }
+
+        async function autoGenCustomerCode() {
+            try {
+                const res = await fetch('/api/le-tan/next-makh');
+                if (res.ok) {
+                    const data = await res.json();
+                    const el = document.getElementById('recept-makh');
+                    if (el) el.value = data.nextMaKH || 'KH046';
+                }
+            } catch (_) {
+                const el = document.getElementById('recept-makh');
+                if (el && !el.value) el.value = 'KH046';
+            }
         }
 
         async function loadTechnicians() {
@@ -1284,7 +1543,8 @@
                 const o = document.createElement('option');
                 o.value = t.maPhieu;
                 const isRepaired = t.trangThai === 'DaSuaXong' ? '🔔 [SỬA XONG] ' : '';
-                o.textContent = `${isRepaired}#${noHash(t.maPhieu)} - ${t.maKH} (${t.trangThai})`;
+                const khDisplay = t.tenKH ? `${t.tenKH} (${t.maKH})` : t.maKH;
+                o.textContent = `${isRepaired}#${noHash(t.maPhieu)} - ${khDisplay} (${t.trangThai})`;
                 sel.appendChild(o);
             });
         }
@@ -1331,7 +1591,7 @@
                 const aiPhoneInp = document.getElementById('ai-recipient-phone-input');
                 if (aiPhoneInp && sdt) aiPhoneInp.value = sdt;
 
-                document.getElementById('recept-makh').value = '';
+                autoGenCustomerCode();
                 document.getElementById('recept-hoten').value = '';
                 document.getElementById('recept-sdt').value = '';
                 if (document.getElementById('recept-email')) document.getElementById('recept-email').value = '';
@@ -1883,16 +2143,520 @@
         // ========== TABS ==========
         function switchTab(tab) {
             activeTab = tab;
-            const tabs = ['tickets', 'deposit', 'history'];
+            const tabs = ['tickets', 'deposit', 'history', 'appointments'];
             tabs.forEach(t => {
                 const btn = document.getElementById(`tab-${t}`);
                 const view = document.getElementById(`view-${t}`);
+                if (!btn || !view) return;
                 const isActive = t === tab;
                 btn.className = `px-4 py-2 rounded-xl text-xs transition ${isActive ? 'font-black bg-white text-brand-600 shadow-sm border border-slate-200' : 'font-bold text-slate-600 hover:bg-white/80'}`;
                 view.classList.toggle('hidden', !isActive);
             });
             const filterArea = document.getElementById('filter-area');
-            filterArea.classList.toggle('hidden', tab !== 'tickets');
+            if (filterArea) filterArea.classList.toggle('hidden', tab !== 'tickets');
+
+            if (tab === 'appointments') {
+                loadAppointments();
+            }
+        }
+
+        // ==============================================================
+        // QUẢN LÝ LỊCH HẸN SỬA CHỮA (LỄ TÂN)
+        // ==============================================================
+        let allAppointments = [];
+        let targetCancelAppointment = null;
+        let targetCreateTicketAppointment = null;
+        let currentAiDraftData = null;
+
+        async function loadAppointments() {
+            const dateInp = document.getElementById('filter-apt-date');
+            const statusSel = document.getElementById('filter-apt-status');
+            const chosenDate = dateInp ? dateInp.value : '';
+            const chosenStatus = statusSel ? statusSel.value : '';
+
+            let url = '/api/lich-hen?';
+            const params = [];
+            if (chosenDate) params.push(`ngay=${encodeURIComponent(chosenDate)}`);
+            if (chosenStatus) params.push(`trang_thai=${encodeURIComponent(chosenStatus)}`);
+            url += params.join('&');
+
+            try {
+                const res = await fetch(url);
+                if (!res.ok) return;
+                const data = await res.json();
+                allAppointments = data.danhSach || [];
+
+                // Cập nhật các thẻ đếm và badge trên dashboard
+                const statToday = document.getElementById('stat-lich-hen-today');
+                const statTodayText = document.getElementById('apt-stat-today-text');
+                const statPendingText = document.getElementById('apt-stat-pending-text');
+                const aptBadge = document.getElementById('appointment-count-badge');
+                const pendingBadge = document.getElementById('stat-lich-hen-pending-badge');
+                const unreadDot = document.getElementById('appointment-unread-dot');
+
+                if (statToday) statToday.innerText = data.lichHenHomNay ?? 0;
+                if (statTodayText) statTodayText.innerText = data.lichHenHomNay ?? 0;
+                if (statPendingText) statPendingText.innerText = data.choXacNhan ?? 0;
+                if (aptBadge) aptBadge.innerText = data.tongSo ?? allAppointments.length;
+
+                if (data.choXacNhan > 0) {
+                    if (pendingBadge) {
+                        pendingBadge.innerText = `${data.choXacNhan} chờ`;
+                        pendingBadge.classList.remove('hidden');
+                    }
+                    if (unreadDot) unreadDot.classList.remove('hidden');
+                } else {
+                    if (pendingBadge) pendingBadge.classList.add('hidden');
+                    if (unreadDot) unreadDot.classList.add('hidden');
+                }
+
+                renderAppointments(allAppointments);
+            } catch (err) {
+                console.error("Lỗi tải danh sách lịch hẹn:", err);
+            }
+        }
+
+        function resetAptFilters() {
+            const dateInp = document.getElementById('filter-apt-date');
+            const statusSel = document.getElementById('filter-apt-status');
+            if (dateInp) dateInp.value = '';
+            if (statusSel) statusSel.value = '';
+            loadAppointments();
+        }
+
+        function renderAppointments(list) {
+            const tbody = document.getElementById('appointment-list');
+            if (!tbody) return;
+
+            if (!list || list.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="8" class="text-center py-8 text-slate-400 font-medium italic">Không có lịch hẹn nào phù hợp với bộ lọc hiện tại.</td></tr>`;
+                return;
+            }
+
+            tbody.innerHTML = list.map(r => {
+                const isPending = r.trangThai === 'Chờ xác nhận';
+                const isConfirmed = r.trangThai === 'Đã xác nhận';
+                const isArrived = r.trangThai === 'Đã đến';
+                const isNoShow = r.trangThai === 'Không đến';
+                const isCanceled = r.trangThai === 'Đã hủy';
+
+                // Trạng thái badge
+                let statusBadge = '';
+                if (isPending) {
+                    statusBadge = `<span class="px-2.5 py-1 rounded-full text-[10px] font-black bg-amber-400 text-slate-950 animate-pulse border border-amber-500 shadow-xs flex items-center gap-1 w-fit"><i class="fa-solid fa-hourglass-half text-[9px]"></i> Chờ xác nhận</span>`;
+                } else if (isConfirmed) {
+                    statusBadge = `<span class="px-2.5 py-1 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800 border border-emerald-200 flex items-center gap-1 w-fit"><i class="fa-solid fa-circle-check text-emerald-600"></i> Đã xác nhận</span>`;
+                } else if (isArrived) {
+                    statusBadge = `<span class="px-2.5 py-1 rounded-full text-[10px] font-bold bg-sky-100 text-sky-800 border border-sky-200 flex items-center gap-1 w-fit"><i class="fa-solid fa-store text-sky-600"></i> Đã đến</span>`;
+                } else if (isNoShow) {
+                    statusBadge = `<span class="px-2.5 py-1 rounded-full text-[10px] font-bold bg-slate-100 text-slate-600 border border-slate-200 flex items-center gap-1 w-fit"><i class="fa-solid fa-user-xmark"></i> Không đến</span>`;
+                } else if (isCanceled) {
+                    statusBadge = `<div class="space-y-0.5">
+                        <span class="px-2.5 py-1 rounded-full text-[10px] font-bold bg-rose-100 text-rose-800 border border-rose-200 flex items-center gap-1 w-fit"><i class="fa-solid fa-circle-xmark text-rose-500"></i> Đã hủy</span>
+                        ${r.lyDo ? `<div class="text-[10px] text-rose-600/80 italic max-w-xs truncate" title="${r.lyDo}">Lý do: ${r.lyDo}</div>` : ''}
+                    </div>`;
+                } else {
+                    statusBadge = `<span class="px-2.5 py-1 rounded-full text-[10px] font-bold bg-slate-100 text-slate-700">${r.trangThai}</span>`;
+                }
+
+                // Cột thao tác
+                let actionButtons = '';
+                if (isPending) {
+                    actionButtons = `
+                        <div class="flex items-center justify-center gap-1.5">
+                            <button type="button" onclick="confirmAppointment('${r.maLH}')" class="px-2.5 py-1 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-xs font-bold transition flex items-center gap-1 shadow-xs cursor-pointer" title="Xác nhận lịch hẹn">
+                                <i class="fa-solid fa-check"></i> Xác Nhận
+                            </button>
+                            <button type="button" onclick="openCancelAppointmentModal('${r.maLH}', '${r.hoTen}')" class="px-2 py-1 bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 rounded-lg text-xs font-bold transition flex items-center gap-1 cursor-pointer" title="Hủy lịch (bắt buộc có lý do)">
+                                <i class="fa-solid fa-xmark"></i> Hủy
+                            </button>
+                        </div>
+                    `;
+                } else if (isConfirmed) {
+                    actionButtons = `
+                        <div class="flex flex-wrap items-center justify-center gap-1">
+                            <button type="button" onclick="openCreateTicketModal('${r.maLH}')" class="px-2.5 py-1 bg-brand-600 hover:bg-brand-700 text-white rounded-lg text-xs font-black shadow transition flex items-center gap-1 cursor-pointer active:scale-95" title="Khách đã đến -> Lập phiếu tiếp nhận ngay">
+                                <i class="fa-solid fa-file-circle-plus"></i> Tạo Phiếu
+                            </button>
+                            <button type="button" onclick="openAiDraftModal('${r.maLH}')" class="px-2 py-1 bg-purple-50 hover:bg-purple-100 text-purple-700 border border-purple-200 rounded-lg text-xs font-bold transition flex items-center gap-1 cursor-pointer" title="AI Soạn tin Zalo/SMS xác nhận">
+                                🤖 AI Tin
+                            </button>
+                            <button type="button" onclick="markNoShowAppointment('${r.maLH}')" class="px-2 py-1 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-lg text-xs font-medium transition cursor-pointer" title="Đánh dấu không đến">
+                                Không Đến
+                            </button>
+                            <button type="button" onclick="openCancelAppointmentModal('${r.maLH}', '${r.hoTen}')" class="px-2 py-1 bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 rounded-lg text-xs font-bold transition cursor-pointer" title="Hủy lịch hẹn">
+                                Hủy
+                            </button>
+                        </div>
+                    `;
+                } else if (isArrived) {
+                    actionButtons = `
+                        <div class="text-center">
+                            ${r.maPhieu ? `
+                                <a href="javascript:void(0)" onclick="quickSelectTicketForEdit('${r.maPhieu}')" class="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-sky-50 text-sky-700 font-bold border border-sky-200 hover:bg-sky-100 transition">
+                                    <i class="fa-solid fa-receipt text-[10px]"></i> #${r.maPhieu.replace('#', '')}
+                                </a>
+                            ` : `<span class="text-slate-400 italic">Đã tiếp nhận</span>`}
+                        </div>
+                    `;
+                } else {
+                    actionButtons = `<div class="text-center text-slate-400 font-medium">---</div>`;
+                }
+
+                const rowHighlight = isPending ? 'bg-amber-50/60 hover:bg-amber-100/60 border-l-4 border-amber-400' : 'hover:bg-slate-50/80';
+
+                return `
+                    <tr class="${rowHighlight} transition">
+                        <td class="py-3 px-4 font-mono font-black text-brand-600">${r.maLH}</td>
+                        <td class="py-3 px-4">
+                            <div class="font-bold text-slate-900">${r.hoTen || r.maKH}</div>
+                            <div class="text-slate-500 font-mono text-[11px] flex items-center gap-1"><i class="fa-solid fa-phone text-[10px] text-slate-400"></i> ${r.sdt || '---'}</div>
+                            ${r.email ? `<div class="text-slate-500 font-mono text-[10px] flex items-center gap-1"><i class="fa-solid fa-envelope text-[9px] text-indigo-500"></i> ${r.email}</div>` : ''}
+                        </td>
+                        <td class="py-3 px-4">
+                            <span class="font-bold text-slate-800">${r.hangMay} ${r.model}</span>
+                        </td>
+                        <td class="py-3 px-4 max-w-xs">
+                            <p class="truncate text-slate-600" title="${r.moTaLoi || ''}">${r.moTaLoi || 'Kiểm tra máy'}</p>
+                        </td>
+                        <td class="py-3 px-4 whitespace-nowrap">
+                            <div class="font-extrabold text-amber-600 flex items-center gap-1"><i class="fa-solid fa-clock text-[10px]"></i> ${r.khungGio}</div>
+                            <div class="text-[11px] text-slate-500">${formatDateApt(r.ngayHen)}</div>
+                        </td>
+                        <td class="py-3 px-4">${statusBadge}</td>
+                        <td class="py-3 px-4 font-mono font-bold text-slate-700">${r.maPhieu ? '#' + r.maPhieu.replace('#', '') : '---'}</td>
+                        <td class="py-3 px-4 text-center">${actionButtons}</td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        function formatDateApt(dateStr) {
+            if (!dateStr) return '';
+            try {
+                const parts = dateStr.split('-');
+                if (parts.length === 3) return `${parts[2]}/${parts[1]}/${parts[0]}`;
+            } catch(e) {}
+            return dateStr;
+        }
+
+        async function confirmAppointment(maLH) {
+            try {
+                const res = await fetch(`/api/lich-hen/${encodeURIComponent(maLH)}/trang-thai`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ trangThai: "Đã xác nhận" })
+                });
+
+                if (!res.ok) {
+                    const err = await res.json().catch(() => ({}));
+                    showToast(err.detail || "Không thể xác nhận lịch hẹn!", "error");
+                    return;
+                }
+
+                showToast(`Đã xác nhận lịch hẹn ${maLH} thành công!`, "success");
+                await loadAppointments();
+
+                // Tự động mở gợi ý AI soạn tin nhắn xác nhận cho Lễ tân sao chép/gửi khách
+                setTimeout(() => openAiDraftModal(maLH), 400);
+
+            } catch (err) {
+                console.error("Lỗi xác nhận lịch hẹn:", err);
+                showToast("Lỗi kết nối máy chủ!", "error");
+            }
+        }
+
+        function openCancelAppointmentModal(maLH, customerName) {
+            targetCancelAppointment = maLH;
+            document.getElementById('cancel-apt-code-display').innerText = maLH;
+            document.getElementById('cancel-apt-customer-display').innerText = customerName || 'Khách hàng';
+            const reasonInp = document.getElementById('cancel-apt-reason-input');
+            if (reasonInp) reasonInp.value = '';
+            document.getElementById('modal-cancel-appointment').classList.remove('hidden');
+            setTimeout(() => reasonInp?.focus(), 100);
+        }
+
+        async function submitCancelAppointment() {
+            if (!targetCancelAppointment) return;
+            const reason = (document.getElementById('cancel-apt-reason-input')?.value || '').trim();
+            if (!reason) {
+                showToast("Bắt buộc phải nhập lý do khi hủy lịch hẹn!", "warning");
+                document.getElementById('cancel-apt-reason-input')?.focus();
+                return;
+            }
+
+            const btn = document.getElementById('btn-submit-cancel-apt');
+            if (btn) {
+                btn.disabled = true;
+                btn.innerText = "Đang xử lý...";
+            }
+
+            try {
+                const res = await fetch(`/api/lich-hen/${encodeURIComponent(targetCancelAppointment)}/trang-thai`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        trangThai: "Đã hủy",
+                        lyDo: reason
+                    })
+                });
+
+                if (btn) {
+                    btn.disabled = false;
+                    btn.innerText = "Xác Nhận Hủy Lịch";
+                }
+
+                if (!res.ok) {
+                    const err = await res.json().catch(() => ({}));
+                    showToast(err.detail || "Không thể hủy lịch!", "error");
+                    return;
+                }
+
+                closeModal('modal-cancel-appointment');
+                showToast(`Đã hủy lịch hẹn ${targetCancelAppointment}!`, "success");
+                await loadAppointments();
+
+            } catch (err) {
+                console.error("Lỗi hủy lịch:", err);
+                if (btn) {
+                    btn.disabled = false;
+                    btn.innerText = "Xác Nhận Hủy Lịch";
+                }
+                showToast("Lỗi kết nối máy chủ!", "error");
+            }
+        }
+
+        async function markNoShowAppointment(maLH) {
+            if (!confirm(`Đánh dấu khách hàng lịch hẹn ${maLH} KHÔNG ĐẾN cửa hàng?`)) return;
+
+            try {
+                const res = await fetch(`/api/lich-hen/${encodeURIComponent(maLH)}/trang-thai`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ trangThai: "Không đến" })
+                });
+
+                if (!res.ok) {
+                    const err = await res.json().catch(() => ({}));
+                    showToast(err.detail || "Không thể cập nhật trạng thái!", "error");
+                    return;
+                }
+
+                showToast(`Đã đánh dấu lịch ${maLH} là 'Không đến'!`, "info");
+                await loadAppointments();
+
+            } catch (err) {
+                console.error("Lỗi cập nhật lịch hẹn:", err);
+                showToast("Lỗi kết nối máy chủ!", "error");
+            }
+        }
+
+        function openCreateTicketModal(maLH) {
+            const apt = allAppointments.find(a => a.maLH === maLH);
+            if (!apt) return;
+            targetCreateTicketAppointment = apt;
+
+            document.getElementById('from-apt-code').innerText = apt.maLH;
+            document.getElementById('from-apt-customer').innerText = apt.hoTen || apt.maKH;
+            document.getElementById('from-apt-phone').innerText = apt.sdt || 'Không có SĐT';
+            document.getElementById('from-apt-device').innerText = `${apt.hangMay} ${apt.model}`;
+            document.getElementById('from-apt-time').innerText = `${apt.khungGio} - ${formatDateApt(apt.ngayHen)}`;
+            document.getElementById('from-apt-fault').innerText = apt.moTaLoi || 'Kiểm tra sửa chữa theo lịch hẹn';
+
+            // Đổ danh sách KTV vào select
+            const selKtv = document.getElementById('from-apt-ktv');
+            if (selKtv) {
+                selKtv.innerHTML = '<option value="">-- Chưa chỉ định (KTV nhận sau) --</option>';
+                if (allTechnicians && allTechnicians.length > 0) {
+                    allTechnicians.forEach(k => {
+                        const opt = document.createElement('option');
+                        opt.value = k.maNV;
+                        opt.textContent = `${k.hoTen} (${k.maNV})`;
+                        selKtv.appendChild(opt);
+                    });
+                }
+            }
+
+            const noteInp = document.getElementById('from-apt-note');
+            if (noteInp) noteInp.value = '';
+
+            document.getElementById('modal-create-ticket-from-apt').classList.remove('hidden');
+        }
+
+        async function submitCreateTicketFromApt() {
+            if (!targetCreateTicketAppointment) return;
+
+            const ktv = document.getElementById('from-apt-ktv')?.value || null;
+            const note = document.getElementById('from-apt-note')?.value || '';
+
+            const btn = document.getElementById('btn-submit-create-ticket-from-apt');
+            if (btn) {
+                btn.disabled = true;
+                btn.innerHTML = '<i class="fa-solid fa-spinner animate-spin"></i> Đang tạo phiếu...';
+            }
+
+            try {
+                const res = await fetch(`/api/lich-hen/${encodeURIComponent(targetCreateTicketAppointment.maLH)}/tao-phieu`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        maKTV: ktv,
+                        ghiChu: note
+                    })
+                });
+
+                if (btn) {
+                    btn.disabled = false;
+                    btn.innerHTML = '<i class="fa-solid fa-circle-check"></i> Xác Nhận Tạo Phiếu';
+                }
+
+                if (!res.ok) {
+                    const err = await res.json().catch(() => ({}));
+                    showToast(err.detail || "Không thể tạo phiếu sửa chữa từ lịch hẹn!", "error");
+                    return;
+                }
+
+                const data = await res.json();
+                closeModal('modal-create-ticket-from-apt');
+                showToast(`Đã tạo phiếu tiếp nhận #${data.maPhieu.replace('#', '')} thành công! Lịch hẹn đã chuyển sang 'Đã đến'.`, "success");
+
+                // Tải lại cả 2 danh sách
+                await Promise.all([loadTickets(), loadAppointments()]);
+
+                // Chuyển sang tab tickets để Lễ tân xem phiếu mới
+                switchTab('tickets');
+
+            } catch (err) {
+                console.error("Lỗi tạo phiếu từ lịch hẹn:", err);
+                if (btn) {
+                    btn.disabled = false;
+                    btn.innerHTML = '<i class="fa-solid fa-circle-check"></i> Xác Nhận Tạo Phiếu';
+                }
+                showToast("Lỗi kết nối máy chủ!", "error");
+            }
+        }
+
+        async function openAiDraftModal(maLH) {
+            try {
+                const res = await fetch(`/api/lich-hen/${encodeURIComponent(maLH)}/ai-soan-tin`, {
+                    method: 'POST'
+                });
+                if (!res.ok) {
+                    showToast("Không thể tải tin nhắn AI!", "warning");
+                    return;
+                }
+                const data = await res.json();
+                currentAiDraftData = data;
+
+                document.getElementById('ai-draft-name').innerText = data.tenKhach || 'Quý khách';
+                document.getElementById('ai-draft-phone').innerText = data.sdtKhach || '---';
+                document.getElementById('ai-draft-code').innerText = data.maLH;
+                const emailInp = document.getElementById('ai-draft-email');
+                if (emailInp) {
+                    emailInp.value = data.emailKhach || 'thuha0106206@gmail.com';
+                }
+                document.getElementById('ai-draft-text').value = data.tinNhan;
+
+                document.getElementById('modal-ai-draft-apt').classList.remove('hidden');
+
+            } catch (err) {
+                console.error("Lỗi soạn tin AI:", err);
+                showToast("Lỗi kết nối máy chủ khi gọi AI!", "error");
+            }
+        }
+
+        async function sendAiDraftChannel(channel) {
+            if (!currentAiDraftData) return;
+            const maLH = currentAiDraftData.maLH;
+            const noiDung = (document.getElementById('ai-draft-text')?.value || '').trim();
+            const sdtKhach = (currentAiDraftData.sdtKhach || '').trim();
+            const emailKhach = (document.getElementById('ai-draft-email')?.value || currentAiDraftData.emailKhach || 'thuha0106206@gmail.com').trim();
+
+            if (!noiDung) {
+                showToast("Nội dung tin nhắn trống!", "warning");
+                return;
+            }
+
+            const isSMS = channel === 'SMS';
+            const btn = document.getElementById(isSMS ? 'btn-draft-sms' : 'btn-draft-gmail');
+            const oldHtml = btn ? btn.innerHTML : '';
+            if (btn) {
+                btn.disabled = true;
+                btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Đang mở ${isSMS ? 'SMS' : 'Gmail'}...`;
+            }
+
+            try {
+                const res = await fetch(`/api/lich-hen/${encodeURIComponent(maLH)}/gui-tin-nhan`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        channel: channel,
+                        noiDung: noiDung,
+                        sdtKhach: sdtKhach,
+                        emailKhach: emailKhach,
+                        nguoiGui: 'Lễ tân'
+                    })
+                });
+
+                let data = {};
+                try {
+                    data = await res.json();
+                } catch (_) {}
+
+                if (isSMS) {
+                    const targetPhone = data.sdtThuc || sdtKhach;
+                    const smsCleanPhone = targetPhone.replace(/[^\d+]/g, '');
+                    const smsUri = data.smsUri || `sms:${smsCleanPhone}?body=${encodeURIComponent(noiDung)}`;
+                    showToast(`✅ Đã kết nối SMS tới số ${targetPhone}!`, 'success');
+
+                    // Đóng modal soạn tin trước để hộp thoại SMS hiển thị rõ ràng lên phía trước
+                    closeModal('modal-ai-draft-apt');
+                    if (typeof openSmsModal === 'function') {
+                        openSmsModal(targetPhone, noiDung, smsUri);
+                    } else {
+                        window.open(smsUri, '_blank');
+                    }
+                } else {
+                    const targetEmail = data.emailKhach || emailKhach;
+                    const subject = `[FrogHippo Phone] Xác Nhận Lịch Hẹn Sửa Chữa #${maLH}`;
+                    const gmailUrl = data.gmailWebUrl || `https://mail.google.com/mail/?view=cm&fs=1&to=${encodeURIComponent(targetEmail)}&su=${encodeURIComponent(subject)}&body=${encodeURIComponent(noiDung)}`;
+
+                    showToast(`✅ Đang mở Gmail thông báo tới ${targetEmail}!`, 'success');
+                    closeModal('modal-ai-draft-apt');
+                    window.open(gmailUrl, '_blank');
+                }
+            } catch (err) {
+                console.error("Lỗi gửi tin nhắn lịch hẹn:", err);
+                if (isSMS) {
+                    const cleanPhone = (sdtKhach || '').replace(/[^\d+]/g, '');
+                    const smsUri = `sms:${cleanPhone}?body=${encodeURIComponent(noiDung)}`;
+                    closeModal('modal-ai-draft-apt');
+                    if (typeof openSmsModal === 'function') {
+                        openSmsModal(sdtKhach, noiDung, smsUri);
+                    } else {
+                        window.open(smsUri, '_blank');
+                    }
+                } else {
+                    const subject = `[FrogHippo Phone] Xác Nhận Lịch Hẹn Sửa Chữa #${maLH}`;
+                    const gmailUrl = `https://mail.google.com/mail/?view=cm&fs=1&to=${encodeURIComponent(emailKhach)}&su=${encodeURIComponent(subject)}&body=${encodeURIComponent(noiDung)}`;
+                    closeModal('modal-ai-draft-apt');
+                    window.open(gmailUrl, '_blank');
+                }
+            } finally {
+                if (btn) {
+                    btn.disabled = false;
+                    btn.innerHTML = oldHtml;
+                }
+            }
+        }
+
+        function quickSelectTicketForEdit(maPhieu) {
+            switchTab('tickets');
+            const searchInp = document.getElementById('search-input');
+            if (searchInp) {
+                searchInp.value = maPhieu.replace('#', '');
+                renderTickets();
+            }
         }
 
         // ========== CHATBOT WIDGET: FILE ATTACHMENT & VOICE RECOGNITION (STT / TTS) ==========

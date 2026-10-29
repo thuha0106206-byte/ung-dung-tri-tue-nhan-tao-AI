@@ -42,34 +42,50 @@ import ai_service
 
 from urllib.parse import unquote
 
-# --- HỆ THỐNG XÁC THỰC VAI TRÒ (ĐÃ BỎ CHẶN RBAC CỨNG) ---
+# --- HỆ THỐNG XÁC THỰC VAI TRÒ (RBAC PHÂN QUYỀN TOÀN HỆ THỐNG) ---
+# Quy tắc: Chỉ có Tác nhân Admin mới có quyền truy cập tất cả các phân hệ.
+# Các tác nhân khác (Lễ tân, Thu ngân, KTV) chỉ có quyền thực hiện thao tác trong phân hệ của mình.
 def require_roles(allowed_roles: List[str] = None):
     def dependency(
         x_user_role: Optional[str] = Header(None, alias="X-User-Role")
     ):
-        return unquote(x_user_role) if x_user_role else "Admin"
+        raw_role = unquote(x_user_role) if x_user_role else "Admin"
+        norm = raw_role.lower().strip()
+        # Admin luôn có toàn quyền trên mọi endpoint
+        if norm == "admin" or "admin" in norm or "quan tri" in norm:
+            return "Admin"
+        if allowed_roles:
+            matched = any(ar.lower() in norm for ar in allowed_roles)
+            if not matched:
+                raise HTTPException(
+                    status_code=403,
+                    detail=f"Tài khoản của bạn ({raw_role}) không có quyền thực hiện chức năng này. Chỉ Admin mới có toàn quyền trên tất cả phân hệ."
+                )
+        return raw_role
     return dependency
 
 try:
-    from routers import le_tan, ky_thuat_vien, thu_ngan, admin, khach_hang
+    from routers import le_tan, ky_thuat_vien, thu_ngan, admin, khach_hang, lich_hen
 except ImportError:
     import le_tan
     import ky_thuat_vien
     import thu_ngan
     import admin
     import khach_hang
+    import lich_hen
 
 # Khởi tạo bảng CSDL (tự động tạo bảng nếu chưa có)
 models.Base.metadata.create_all(bind=engine)
 
 app = FastAPI(title="FrogHippo Phone Backend API & Admin Portal")
 
-# Tích hợp Routers phân hệ chuẩn (4 tác nhân chính: Admin, Lễ Tân, KTV, Thu Ngân + Khách Hàng)
+# Tích hợp Routers phân hệ chuẩn (4 tác nhân chính: Admin, Lễ Tân, KTV, Thu Ngân + Khách Hàng + Lịch Hẹn)
 app.include_router(le_tan.router)
 app.include_router(ky_thuat_vien.router)
 app.include_router(thu_ngan.router)
 app.include_router(admin.router)
 app.include_router(khach_hang.router)
+app.include_router(lich_hen.router)
 
 # Mount thư mục tĩnh nếu tồn tại
 if FRONTEND_DIR.exists():
@@ -214,12 +230,42 @@ def serve_khach_hang():
         return FileResponse(path)
     raise HTTPException(status_code=404, detail="khach_hang.html not found")
 
+@app.get("/admin.html", include_in_schema=False)
+@app.get("/admin", include_in_schema=False)
+def serve_admin():
+    path = find_file("admin.html")
+    if path:
+        return FileResponse(
+            path,
+            headers={
+                "Cache-Control": "no-cache, no-store, must-revalidate",
+                "Pragma": "no-cache",
+                "Expires": "0"
+            }
+        )
+    raise HTTPException(status_code=404, detail="admin.html not found")
+
 @app.get("/index.html", include_in_schema=False)
 def serve_index():
     path = find_file("index.html")
     if path:
         return FileResponse(path)
     raise HTTPException(status_code=404, detail="index.html not found")
+
+@app.get("/auth_guard.js", include_in_schema=False)
+def serve_auth_guard():
+    path = find_file("auth_guard.js")
+    if path:
+        return FileResponse(
+            path,
+            media_type="application/javascript",
+            headers={
+                "Cache-Control": "no-cache, no-store, must-revalidate",
+                "Pragma": "no-cache",
+                "Expires": "0"
+            }
+        )
+    raise HTTPException(status_code=404, detail="auth_guard.js not found")
 
 @app.get("/froghippo_logo.png", include_in_schema=False)
 @app.get("/logo.png", include_in_schema=False)
@@ -282,6 +328,11 @@ class LoginRequest(BaseModel):
 class ChangePasswordRequest(BaseModel):
     tenDangNhap: str
     matKhauCu: str
+    matKhauMoi: str
+
+class ForgotPasswordRequest(BaseModel):
+    tenDangNhap: str
+    sdt: str
     matKhauMoi: str
 
 class PhieuSuaUpdate(BaseModel):
@@ -678,6 +729,42 @@ def change_password(req: ChangePasswordRequest, db: Session = Depends(get_db)):
     return {
         "success": True, 
         "message": f"Đổi mật khẩu thành công cho nhân viên {staff.hoTen} ({staff.tenDangNhap})!"
+    }
+
+@app.post("/auth/forgot-password", summary="Khôi phục / Đặt lại mật khẩu nhân viên")
+def forgot_password(req: ForgotPasswordRequest, db: Session = Depends(get_db)):
+    from sqlalchemy import func
+    u_raw = req.tenDangNhap.strip().lower()
+    phone_raw = req.sdt.strip()
+    new_pwd = req.matKhauMoi.strip()
+
+    if len(new_pwd) < 3:
+        raise HTTPException(status_code=400, detail="Mật khẩu mới phải có tối thiểu 3 ký tự!")
+
+    # Tìm nhân viên theo tên đăng nhập
+    staff = db.query(models.NhanVien).filter(
+        func.lower(models.NhanVien.tenDangNhap) == u_raw
+    ).first()
+
+    if not staff:
+        raise HTTPException(status_code=404, detail="Không tìm thấy tài khoản nhân viên tương ứng!")
+
+    # Chuẩn hóa số điện thoại xác thực
+    staff_phone = (staff.sdt or "").replace(" ", "").replace(".", "").replace("-", "")
+    input_phone = phone_raw.replace(" ", "").replace(".", "").replace("-", "")
+
+    if not staff_phone or staff_phone != input_phone:
+        raise HTTPException(status_code=400, detail="Số điện thoại không khớp với hồ sơ nhân viên đã đăng ký!")
+
+    if getattr(staff, "trangThai", "HOAT_DONG") == "KHOA":
+        raise HTTPException(status_code=403, detail="Tài khoản này đang bị khóa bởi Quản trị viên! Vui lòng liên hệ Hotline Admin 0912.345.678.")
+
+    staff.matKhau = new_pwd
+    db.commit()
+
+    return {
+        "success": True,
+        "message": f"Đặt lại mật khẩu thành công cho nhân viên {staff.hoTen} ({staff.tenDangNhap})! Quý khách có thể đăng nhập ngay bằng mật khẩu mới."
     }
 
 @app.get("/auth/me", summary="Lấy thông tin tài khoản hiện tại")

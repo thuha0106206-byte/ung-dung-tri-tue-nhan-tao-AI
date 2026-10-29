@@ -186,33 +186,64 @@ def tao_phieu_sua(phieu: PhieuSuaCreate, db: Session = Depends(get_db)):
             }
         raise HTTPException(status_code=400, detail="Thiếu thông tin phiếu sửa chữa!")
 
+def generate_ma_kh_le_tan(db: Session) -> str:
+    """Tự động sinh mã khách hàng tăng dần duy nhất: KH001, KH002... KH046..."""
+    all_rows = db.query(models.KhachHang.maKH).all()
+    max_num = 0
+    for (m,) in all_rows:
+        if m:
+            found = re.search(r"KH(\d+)", m, re.IGNORECASE)
+            if found:
+                try:
+                    num = int(found.group(1))
+                    if num > max_num:
+                        max_num = num
+                except ValueError:
+                    pass
+    return f"KH{max_num + 1:03d}"
+
+@router.get("/next-makh", summary="Tự động sinh mã khách hàng mới tiếp theo")
+def get_next_makh(db: Session = Depends(get_db)):
+    return {"nextMaKH": generate_ma_kh_le_tan(db)}
+
     # 2. Xử lý tạo phiếu tiếp nhận bình thường
-    if not phieu.maPhieu or not phieu.maKH:
-        raise HTTPException(status_code=400, detail="Mã phiếu và Mã khách hàng là bắt buộc!")
+    if not phieu.maPhieu:
+        raise HTTPException(status_code=400, detail="Mã phiếu sửa chữa là bắt buộc!")
 
     existing = db.query(models.PhieuSuaChua).filter(models.PhieuSuaChua.maPhieu == phieu.maPhieu).first()
     if existing:
         raise HTTPException(status_code=400, detail="Mã phiếu sửa chữa này đã tồn tại!")
 
-    # Đảm bảo khách hàng tồn tại
-    kh = db.query(models.KhachHang).filter(models.KhachHang.maKH == phieu.maKH).first()
-    if not kh:
+    # Xử lý Mã khách hàng thông minh: tránh trùng mã khách
+    target_makh = (phieu.maKH or "").strip()
+    clean_sdt = re.sub(r"[^\d+]", "", phieu.sdtKH or "").strip()
+    kh = None
+
+    # Nếu có SĐT, kiểm tra xem khách này đã từng có trong hệ thống chưa
+    if clean_sdt:
+        kh = db.query(models.KhachHang).filter(models.KhachHang.sdt == clean_sdt).first()
+
+    if kh:
+        # Đã tồn tại theo số điện thoại: sử dụng mã khách đã có
+        target_makh = kh.maKH
+        if phieu.emailKH and not kh.email:
+            kh.email = phieu.emailKH
+            db.commit()
+    else:
+        # Khách mới: nếu mã truyền lên trống hoặc trùng với khách khác có tên khác -> sinh mã mới độc lập
+        existing_by_makh = db.query(models.KhachHang).filter(models.KhachHang.maKH == target_makh).first() if target_makh else None
+        if not target_makh or existing_by_makh:
+            target_makh = generate_ma_kh_le_tan(db)
+
         kh = models.KhachHang(
-            maKH=phieu.maKH,
-            hoTen=phieu.hoTenKH or f"Khách hàng {phieu.maKH}",
-            sdt=phieu.sdtKH or "0900000000",
+            maKH=target_makh,
+            hoTen=phieu.hoTenKH or f"Khách hàng {target_makh}",
+            sdt=clean_sdt or "0900000000",
             email=phieu.emailKH or None
         )
         db.add(kh)
         db.commit()
-    else:
-        if phieu.hoTenKH and phieu.hoTenKH != kh.hoTen:
-            kh.hoTen = phieu.hoTenKH
-        if phieu.sdtKH and phieu.sdtKH != kh.sdt:
-            kh.sdt = phieu.sdtKH
-        if phieu.emailKH:
-            kh.email = phieu.emailKH
-        db.commit()
+        db.refresh(kh)
 
     ma_ktv = phieu.maKTV
     if ma_ktv:
@@ -222,7 +253,7 @@ def tao_phieu_sua(phieu: PhieuSuaCreate, db: Session = Depends(get_db)):
 
     db_phieu = models.PhieuSuaChua(
         maPhieu=phieu.maPhieu,
-        maKH=phieu.maKH,
+        maKH=target_makh,
         maKTV=ma_ktv,
         moTaLoi=phieu.moTaLoi,
         ghiChuKTV=phieu.ghiChuKTV,

@@ -12,6 +12,15 @@ GEMINI_MODEL = os.getenv("GEMINI_MODEL", "gemini-1.5-flash").strip()
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY", "").strip()
 OPENAI_MODEL = os.getenv("OPENAI_MODEL", "gpt-3.5-turbo").strip()
 
+def is_valid_gemini_key() -> bool:
+    """Kiểm tra API Key có hợp lệ theo chuẩn Google AI Studio (bắt đầu bằng AIza)."""
+    return bool(GEMINI_API_KEY and GEMINI_API_KEY.startswith("AIza") and len(GEMINI_API_KEY) >= 30)
+
+def is_valid_openai_key() -> bool:
+    """Kiểm tra API Key có hợp lệ theo chuẩn OpenAI (bắt đầu bằng sk-)."""
+    return bool(OPENAI_API_KEY and OPENAI_API_KEY.startswith("sk-") and len(OPENAI_API_KEY) >= 30)
+
+
 PROMPT_SYSTEM = (
     "Bạn là trợ lý AI chuyên nghiệp của trung tâm bảo hành sửa chữa điện thoại FrogHippo Phone. "
     "Nhiệm vụ của bạn là đọc các mô tả lỗi và ghi chú kỹ thuật chuyên ngành khô khan từ Kỹ thuật viên, "
@@ -27,6 +36,8 @@ MSG_OUTPUT_RULES = (
 
 def call_gemini_api(prompt_text: str) -> str:
     """Gọi Google Gemini REST API v1beta."""
+    if not is_valid_gemini_key():
+        raise ValueError("Invalid or missing Google Gemini API Key")
     url = f"https://generativelanguage.googleapis.com/v1beta/models/{GEMINI_MODEL}:generateContent?key={GEMINI_API_KEY}"
     payload = {
         "contents": [
@@ -43,12 +54,14 @@ def call_gemini_api(prompt_text: str) -> str:
         headers={"Content-Type": "application/json"},
         method="POST"
     )
-    with urllib.request.urlopen(req, timeout=10) as response:
+    with urllib.request.urlopen(req, timeout=3) as response:
         res_data = json.loads(response.read().decode("utf-8"))
         return res_data["candidates"][0]["content"]["parts"][0]["text"].strip()
 
 def call_openai_api(prompt_text: str) -> str:
     """Gọi OpenAI Chat Completion REST API."""
+    if not is_valid_openai_key():
+        raise ValueError("Invalid or missing OpenAI API Key")
     url = "https://api.openai.com/v1/chat/completions"
     payload = {
         "model": OPENAI_MODEL,
@@ -67,7 +80,7 @@ def call_openai_api(prompt_text: str) -> str:
         },
         method="POST"
     )
-    with urllib.request.urlopen(req, timeout=10) as response:
+    with urllib.request.urlopen(req, timeout=3) as response:
         res_data = json.loads(response.read().decode("utf-8"))
         return res_data["choices"][0]["message"]["content"].strip()
 
@@ -93,14 +106,14 @@ def summarize_repair_ticket(mo_ta_loi: str, ghi_chu_ktv: str = "") -> str:
     input_text = f"Mô tả ban đầu: {mo_ta_loi}\nGhi chú kỹ thuật viên: {ghi_chu_ktv}"
 
     # 1. Thử Google Gemini
-    if GEMINI_API_KEY and GEMINI_API_KEY != "your_gemini_api_key_here":
+    if is_valid_gemini_key():
         try:
             return call_gemini_api(input_text)
         except Exception as e:
             print(f"[AI Warning] Gemini API error: {e}. Switching to fallback.")
 
     # 2. Thử OpenAI
-    if OPENAI_API_KEY and OPENAI_API_KEY != "your_openai_api_key_here":
+    if is_valid_openai_key():
         try:
             return call_openai_api(input_text)
         except Exception as e:
@@ -152,14 +165,14 @@ def generate_customer_message(
 
     prompt += MSG_OUTPUT_RULES
     # 1. Thử gọi Gemini
-    if GEMINI_API_KEY and GEMINI_API_KEY != "your_gemini_api_key_here":
+    if is_valid_gemini_key():
         try:
             return call_gemini_api(prompt)
         except Exception:
             pass
 
     # 2. Thử gọi OpenAI
-    if OPENAI_API_KEY and OPENAI_API_KEY != "your_openai_api_key_here":
+    if is_valid_openai_key():
         try:
             return call_openai_api(prompt)
         except Exception:
@@ -280,10 +293,12 @@ def clean_diagnose_data(data: dict) -> dict:
             "partName": opt.get("partName") or opt.get("name") or "Linh kiện đạt chuẩn kỹ thuật",
             "price": price,
             "warranty": opt.get("warranty") or ("12 Tháng (1 đổi 1)" if idx > 0 else "6 Tháng"),
-            "pros": opt.get("pros") or opt.get("advantages") or "Bảo hành uy tín, kiểm định an toàn theo chuẩn FrogHippo"
+            "pros": opt.get("pros") or opt.get("advantages") or "Bảo hành uy tín, kiểm định an toàn theo chuẩn FrogHippo",
+            "suggestedParts": opt.get("suggestedParts") or []
         })
     data["options"] = cleaned_options
     data["confidence"] = data.get("confidence") or "95% (Độ chính xác cao)"
+    data["suggestedParts"] = data.get("suggestedParts") or (cleaned_options[0].get("suggestedParts") if cleaned_options else [])
     
     # Chuẩn hóa các trường hiển thị ngắn gọn theo yêu cầu mới
     diag = data.get("diagnosis") or "Thiết bị gặp sự cố kỹ thuật cần kiểm tra"
@@ -323,7 +338,7 @@ def validate_repair_input(symptoms: str, device_model: str = "") -> dict | None:
 
     # 2. Mục 3: Cơ chế chặn và báo lỗi ngoại phạm (Out-of-scope)
     out_of_scope_keywords = [
-        "ăn cơm", "đói quá", "đói", "muốn ăn", "ăn uống", "món ăn", "nấu ăn", "uống bia", "uống rượu", "uống nước",
+        "ăn cơm", "đói quá", "đói", "muốn ăn", "ăn uống", "món ăn", "nấu ăn", "uống bia", "uống rượu", "uống trà", "uống cafe",
         "thời tiết", "trời mưa", "trời nắng", "dự báo thời tiết", "nhiệt độ", "xe máy", "xe đạp", "ô tô", "xe hơi",
         "bóng đá", "tình yêu", "thất tình", "người yêu", "chơi game", "liên quân", "lập trình", "viết code", "python",
         "javascript", "html", "css", "thơ ca", "bài hát", "ca sĩ", "chính trị", "chứng khoán", "mua nhà",
@@ -337,13 +352,23 @@ def validate_repair_input(symptoms: str, device_model: str = "") -> dict | None:
         "mất nguồn", "nóng", "nóng máy", "chập", "treo", "cháy", "nước", "rơi", "ẩm", "vỡ", "nứt", "sọc",
         "liệt", "đơ", "giật", "lag", "chai", "phồng", "socket", "main", "mainboard", "ic", "cpu", "rom",
         "ram", "imei", "restore", "phần mềm", "mật khẩu", "icloud", "tai nghe", "cáp", "cổ cáp", "vbat",
-        "vbus", "chạm", "bảo hành", "sửa", "ép kính", "thay", "đo kiểm", "nội trở", "tiếp xúc", "bể"
+        "vbus", "chạm", "bảo hành", "sửa", "ép kính", "thay", "đo kiểm", "nội trở", "tiếp xúc", "bể",
+        "đoản mạch", "chập mạch", "vào nước", "xuống nước", "rơi nước", "rớt nước", "ngấm nước", "chập nguồn"
     ]
 
-    has_out_of_scope = any(k in s_lower for k in out_of_scope_keywords)
     has_phone_tech = any(k in s_lower for k in phone_tech_keywords)
+    
+    # Kiểm tra ngoại phạm có chọn lọc: Nếu đã chứa từ khóa chuyên môn điện thoại thì LUÔN HỢP LỆ
+    has_out_of_scope = False
+    if not has_phone_tech:
+        has_out_of_scope = True
+    else:
+        for k in out_of_scope_keywords:
+            if re.search(r"\b" + re.escape(k) + r"\b", s_lower):
+                has_out_of_scope = True
+                break
 
-    if has_out_of_scope or not has_phone_tech:
+    if has_out_of_scope:
         msg = "LỖI: Nội dung nhập vào không thuộc chuyên môn sửa chữa điện thoại. Vui lòng chỉ nhập thông tin/ghi chú liên quan đến sự cố thiết bị."
         return {
             "isValid": False,
@@ -361,6 +386,35 @@ def mock_diagnose_and_estimate(symptoms: str, device_model: str = "Điện tho�
     """Fallback giả lập chẩn đoán thông minh dựa trên từ khóa triệu chứng."""
     s_lower = symptoms.lower()
     
+    # 0. Nhóm Sự cố Vào nước / Đoản mạch nguồn (Water Ingress & Short Circuit)
+    has_water = any(k in s_lower for k in ["nước", "ẩm", "ngấm nước", "vào nước", "xuống nước", "rơi nước", "rớt nước", "đoản mạch", "chập mạch", "chập nguồn", "chạm"])
+    if has_water:
+        return {
+            "diagnosis": f"Thiết bị {device_model} bị chất lỏng xâm nhập (vào nước/ẩm mạch) dẫn đến đoản mạch đường nguồn chính (Vbat/Vbus), oxy hóa chân IC và chạm chập các linh kiện trên bo mạch chủ (Mainboard).",
+            "potentialRisks": "⚠️ Cảnh báo đoản mạch cực kỳ nguy hiểm: Nước và độ ẩm đọng lại gây ăn mòn điện hóa, rỉ sét chân socket, đánh thủng IC nguồn/IC hiển thị và nguy cơ chập cháy cell pin nếu tiếp tục cắm sạc hoặc cố bật nguồn.",
+            "options": [
+                {
+                    "type": "BUDGET",
+                    "title": "Gói Tiết Kiệm (Vệ Sinh Siêu Âm & Sấy Hấp Cách Điện)",
+                    "partName": f"Gói Xử Lý Vào Nước: Vệ sinh máy siêu âm, sấy hấp khô chuyên dụng & phục hồi đường nguồn ({device_model})",
+                    "price": 350000,
+                    "warranty": "3 Tháng",
+                    "pros": "Khắc phục triệt để tình trạng đọng nước, vệ sinh sạch rỉ sét chân đồng và phục hồi đường mạch kịp thời",
+                    "suggestedParts": ["VT04", "VT05"]
+                },
+                {
+                    "type": "PREMIUM",
+                    "title": "Gói Toàn Diện (Sửa Chữa Đoản Mạch IC Nguồn & Đóng Lại Chân Socket Chính Hãng)",
+                    "partName": f"Gói Cứu Nguồn Chuyên Sâu: Sửa IC nguồn, thay tụ lọc đoản mạch & chống nước IP68 ({device_model})",
+                    "price": 850000,
+                    "warranty": "12 Tháng (1 đổi 1)",
+                    "pros": "Khắc phục triệt để đoản mạch IC nguồn, thay thế tụ lọc chạm chập, dán lại gioăng áp suất chống nước zin chuẩn hãng",
+                    "suggestedParts": ["VT04", "VT05", "LK48"]
+                }
+            ],
+            "confirmationMessage": f"Dạ thiết bị {device_model} bị vào nước gây nguy cơ đoản mạch nguồn rất cao. Bên em có gói vệ sinh sấy hấp siêu âm 350.000đ và gói xử lý đoản mạch nguồn chuyên sâu 850.000đ bảo hành 12 tháng. Anh/Chị muốn kỹ thuật viên xử lý ngay theo gói nào để bảo toàn máy ạ?"
+        }
+
     has_pin = any(k in s_lower for k in ["pin", "sập nguồn", "chai", "phồng", "nóng máy", "nhanh hết", "sạc chậm", "tụt"])
     has_man = any(k in s_lower for k in ["màn", "vỡ", "nứt", "sọc", "cảm ứng", "chớp", "đen", "liệt"])
 
@@ -540,7 +594,8 @@ def diagnose_and_estimate_repair(symptoms: str, device_model: str = "Điện tho
 
 2. QUY TẮC PHÂN TÍCH CHUYÊN MÔN (DOMAIN RULES):
 - Chỉ hoạt động dựa trên thông tin được cung cấp trong Context (`{{GhiChuKTV}}`: "{symptoms}", Thiết bị: "{device_model}").
-- Chuyển đổi ngôn ngữ chuyên ngành/từ lóng (chạm IC, chập VBAT, đóng cặp, sọc màn...) thành kết luận rõ ràng, trung thực, không tự bịa đặt lỗi hoặc chi phí (No Hallucination).
+- Chuyển đổi ngôn ngữ chuyên ngành/từ lóng (chạm IC, chập VBAT, đóng cặp, sọc màn, vào nước, đoản mạch...) thành kết luận rõ ràng, trung thực, không tự bịa đặt lỗi hoặc chi phí (No Hallucination).
+- Các sự cố điện thoại phổ biến như: vào nước, rơi xuống nước, đoản mạch nguồn, mất nguồn, sập nguồn, vỡ màn hình, chai pin, hỏng cụm sạc, camera, loa mic... ĐỀU LÀ SỰ CỐ KỸ THUẬT HỢP LỆ VÀ CẦN ĐƯỢC CHẨN ĐOÁN KỸ THUẬT NGAY LẬP TỨC.
 
 3. CƠ CHẾ CHẶN VÀ BÁO LỖI NGOẠI PHẠM (GUARDRAILS & OUT-OF-SCOPE HANDLING):
 - Nếu đầu vào KHÔNG LIÊN QUAN đến điện thoại hoặc kỹ thuật sửa chữa điện thoại (Ví dụ: hỏi về thời tiết, nấu ăn, xe máy, máy tính, câu hỏi phiếm, lập trình chung, v.v.):
@@ -581,7 +636,7 @@ def diagnose_and_estimate_repair(symptoms: str, device_model: str = "Điện tho
 Lưu ý: Giá tiền (price) tính bằng số nguyên VNĐ phù hợp với thị trường sửa chữa điện thoại tại Việt Nam.
 """
     # 1. Thử Google Gemini
-    if GEMINI_API_KEY and GEMINI_API_KEY != "your_gemini_api_key_here":
+    if is_valid_gemini_key():
         try:
             url = f"https://generativelanguage.googleapis.com/v1beta/models/{GEMINI_MODEL}:generateContent?key={GEMINI_API_KEY}"
             payload = {
@@ -602,7 +657,7 @@ Lưu ý: Giá tiền (price) tính bằng số nguyên VNĐ phù hợp với th�
             print(f"[AI Warning] Gemini diagnose error: {e}. Falling back...")
 
     # 2. Thử OpenAI
-    if OPENAI_API_KEY and OPENAI_API_KEY != "your_openai_api_key_here":
+    if is_valid_openai_key():
         try:
             url = "https://api.openai.com/v1/chat/completions"
             payload = {
@@ -836,7 +891,7 @@ Câu trả lời tư vấn:
 """
 
     # 1. Gọi Google Gemini (Hỗ trợ Multimodal: Hình ảnh thiết bị, tài liệu & văn bản)
-    if GEMINI_API_KEY and GEMINI_API_KEY != "your_gemini_api_key_here":
+    if is_valid_gemini_key():
         try:
             url = f"https://generativelanguage.googleapis.com/v1beta/models/{GEMINI_MODEL}:generateContent?key={GEMINI_API_KEY}"
             
@@ -884,7 +939,7 @@ Câu trả lời tư vấn:
                 headers={"Content-Type": "application/json"},
                 method="POST"
             )
-            with urllib.request.urlopen(req, timeout=5) as response:
+            with urllib.request.urlopen(req, timeout=3) as response:
                 res_data = json.loads(response.read().decode("utf-8"))
                 parts_list = res_data.get("candidates", [{}])[0].get("content", {}).get("parts", [])
                 text_out = "".join([p.get("text", "") for p in parts_list]).strip()
@@ -894,7 +949,7 @@ Câu trả lời tư vấn:
             print(f"[Chatbot] Gemini error: {e}")
 
     # 2. Gọi OpenAI Fallback
-    if OPENAI_API_KEY and OPENAI_API_KEY != "your_openai_api_key_here":
+    if is_valid_openai_key():
         try:
             url = "https://api.openai.com/v1/chat/completions"
             payload = {
@@ -909,7 +964,7 @@ Câu trả lời tư vấn:
                 headers={"Content-Type": "application/json", "Authorization": f"Bearer {OPENAI_API_KEY}"},
                 method="POST"
             )
-            with urllib.request.urlopen(req, timeout=4) as response:
+            with urllib.request.urlopen(req, timeout=3) as response:
                 res_data = json.loads(response.read().decode("utf-8"))
                 text_out = res_data["choices"][0]["message"]["content"].strip()
                 if len(text_out) >= 60:
@@ -1049,6 +1104,47 @@ Câu trả lời tư vấn:
             f"Kính mời Quý khách ghé trung tâm hoặc gọi Hotline 1900 6868 để KTV hỗ trợ ngay ạ!"
         )
     else:
+        # Kiểm tra các câu hỏi về Chính sách / Quy chuẩn nghiệp vụ cốt lõi
+        if any(k in combined_query for k in ["cọc", "đặt cọc", "dat coc", "30%", "70%", "quy định cọc", "thanh toán", "thanh toan"]):
+            return (
+                "Dạ kính chào Quý khách! 🐸 Quy định Đặt cọc 30% và Thanh toán 70% tại FrogHippo Phone như sau:\n\n"
+                "1. ĐẶT CỌC 30%: Khi Quý khách đồng ý với phương án kỹ thuật và dự toán của KTV, trung tâm thu trước 30% giá trị để xuất kho linh kiện niêm phong chính hãng và tiến hành sửa chữa.\n"
+                "2. MINH BẠCH & AN TOÀN: Tiền cọc được ghi nhận tức thì trên hệ thống và xuất phiếu thu có mã QR đối soát, trừ trực tiếp khi quyết toán hóa đơn.\n"
+                "3. THANH TOÁN 70% CÒN LẠI: Sau khi KTV hoàn tất sửa chữa và bài kiểm thử 18 tiêu chuẩn, Quý khách kiểm tra máy hoàn hảo tại quầy rồi mới thanh toán 70% còn lại.\n\n"
+                "📌 Trung tâm hỗ trợ thanh toán Tiền mặt hoặc Chuyển khoản VietQR tự động tiện lợi ạ! 💳"
+            )
+
+        if any(k in combined_query for k in ["bảo hành", "bao hanh", "chính sách bảo hành", "hạn bảo hành", "thời hạn"]):
+            return (
+                "Dạ kính chào Quý khách! 🐸 Chính sách Bảo hành chuẩn tại FrogHippo Phone:\n\n"
+                "🛡️ THỜI HẠN BẢO HÀNH:\n"
+                "• Linh kiện thay thế chính hãng (Màn hình OLED, Pin, Cụm camera, Cáp sạc...): Bảo hành 12 Tháng tiêu chuẩn.\n"
+                "• Chế độ 1 đổi 1 trong 30 ngày đầu nếu phát sinh lỗi từ nhà sản xuất.\n\n"
+                "📲 THẺ BẢO HÀNH ĐIỆN TỬ (E-Warranty):\n"
+                "• Tự động kích hoạt ngay khi xuất hóa đơn, gắn liền với Mã Phiếu và Số điện thoại của Quý khách.\n"
+                "• Quý khách có thể tra cứu bảo hành trực tuyến 24/7 trên cổng này mà không lo rách hoặc mất phiếu giấy!\n\n"
+                "Quý khách cần tra cứu bảo hành cho linh kiện hoặc máy nào cụ thể không ạ?"
+            )
+
+        if any(k in combined_query for k in ["chuẩn đoán", "chẩn đoán", "bệnh lý", "bị gì", "sao hỏng"]) and not (phieu_info and phieu_info.get("maPhieu")):
+            return (
+                "Dạ kính chào Quý khách! 🐸 Để em giải thích chính xác chẩn đoán kỹ thuật của máy mình, Quý khách vui lòng:\n\n"
+                "1. Nhập Mã phiếu sửa chữa (VD: PS01, PS261028-908) hoặc Số điện thoại vào ô tra cứu trên trang chủ.\n"
+                "2. Hoặc gửi trực tiếp Mã phiếu vào khung chat này để em kết nối hồ sơ đo kiểm của KTV.\n\n"
+                "⚠️ NGUYÊN TẮC QUY CHUẨN: Theo quy chuẩn an toàn của trung tâm, mọi chẩn đoán hư hỏng phần cứng BẮT BUỘC PHẢI QUA SỰ KIỂM SOÁT VÀ PHÊ DUYỆT CỦA KỸ THUẬT VIÊN trực tiếp đo kiểm máy để đảm bảo chính xác tuyệt đối cho khách hàng ạ!"
+            )
+
+        if any(k in combined_query for k in ["quy trình", "quy trinh", "thời gian sửa", "bao lâu", "mất bao lâu", "mấy tiếng", "lấy ngay"]):
+            return (
+                "Dạ kính chào Quý khách! 🐸 Quy trình sửa chữa chuẩn 5 giai đoạn tại FrogHippo Phone:\n\n"
+                "1. TIẾP NHẬN: Lễ tân ghi nhận triệu chứng ban đầu, tạo mã phiếu và bàn giao máy cho KTV (5 - 10 phút).\n"
+                "2. ĐO KIỂM & BÁO GIÁ: KTV kiểm tra vi mạch, chẩn đoán nguyên nhân và chỉ định linh kiện (15 - 30 phút).\n"
+                "3. XUẤT KHO & CỌC 30%: Khách duyệt phương án, đặt cọc 30% để bóc seal linh kiện.\n"
+                "4. SỬA CHỮA & TEST 18 BƯỚC: KTV thay thế linh kiện, ép ron kháng nước và chạy phần mềm kiểm thử (30 - 60 phút).\n"
+                "5. BÀN GIAO: Khách nghiệm thu máy, thanh toán 70% còn lại và nhận Thẻ bảo hành điện tử 12 tháng.\n\n"
+                "Đa số các lỗi thay pin, thay màn hình đều lấy ngay trong ngày từ 45 - 90 phút ạ! ⏱️"
+            )
+
         # Kiểm tra nếu là câu chào hỏi mở đầu
         msg_simple = re.sub(r"[^\w\s]", "", msg_lower).strip()
         if msg_simple in ["chào", "xin chào", "hello", "hi", "chào bạn", "chào shop", "bot ơi", "admin ơi", "alo", "bạn ơi"]:
@@ -1094,7 +1190,7 @@ def generate_deposit_message(
         "Soan thu lich su, chuyen nghiep qua Gmail, ro rang chi phi."
     ) + MSG_OUTPUT_RULES
 
-    if GEMINI_API_KEY and GEMINI_API_KEY != "your_gemini_api_key_here":
+    if is_valid_gemini_key():
         try:
             return call_gemini_api(prompt)
         except Exception:
@@ -1129,7 +1225,7 @@ def generate_completion_message(
     """Sinh email máy đã sửa xong, mời đến lấy & thu 70% còn lại."""
     channel_upper = channel.upper()
 
-    if GEMINI_API_KEY and GEMINI_API_KEY != "your_gemini_api_key_here":
+    if is_valid_gemini_key():
         try:
             prompt = (
                 "Soan thu thong bao MAY DA SUA XONG qua " + channel_upper + ". "

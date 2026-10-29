@@ -1,6 +1,11 @@
 <!DOCTYPE html>
 <html lang="vi">
 <head>
+    <script src="/auth_guard.js"></script>
+    <script>
+        AuthGuard.enforcePageAccess(['Admin', 'Thu ngân'], 'Quầy Thu Ngân & Thanh Toán');
+        AuthGuard.setupPortalHeader('Thu ngân');
+    </script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
@@ -137,16 +142,22 @@
                 </button>
 
                 <!-- Lối tắt các phân hệ -->
-                <div class="hidden md:flex items-center gap-1.5 border-l border-slate-200 pl-3">
-                    <a href="/" title="Phân Hệ Lễ Tân & Tiếp Nhận" class="p-2 rounded-xl text-slate-600 hover:text-pink-600 hover:bg-pink-50 text-xs font-bold transition">
+                <div class="flex items-center gap-1.5 border-l border-slate-200 pl-3">
+                    <a href="/admin" target="_blank" title="Trang Quản Trị Hệ Thống" class="cross-portal-link p-2 rounded-xl text-slate-600 hover:text-purple-600 hover:bg-purple-50 text-xs font-bold transition">
+                        👑 Admin
+                    </a>
+                    <a href="/le-tan" target="_blank" title="Phân Hệ Lễ Tân & Tiếp Nhận" class="cross-portal-link p-2 rounded-xl text-slate-600 hover:text-pink-600 hover:bg-pink-50 text-xs font-bold transition">
                         💁 Lễ Tân
                     </a>
-                    <a href="/ky-thuat-vien" target="_blank" title="Trang Kỹ Thuật Viên" class="p-2 rounded-xl text-slate-600 hover:text-sky-600 hover:bg-sky-50 text-xs font-bold transition">
+                    <a href="/ky-thuat-vien" target="_blank" title="Trang Kỹ Thuật Viên" class="cross-portal-link p-2 rounded-xl text-slate-600 hover:text-sky-600 hover:bg-sky-50 text-xs font-bold transition">
                         🛠️ KTV
                     </a>
-                    <a href="/" class="p-2 rounded-xl text-slate-600 hover:text-indigo-600 hover:bg-indigo-50 text-xs font-bold transition flex items-center gap-1">
+                    <a href="/" class="p-2 rounded-xl text-slate-600 hover:text-indigo-600 hover:bg-indigo-50 text-xs font-bold transition flex items-center gap-1" title="Trang Chủ">
                         <i class="fa-solid fa-house"></i>
                     </a>
+                    <button onclick="AuthGuard.handleLogout()" title="Đăng xuất tài khoản" class="px-2.5 py-1.5 rounded-xl border border-rose-200 bg-rose-50 hover:bg-rose-100 text-xs font-bold text-rose-700 transition flex items-center gap-1 cursor-pointer">
+                        <i class="fa-solid fa-arrow-right-from-bracket"></i> <span class="hidden sm:inline">Đăng Xuất</span>
+                    </button>
                 </div>
             </div>
         </div>

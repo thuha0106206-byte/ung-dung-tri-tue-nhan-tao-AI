@@ -1,7 +1,7 @@
-from sqlalchemy import Column, Integer, String, Float, ForeignKey, Enum, DateTime, Text, Boolean
+from sqlalchemy import Column, Integer, String, Float, ForeignKey, Enum, DateTime, Date, Text, Boolean
 from sqlalchemy.orm import relationship
 import enum
-from datetime import datetime
+from datetime import datetime, date
 from database import Base
 
 # Các trạng thái xử lý phiếu sửa chữa
@@ -254,3 +254,23 @@ class DanhGiaDichVu(Base):
     thoiGian = Column(DateTime, default=datetime.now)
 
     phieuSua = relationship("PhieuSuaChua", back_populates="danhGiaList")
+
+# 15. Bảng Lịch Hẹn Sửa Chữa (Online Repair Booking / Appointment)
+class LichHen(Base):
+    __tablename__ = "lich_hen"
+
+    MaLH = Column(String(20), primary_key=True, index=True)
+    MaKH = Column(String(50), ForeignKey("khach_hang.maKH", onupdate="CASCADE"), nullable=False, index=True)
+    HangMay = Column(String(50), nullable=False)
+    Model = Column(String(100), nullable=False)
+    MoTaLoi = Column(Text, nullable=True)
+    NgayHen = Column(Date, nullable=False, index=True)
+    KhungGio = Column(String(20), nullable=False)
+    TrangThai = Column(String(50), nullable=False, default="Chờ xác nhận")
+    LyDo = Column(Text, nullable=True)
+    MaPhieu = Column(String(20), ForeignKey("phieu_sua_chua.maPhieu", onupdate="CASCADE", ondelete="SET NULL"), nullable=True)
+    NgayTao = Column(DateTime, default=datetime.now)
+
+    # Relationships
+    khachHang = relationship("KhachHang")
+    phieuSua = relationship("PhieuSuaChua")
